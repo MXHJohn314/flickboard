@@ -190,7 +190,7 @@ class InputSession(
             fun typeText(
                 text: String,
                 forceRawKeyEvent: Boolean = false,
-                forceShift: Boolean = false
+                forceShift: Boolean = false,
             ) {
                 var char = text
                 val rawKeyCode = when {
@@ -271,7 +271,7 @@ class InputSession(
 
             fun moveSelection(
                 direction: SearchDirection,
-                boundary: TextBoundary
+                boundary: TextBoundary,
             ): Boolean {
                 val range = selection() ?: return false
                 val movingSide = when {
@@ -703,7 +703,7 @@ class InputSession(
         if (newModifiers != activeModifiers) {
             fun newKeyEvent(
                 isDown: Boolean,
-                code: Int
+                code: Int,
             ): KeyEvent =
                 KeyEvent(
                     0,
