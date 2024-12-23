@@ -25,7 +25,9 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.WindowInfo
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -202,6 +204,13 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                                                 }
                                                             }
                                                         },
+                                                // Some UI components (like text selection handles)
+                                                // only render for the focused window.
+                                                // We're weird in that as an IME we're never considered
+                                                // focused by the OS, but are always the user's
+                                                // primary interaction target.
+                                                // Hence, we lie and pretend that we're always focused.
+                                                LocalWindowInfo provides FocusedWindowInfo,
                                             ) {
                                                 val onAction = inputSession.actionHandler(
                                                     warningSnackbarHostState = warningSnackbarHostState,
@@ -296,4 +305,8 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
         lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         super.onDestroy()
     }
+}
+
+private object FocusedWindowInfo : WindowInfo {
+    override val isWindowFocused: Boolean = true
 }
