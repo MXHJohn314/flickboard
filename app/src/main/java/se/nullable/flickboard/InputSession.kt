@@ -2,6 +2,7 @@ package se.nullable.flickboard
 
 import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.inputmethod.CursorAnchorInfo
@@ -762,6 +763,15 @@ class InputSession(
         // will still clear it.
         if (cursorAnchorInfo?.selectionStart != lastTyped?.position) {
             lastTyped = null
+        }
+    }
+
+    /**
+     * Updates whether the InputSession is currently "shadowed" by another nested input field
+     */
+    fun updateIsShadowed(isShadowed: Boolean) {
+        if (Build.VERSION.SDK_INT >= 31) {
+            inputConnection.setImeConsumesInput(!isShadowed)
         }
     }
 }

@@ -170,7 +170,7 @@ fun EmojiKeyboard(onAction: OnAction) {
             // FIXME: implement some form of index
             EmojiTab.Search -> emojis.categories.flatMap { category ->
                 category.emojis.filter { group ->
-                    group.names.also { println(it) }.any {
+                    group.names.any {
                         it.contains(
                             searchQuery.value,
                             ignoreCase = true,

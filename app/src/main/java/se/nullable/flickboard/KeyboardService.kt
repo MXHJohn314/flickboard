@@ -168,6 +168,11 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                         },
                                     ) {
                                         currentInputSessions.forEachIndexed { inputSessionIdx, inputSession ->
+                                            SideEffect {
+                                                inputSession.updateIsShadowed(
+                                                    inputSessionIdx != currentInputSessions.lastIndex,
+                                                )
+                                            }
                                             CompositionLocalProvider(
                                                 // Override LocalSoftwareKeyboardController to affect
                                                 // the nested input instead.
