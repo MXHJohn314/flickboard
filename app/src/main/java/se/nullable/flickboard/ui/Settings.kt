@@ -258,14 +258,14 @@ fun SettingsHomePage(
                     label = "Discuss on Discord",
                 )
                 MenuPageLink(
-                    onClick = { openUri(Uri.parse("https://github.com/nightkr/flickboard")) },
+                    onClick = { openUri(Uri.parse("https://codeberg.org/natkr/flickboard")) },
                     icon = painterResource(id = R.drawable.baseline_code_24),
-                    label = "View Source on GitHub",
+                    label = "View Source on Codeberg",
                 )
                 MenuPageLink(
-                    onClick = { openUri(Uri.parse("https://github.com/nightkr/flickboard/issues")) },
+                    onClick = { openUri(Uri.parse("https://codeberg.org/natkr/flickboard/issues")) },
                     icon = painterResource(id = R.drawable.baseline_bug_report_24),
-                    label = "Report Bugs on GitHub",
+                    label = "Report Bugs on Codeberg",
                 )
             }
         }

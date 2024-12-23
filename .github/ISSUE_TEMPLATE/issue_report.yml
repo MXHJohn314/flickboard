@@ -6,9 +6,8 @@ body:
     attributes:
       value: |
         ## Before you continue:
-        - Always check the [releases](https://github.com/nightkr/flickboard/releases) for the latest version.
-        - Search through the [issues](https://github.com/nightkr/flickboard/issues?q=is%3Aissue) and [pull requests](https://github.com/nightkr/flickboard/pulls?q=is%3Apr) for what you're about report.
-        - If you want to discuss a topic at length, you can use the [discussion](https://github.com/nightkr/flickboard/discussions) section
+        - Always check the [releases](https://codeberg.org/natkr/flickboard/releases) for the latest version
+        - Search through the [issues](https://codeberg.org/natkr/flickboard/issues) and [pull requests](https://codeberg.org/natkr/flickboard/pulls) for what you're about to ask for.
       #  - Please open one bug report per feature. You can always link between issues if they are related.
 
   - type: textarea

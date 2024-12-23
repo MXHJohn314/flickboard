@@ -5,12 +5,12 @@ Contributions that use AI (ChatGPT, Gemini, Copilot, etc) will not be accepted.
 # Layouts
 
 Generally, the easiest way to contribute a new layout is by copying and modifying the
-[english layout](https://github.com/nightkr/flickboard/tree/main/app/src/main/java/se/nullable/flickboard/model/layouts)
+[english layout](https://codeberg.org/natkr/flickboard/src/branch/main/app/src/main/java/se/nullable/flickboard/model/layouts)
 for your needs.
 
 # Bugs and Feature Requests
 
-Bugs and feature requests can be reported at https://github.com/nightkr/flickboard/issues.
+Bugs and feature requests can be reported at https://codeberg.org/natkr/flickboard/issues.
 Please try to search for whether an existing issue already exists for your topic.
 
 # Pull Requests
