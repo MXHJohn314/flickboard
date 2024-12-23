@@ -44,6 +44,7 @@ import androidx.core.content.edit
 import kotlinx.coroutines.delay
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.ActionClass
+import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.Layer
@@ -73,7 +74,7 @@ fun Keyboard(
     layout: Layout,
     onAction: OnAction?,
     modifier: Modifier = Modifier,
-    enterKeyLabel: String? = null,
+    enterVisualOverride: ActionVisual? = null,
     onModifierStateUpdated: (ModifierState) -> Unit = {},
     showAllModifiers: Boolean = false,
     overrideEnabledLayers: EnabledLayers? = null,
@@ -415,7 +416,7 @@ fun Keyboard(
                                     .onGloballyPositioned {
                                         keyPosition.value = it.positionInRoot() - globalPosition
                                     },
-                                enterKeyLabel = enterKeyLabel,
+                                enterVisualOverride = enterVisualOverride,
                                 keyPointerTrailListener = keyPointerTrailListener,
                                 layoutTextDirection = layout.textDirection,
                                 allowFastActions = allowFastActions,
@@ -433,7 +434,7 @@ fun Keyboard(
 fun ConfiguredKeyboard(
     onAction: OnAction?,
     modifier: Modifier = Modifier,
-    enterKeyLabel: String? = null,
+    enterVisualOverride: ActionVisual? = null,
     onModifierStateUpdated: (ModifierState) -> Unit = {},
     overrideEnabledLayers: EnabledLayers? = null,
     allowFastActions: Boolean = true,
@@ -448,7 +449,7 @@ fun ConfiguredKeyboard(
             ?: EN_MESSAGEASE,
         onAction = onAction,
         modifier = modifier,
-        enterKeyLabel = enterKeyLabel,
+        enterVisualOverride = enterVisualOverride,
         onModifierStateUpdated = onModifierStateUpdated,
         overrideEnabledLayers = overrideEnabledLayers,
         allowFastActions = allowFastActions,

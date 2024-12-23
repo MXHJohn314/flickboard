@@ -92,7 +92,7 @@ fun Key(
     onAction: OnAction?,
     modifierState: ModifierState?,
     modifier: Modifier = Modifier,
-    enterKeyLabel: String? = null,
+    enterVisualOverride: ActionVisual? = null,
     keyPointerTrailListener: State<KeyPointerTrailListener?> = remember { mutableStateOf(null) },
     layoutTextDirection: TextDirection,
     allowFastActions: Boolean = true,
@@ -254,7 +254,7 @@ fun Key(
                     }
                     RenderActionVisual(
                         action,
-                        enterKeyLabel = enterKeyLabel,
+                        enterVisualOverride = enterVisualOverride,
                         modifiers = modifierState,
                         colour = keyboardTheme.keyIndicatorColour,
                         activeColour = keyboardTheme.activeKeyIndicatorColour,
@@ -273,7 +273,7 @@ fun Key(
         lastActionTaken?.let {
             KeyActionTakenIndicator(
                 action = it.action,
-                enterKeyLabel = enterKeyLabel,
+                enterVisualOverride = enterVisualOverride,
                 shape = shape,
                 colour = keyboardTheme.lastActionColour,
                 surfaceColour = keyboardTheme.lastActionSurfaceColour,
@@ -290,7 +290,7 @@ class TakenAction(val action: Action)
 @Composable
 fun KeyActionTakenIndicator(
     action: Action,
-    enterKeyLabel: String?,
+    enterVisualOverride: ActionVisual?,
     shape: Shape,
     colour: Color,
     surfaceColour: Color,
@@ -301,7 +301,7 @@ fun KeyActionTakenIndicator(
         Box(Modifier.fillMaxSize()) {
             RenderActionVisual(
                 action = action.withHidden(false),
-                enterKeyLabel = enterKeyLabel,
+                enterVisualOverride = enterVisualOverride,
                 modifiers = null,
                 modifier = Modifier.align(Alignment.Center),
                 colour = colour,
@@ -328,7 +328,7 @@ enum class ActionStyle {
 @Composable
 fun RenderActionVisual(
     action: Action,
-    enterKeyLabel: String?,
+    enterVisualOverride: ActionVisual?,
     modifiers: ModifierState?,
     colour: Color,
     activeColour: Color,
@@ -336,8 +336,10 @@ fun RenderActionVisual(
     modifier: Modifier = Modifier,
     style: ActionStyle = ActionStyle.default(action, modifiers),
 ) {
-    val overrideActionVisual =
-        enterKeyLabel.takeIf { action is Action.Enter }?.let { ActionVisual.Label(it) }
+    val actionVisualOverride = when (action) {
+        is Action.Enter -> enterVisualOverride
+        else -> null
+    }
     val usedColour = animateColorAsState(
         when (style) {
             ActionStyle.Normal -> colour
@@ -346,7 +348,7 @@ fun RenderActionVisual(
         },
         label = "key colour",
     )
-    when (val actionVisual = overrideActionVisual ?: action.visual(modifiers)) {
+    when (val actionVisual = actionVisualOverride ?: action.visual(modifiers)) {
         is ActionVisual.Label -> {
             BoxWithConstraints(modifier.padding(horizontal = 2.dp)) {
                 val density = LocalDensity.current
@@ -709,7 +711,7 @@ fun KeyActionTakenPreview() {
             Box(Modifier.size(100.dp)) {
                 KeyActionTakenIndicator(
                     action = Action.Text("A"),
-                    enterKeyLabel = null,
+                    enterVisualOverride = null,
                     colour = MaterialTheme.colorScheme.onTertiary,
                     surfaceColour = MaterialTheme.colorScheme.tertiary,
                     shape = RectangleShape,
@@ -720,7 +722,7 @@ fun KeyActionTakenPreview() {
             Box(Modifier.size(100.dp)) {
                 KeyActionTakenIndicator(
                     action = Action.Text("{"),
-                    enterKeyLabel = null,
+                    enterVisualOverride = null,
                     colour = MaterialTheme.colorScheme.onTertiary,
                     surfaceColour = MaterialTheme.colorScheme.tertiary,
                     shape = RectangleShape,
