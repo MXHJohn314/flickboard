@@ -13,7 +13,7 @@ that direction. That's it!
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 The latest release builds are also available
-from [GitHub Releases](https://github.com/nightkr/flickboard/releases), but I recommend downloading
+from [Codeberg Releases](https://codeberg.org/nightkr/flickboard/releases), but I recommend downloading
 from one of the above instead to get automatic updates.
 
 You can also build it yourself, by running the following on a computer that is connected to your
