@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -170,7 +171,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                             }
                                         },
                                     ) {
-                                        SideEffect {
+                                        LaunchedEffect(currentInputSessions.size) {
                                             window.window?.setFlags(
                                                 when {
                                                     // When there are nested inputs:
