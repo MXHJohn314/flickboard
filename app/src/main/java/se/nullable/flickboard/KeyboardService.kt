@@ -166,7 +166,6 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                                 // effectively take over keyboard rendering
                                                 awaitCancellation()
                                             } finally {
-                                                newInputConnection.closeConnection()
                                                 currentInputSessions.remove(newInputSession)
                                             }
                                         },
