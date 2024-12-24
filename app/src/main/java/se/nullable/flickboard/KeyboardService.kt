@@ -4,6 +4,7 @@ import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.text.InputType
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -165,10 +166,34 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                                 // effectively take over keyboard rendering
                                                 awaitCancellation()
                                             } finally {
+                                                newInputConnection.closeConnection()
                                                 currentInputSessions.remove(newInputSession)
                                             }
                                         },
                                     ) {
+                                        SideEffect {
+                                            window.window?.setFlags(
+                                                when {
+                                                    // When there are nested inputs:
+                                                    // - We need to clear FLAG_NOT_FOCUSABLE so we can grab raw (keypress) input
+                                                    //     (this is required for hardware keyboard input, but also raw keycodes sent by
+                                                    //     IME itself, as well as some editor actions like copy/pasting).
+                                                    // - We need to set FLAG_ALT_FOCUSABLE_IM or we get stuck in an infinite
+                                                    //     loop of Android setting our IME as the current IME target, and immediately
+                                                    //     closing the old IME because it no longer has focus.
+                                                    currentInputSessions.size > 1 ->
+                                                        WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+
+                                                    // When there are no nested inputs:
+                                                    // - We need to set FLAG_NOT_FOCUSABLE so the backing app regains focus.
+                                                    // - We need to clear FLAG_ALT_FOCUSABLE_IM since we don't want to invert
+                                                    //     the behaviour of FLAG_NOT_FOCUSABLE.
+                                                    else -> WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                                                },
+                                                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+                                                        or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                                            )
+                                        }
                                         currentInputSessions.forEachIndexed { inputSessionIdx, inputSession ->
                                             SideEffect {
                                                 inputSession.updateIsShadowed(
