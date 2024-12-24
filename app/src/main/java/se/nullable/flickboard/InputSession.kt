@@ -771,7 +771,7 @@ class InputSession(
      */
     fun updateIsShadowed(isShadowed: Boolean) {
         if (Build.VERSION.SDK_INT >= 31) {
-            inputConnection.setImeConsumesInput(!isShadowed)
+            inputConnection.setImeConsumesInput(isShadowed)
         }
     }
 }
