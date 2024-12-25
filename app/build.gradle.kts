@@ -6,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     kotlin("plugin.serialization") version "2.0.21"
+    id("se.nullable.flickboard.build.emojidb")
 }
 
 val keystorePropertiesFile = rootProject.file("../flickboard.keystore.properties")

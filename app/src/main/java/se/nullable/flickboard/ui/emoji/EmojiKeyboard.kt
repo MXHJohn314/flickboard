@@ -61,11 +61,14 @@ import androidx.core.content.res.getStringOrThrow
 import androidx.core.content.res.use
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.Action
+import se.nullable.flickboard.model.emoji.EmojiCategory
+import se.nullable.flickboard.model.emoji.EmojiGroup
+import se.nullable.flickboard.model.emoji.EmojiList
 import se.nullable.flickboard.ui.LocalAppSettings
+import se.nullable.flickboard.ui.LocalEmojiTrie
 import se.nullable.flickboard.ui.OnAction
 import androidx.emoji2.emojipicker.R as Emoji2R
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EmojiKeyboard(onAction: OnAction) {
     val appSettings = LocalAppSettings.current
@@ -184,16 +187,9 @@ fun EmojiKeyboard(onAction: OnAction) {
         val tabEmojis = when (val tab = selectedTab.value) {
             is EmojiTab.Category -> emojis.categories[tab.index].emojis
 
-            // FIXME: implement some form of index
-            EmojiTab.Search -> emojis.categories.flatMap { category ->
-                category.emojis.filter { group ->
-                    group.names.any {
-                        it.contains(
-                            searchQuery.value,
-                            ignoreCase = true,
-                        )
-                    }
-                }
+            EmojiTab.Search -> {
+                LocalEmojiTrie.current.value.matches(searchQuery.value)
+                    .map { EmojiGroup(names = listOf(), variants = listOf(it)) }
             }
 
             EmojiTab.Recent -> remember { // Don't reshuffle recents while it's still visible
@@ -395,7 +391,3 @@ fun emojiList(): EmojiList {
         EmojiList(categories)
     }
 }
-
-data class EmojiList(val categories: List<EmojiCategory>)
-data class EmojiCategory(val name: String, val iconId: Int, val emojis: List<EmojiGroup>)
-data class EmojiGroup(val names: List<String>, val variants: List<String>)
