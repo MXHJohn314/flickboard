@@ -167,7 +167,7 @@ fun ActionDescription(
                 }
                 RenderActionVisual(
                     action.withHidden(false),
-                    enterKeyLabel = null,
+                    enterVisualOverride = null,
                     modifiers = null,
                     modifier = Modifier
                         .height(48.dp)

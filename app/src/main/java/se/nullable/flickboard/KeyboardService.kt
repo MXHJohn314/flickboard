@@ -4,22 +4,33 @@ import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.text.InputType
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.InterceptPlatformTextInput
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.WindowInfo
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -29,6 +40,8 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import kotlinx.coroutines.awaitCancellation
+import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.EnabledLayers
 import se.nullable.flickboard.ui.FlickBoardParent
@@ -60,27 +73,42 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
     // For now, we just accept the tradeoff and disable fullscreen entirely.
     override fun onEvaluateFullscreenMode(): Boolean = false
 
-    private val currentInputSession = mutableStateOf<InputSession?>(null)
+    // currentInputSessions[0] is always the "base"/"OS" input session
+    // Any sessions on top are nested
+    private val currentInputSessions = mutableStateListOf<InputSession>()
+    private val baseInputSession: InputSession?
+        get() = currentInputSessions.getOrNull(0)
 
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
-        currentInputSession.value = InputSession(currentInputConnection, attribute)
+        val newInputConnection = currentInputConnection
+
+        currentInputSessions.clear()
+        currentInputSessions.add(
+            InputSession(
+                newInputConnection,
+                attribute,
+            ),
+        )
+
         var cursorUpdatesRequested = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                currentInputConnection.requestCursorUpdates(
+                newInputConnection.requestCursorUpdates(
                     InputConnection.CURSOR_UPDATE_MONITOR,
                     InputConnection.CURSOR_UPDATE_FILTER_EDITOR_BOUNDS,
                 )
         // Even on modern android, some apps only support unfiltered requestCursorUpdates,
         // so fall back to trying that.
         cursorUpdatesRequested = cursorUpdatesRequested ||
-                currentInputConnection.requestCursorUpdates(
+                newInputConnection.requestCursorUpdates(
                     InputConnection.CURSOR_UPDATE_MONITOR,
                 )
+
         if (!cursorUpdatesRequested) {
             println("no cursor data :(")
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     override fun onCreateInputView(): View {
         window.window?.decorView?.let { decorView ->
             decorView.setViewTreeLifecycleOwner(this)
@@ -124,31 +152,160 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                     }
                                 }
 
-                                val inputSession = currentInputSession.value!!
-                                val onAction = inputSession.actionHandler(
-                                    warningSnackbarHostState = warningSnackbarHostState,
-                                    switchInputMethod = ::switchInputMethod,
-                                )
-                                Box {
-                                    when {
-                                        inputSession.emojiMode.value -> EmojiKeyboard(onAction = onAction)
-                                        else -> {
-                                            ConfiguredKeyboard(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                onAction = onAction,
-                                                onModifierStateUpdated = inputSession::updateModifierState,
-                                                enterKeyLabel = inputSession.editorInfo?.actionLabel?.toString(),
-                                                overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
-                                                    InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers
-                                                    else -> null
+                                Column {
+                                    // Input methods aren't allowed to request input themselves, so
+                                    // instead we capture all nested input requests, and stack them.
+                                    InterceptPlatformTextInput(
+                                        { request, /*nextHandler*/ _ ->
+                                            val editorInfo = EditorInfo()
+                                            val newInputConnection =
+                                                request.createInputConnection(editorInfo)
+                                            val newInputSession =
+                                                InputSession(newInputConnection, editorInfo)
+                                            currentInputSessions.add(newInputSession)
+                                            try {
+                                                // Not calling into the nextHandler, since we
+                                                // effectively take over keyboard rendering
+                                                awaitCancellation()
+                                            } finally {
+                                                newInputConnection.closeConnection()
+                                                currentInputSessions.remove(newInputSession)
+                                            }
+                                        },
+                                    ) {
+                                        LaunchedEffect(currentInputSessions.size) {
+                                            window.window?.setFlags(
+                                                when {
+                                                    // When there are nested inputs:
+                                                    // - We need to clear FLAG_NOT_FOCUSABLE so we can grab raw (keypress) input
+                                                    //     (this is required for hardware keyboard input, but also raw keycodes sent by
+                                                    //     IME itself, as well as some editor actions like copy/pasting).
+                                                    // - We need to set FLAG_ALT_FOCUSABLE_IM or we get stuck in an infinite
+                                                    //     loop of Android setting our IME as the current IME target, and immediately
+                                                    //     closing the old IME because it no longer has focus.
+                                                    currentInputSessions.size > 1 ->
+                                                        WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+
+                                                    // When there are no nested inputs:
+                                                    // - We need to set FLAG_NOT_FOCUSABLE so the backing app regains focus.
+                                                    // - We need to clear FLAG_ALT_FOCUSABLE_IM since we don't want to invert
+                                                    //     the behaviour of FLAG_NOT_FOCUSABLE.
+                                                    else -> WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                                                 },
+                                                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+                                                        or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                                             )
-                                            SnackbarHost(
-                                                warningSnackbarHostState,
-                                                modifier = Modifier
-                                                    .align(Alignment.BottomCenter)
-                                                    .sharePointerInput(),
-                                            )
+                                        }
+                                        currentInputSessions.forEachIndexed { inputSessionIdx, inputSession ->
+                                            // A lot of state (including forwarded closures) depends on
+                                            // the inputSession - safer to just throw it all away if it changes
+                                            // than to try to track it precisely.
+                                            key(inputSession) {
+                                                SideEffect {
+                                                    inputSession.updateIsShadowed(
+                                                        inputSessionIdx != currentInputSessions.lastIndex,
+                                                    )
+                                                }
+                                                CompositionLocalProvider(
+                                                    // Override LocalSoftwareKeyboardController to affect
+                                                    // the nested input instead.
+                                                    LocalSoftwareKeyboardController provides
+                                                            remember(inputSessionIdx) {
+                                                                val nestedInputSessionIdx =
+                                                                    inputSessionIdx + 1
+                                                                object :
+                                                                    SoftwareKeyboardController {
+                                                                    var hiddenSession: InputSession? =
+                                                                        null
+
+                                                                    override fun hide() {
+                                                                        hiddenSession =
+                                                                            currentInputSessions.removeAt(
+                                                                                nestedInputSessionIdx,
+                                                                            )
+                                                                    }
+
+                                                                    override fun show() {
+                                                                        hiddenSession?.let { session ->
+                                                                            currentInputSessions.add(
+                                                                                nestedInputSessionIdx,
+                                                                                session,
+                                                                            )
+                                                                        }
+                                                                        hiddenSession = null
+                                                                    }
+                                                                }
+                                                            },
+                                                    // Some UI components (like text selection handles)
+                                                    // only render for the focused window.
+                                                    // We're weird in that as an IME we're never considered
+                                                    // focused by the OS, but are always the user's
+                                                    // primary interaction target.
+                                                    // Hence, we lie and pretend that we're always focused.
+                                                    LocalWindowInfo provides FocusedWindowInfo,
+                                                ) {
+                                                    val onAction = inputSession.actionHandler(
+                                                        warningSnackbarHostState = warningSnackbarHostState,
+                                                        switchInputMethod = ::switchInputMethod,
+                                                    )
+                                                    Box {
+                                                        when {
+                                                            inputSession.emojiMode.value -> EmojiKeyboard(
+                                                                onAction = onAction,
+                                                            )
+
+                                                            else -> {
+                                                                ConfiguredKeyboard(
+                                                                    modifier = Modifier.fillMaxWidth(),
+                                                                    onAction = onAction,
+                                                                    onModifierStateUpdated = inputSession::updateModifierState,
+                                                                    enterVisualOverride = inputSession.editorInfo?.let { editorInfo ->
+                                                                        editorInfo.actionLabel?.toString()
+                                                                            ?.let(ActionVisual::Label)
+                                                                            ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
+                                                                                EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
+                                                                                    "GO",
+                                                                                )
+
+                                                                                EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
+                                                                                    R.drawable.baseline_search_24,
+                                                                                )
+
+                                                                                EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
+                                                                                    R.drawable.baseline_send_24,
+                                                                                )
+
+                                                                                EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
+                                                                                    R.drawable.baseline_done_24,
+                                                                                )
+                                                                                /* Not using the next/prev icons since they can be confused with the jump left/right icons */
+                                                                                EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
+                                                                                    "NEXT",
+                                                                                )
+
+                                                                                EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
+                                                                                    "PREV",
+                                                                                )
+
+                                                                                else -> null
+                                                                            }
+                                                                    },
+                                                                    overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
+                                                                        InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers
+                                                                        else -> null
+                                                                    },
+                                                                )
+                                                                SnackbarHost(
+                                                                    warningSnackbarHostState,
+                                                                    modifier = Modifier
+                                                                        .align(Alignment.BottomCenter)
+                                                                        .sharePointerInput(),
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -163,7 +320,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
 
     override fun onUpdateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo?) {
         super.onUpdateCursorAnchorInfo(cursorAnchorInfo)
-        currentInputSession.value?.updateCursorAnchorInfo(cursorAnchorInfo)
+        baseInputSession?.updateCursorAnchorInfo(cursorAnchorInfo)
     }
 
     override fun onCreate() {
@@ -181,4 +338,8 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
         lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         super.onDestroy()
     }
+}
+
+private object FocusedWindowInfo : WindowInfo {
+    override val isWindowFocused: Boolean = true
 }

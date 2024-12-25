@@ -1,6 +1,7 @@
 package se.nullable.flickboard.ui.emoji
 
 import android.annotation.SuppressLint
+import android.icu.lang.UCharacter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -16,27 +17,36 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.getResourceIdOrThrow
+import androidx.core.content.res.getStringOrThrow
 import androidx.core.content.res.use
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.Action
@@ -50,6 +60,7 @@ fun EmojiKeyboard(onAction: OnAction) {
     val saveHistory = appSettings.saveEmojiHistory.state
     val emojiHistory = appSettings.emojiHistory.state
     val emojis = emojiList()
+    val searchQuery = remember { mutableStateOf("") }
     val selectedTab = remember(emojis) {
         mutableStateOf(
             when {
@@ -65,66 +76,113 @@ fun EmojiKeyboard(onAction: OnAction) {
     val emojiItemSize = emojiSize + emojiPadding * 3
     val emojiSizeSp = with(LocalDensity.current) { emojiSize.toSp() }
     Column {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
-        ) {
-            Button(
-                onClick = { onAction.onAction(Action.ToggleEmojiMode, key = null, gesture = null) },
-                Modifier.padding(8.dp),
-            ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Return to keyboard")
-            }
-            // Ideally this would be a ScrollableTabRow, but it enforces a massive minimum width
-            Row(
-                modifier = Modifier
-                    .weight(1F)
-                    .horizontalScroll(tabScrollState),
-            ) {
-                if (saveHistory.value) {
+        Surface(color = MaterialTheme.colorScheme.primaryContainer) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Button(
+                    onClick = {
+                        onAction.onAction(
+                            Action.ToggleEmojiMode,
+                            key = null,
+                            gesture = null,
+                        )
+                    },
+                    Modifier.padding(8.dp),
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "Return to keyboard")
+                }
+                // Ideally this would be a ScrollableTabRow, but it enforces a massive minimum width
+                Row(
+                    modifier = Modifier
+                        .weight(1F)
+                        .horizontalScroll(tabScrollState),
+                ) {
                     NarrowTab(
-                        selected = selectedTab.value == EmojiTab.Recent,
-                        onClick = { selectedTab.value = EmojiTab.Recent },
+                        selected = selectedTab.value == EmojiTab.Search,
+                        onClick = { selectedTab.value = EmojiTab.Search },
                         icon = {
                             Icon(
-                                painterResource(R.drawable.baseline_history_24),
-                                contentDescription = null,
+                                painterResource(R.drawable.baseline_search_24),
+                                contentDescription = "emoji search",
                                 Modifier.padding(8.dp),
                             )
                         },
                     )
-                } else {
-                    if (selectedTab.value == EmojiTab.Recent) {
-                        selectedTab.value = EmojiTab.Category(0)
+                    if (saveHistory.value) {
+                        NarrowTab(
+                            selected = selectedTab.value == EmojiTab.Recent,
+                            onClick = { selectedTab.value = EmojiTab.Recent },
+                            icon = {
+                                Icon(
+                                    painterResource(R.drawable.baseline_history_24),
+                                    contentDescription = "emoji history",
+                                    Modifier.padding(8.dp),
+                                )
+                            },
+                        )
+                    } else {
+                        if (selectedTab.value == EmojiTab.Recent) {
+                            selectedTab.value = EmojiTab.Category(0)
+                        }
+                    }
+                    emojis.categories.forEachIndexed { index, emojiCategory ->
+                        NarrowTab(
+                            selected = (selectedTab.value as? EmojiTab.Category)?.index == index,
+                            onClick = { selectedTab.value = EmojiTab.Category(index) },
+                            icon = {
+                                Icon(
+                                    painterResource(emojiCategory.iconId),
+                                    contentDescription = emojiCategory.name,
+                                    Modifier.padding(8.dp),
+                                )
+                            },
+                        )
                     }
                 }
-                emojis.categories.forEachIndexed { index, emojiCategory ->
-                    NarrowTab(
-                        selected = (selectedTab.value as? EmojiTab.Category)?.index == index,
-                        onClick = { selectedTab.value = EmojiTab.Category(index) },
-                        icon = {
-                            Icon(
-                                painterResource(emojiCategory.iconId),
-                                contentDescription = null,
-                                Modifier.padding(8.dp),
-                            )
-                        },
-                    )
+                Button(
+                    onClick = { onAction.onAction(Action.Delete(), key = null, gesture = null) },
+                    Modifier.padding(8.dp),
+                ) {
+                    Icon(painterResource(R.drawable.baseline_backspace_24), "Backspace")
                 }
             }
-            Button(
-                onClick = { onAction.onAction(Action.Delete(), key = null, gesture = null) },
-                Modifier.padding(8.dp),
-            ) {
-                Icon(painterResource(R.drawable.baseline_backspace_24), "Backspace")
-            }
         }
+
+        if (selectedTab.value == EmojiTab.Search) {
+            val focusRequester = remember { FocusRequester() }
+            TextField(
+                searchQuery.value,
+                searchQuery::value::set,
+                Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                label = { Text("Search") },
+                singleLine = true,
+                keyboardActions = KeyboardActions { this.defaultKeyboardAction(ImeAction.Done) },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            )
+            // Grab focus when shown, since search is the natural first interaction point
+            LaunchedEffect(Unit) { focusRequester.requestFocus() }
+        }
+
         val tabEmojis = when (val tab = selectedTab.value) {
             is EmojiTab.Category -> emojis.categories[tab.index].emojis
+
+            // FIXME: implement some form of index
+            EmojiTab.Search -> emojis.categories.flatMap { category ->
+                category.emojis.filter { group ->
+                    group.names.any {
+                        it.contains(
+                            searchQuery.value,
+                            ignoreCase = true,
+                        )
+                    }
+                }
+            }
+
             EmojiTab.Recent -> remember { // Don't reshuffle recents while it's still visible
                 emojiHistory.value.split('\n')
                     .filter { it.isNotBlank() }
-                    .map { EmojiGroup(listOf(it)) }
+                    .map { EmojiGroup(names = listOf(), variants = listOf(it)) }
             }
         }
         LazyVerticalGrid(
@@ -193,6 +251,7 @@ fun EmojiKeyboardPreview() {
 }
 
 sealed class EmojiTab {
+    data object Search : EmojiTab()
     data object Recent : EmojiTab()
     data class Category(val index: Int) : EmojiTab()
 }
@@ -211,22 +270,36 @@ fun emojiList(): EmojiList {
                 .use { icons ->
                     IntArray(icons.length(), icons::getResourceIdOrThrow)
                 }
+        val categoryNames =
+            context.resources.obtainTypedArray(Emoji2R.array.category_names)
+                .use { names ->
+                    Array(names.length(), names::getStringOrThrow)
+                }
+
         val categories =
             context.resources.obtainTypedArray(Emoji2R.array.emoji_by_category_raw_resources_gender_inclusive)
                 .use { categories ->
                     List(categories.length()) { i ->
-                        val iconId = categoryIconIds[i]
                         val categoryId = categories.getResourceIdOrThrow(i)
                         val categoryCsv = context.resources.openRawResource(categoryId).use {
                             it.readBytes().decodeToString()
                         }
                         EmojiCategory(
-                            iconId = iconId,
+                            name = categoryNames[i],
+                            iconId = categoryIconIds[i],
                             emojis = categoryCsv
                                 .split('\n')
                                 .filter { it.isNotEmpty() }
-                                .map { variants ->
-                                    EmojiGroup(variants = variants.split(','))
+                                .map { variantsStr ->
+                                    val variants = variantsStr.split(',')
+                                    val codePoint = UCharacter.codePointAt(variants.first(), 0)
+                                    EmojiGroup(
+                                        names = listOfNotNull(
+                                            UCharacter.getName(codePoint),
+                                            UCharacter.getNameAlias(codePoint),
+                                        ),
+                                        variants = variants,
+                                    )
                                 },
                         )
                     }
@@ -236,5 +309,5 @@ fun emojiList(): EmojiList {
 }
 
 data class EmojiList(val categories: List<EmojiCategory>)
-data class EmojiCategory(val iconId: Int, val emojis: List<EmojiGroup>)
-data class EmojiGroup(val variants: List<String>)
+data class EmojiCategory(val name: String, val iconId: Int, val emojis: List<EmojiGroup>)
+data class EmojiGroup(val names: List<String>, val variants: List<String>)

@@ -52,13 +52,15 @@ import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import kotlinx.coroutines.delay
 import se.nullable.flickboard.angle
 import se.nullable.flickboard.averageOf
@@ -80,6 +82,7 @@ import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.LocalDollar1GestureLibrary
 import kotlin.math.PI
 import kotlin.math.absoluteValue
+import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sign
@@ -92,7 +95,7 @@ fun Key(
     onAction: OnAction?,
     modifierState: ModifierState?,
     modifier: Modifier = Modifier,
-    enterKeyLabel: String? = null,
+    enterVisualOverride: ActionVisual? = null,
     keyPointerTrailListener: State<KeyPointerTrailListener?> = remember { mutableStateOf(null) },
     layoutTextDirection: TextDirection,
     allowFastActions: Boolean = true,
@@ -254,7 +257,7 @@ fun Key(
                     }
                     RenderActionVisual(
                         action,
-                        enterKeyLabel = enterKeyLabel,
+                        enterVisualOverride = enterVisualOverride,
                         modifiers = modifierState,
                         colour = keyboardTheme.keyIndicatorColour,
                         activeColour = keyboardTheme.activeKeyIndicatorColour,
@@ -273,7 +276,7 @@ fun Key(
         lastActionTaken?.let {
             KeyActionTakenIndicator(
                 action = it.action,
-                enterKeyLabel = enterKeyLabel,
+                enterVisualOverride = enterVisualOverride,
                 shape = shape,
                 colour = keyboardTheme.lastActionColour,
                 surfaceColour = keyboardTheme.lastActionSurfaceColour,
@@ -290,7 +293,7 @@ class TakenAction(val action: Action)
 @Composable
 fun KeyActionTakenIndicator(
     action: Action,
-    enterKeyLabel: String?,
+    enterVisualOverride: ActionVisual?,
     shape: Shape,
     colour: Color,
     surfaceColour: Color,
@@ -301,7 +304,7 @@ fun KeyActionTakenIndicator(
         Box(Modifier.fillMaxSize()) {
             RenderActionVisual(
                 action = action.withHidden(false),
-                enterKeyLabel = enterKeyLabel,
+                enterVisualOverride = enterVisualOverride,
                 modifiers = null,
                 modifier = Modifier.align(Alignment.Center),
                 colour = colour,
@@ -328,7 +331,7 @@ enum class ActionStyle {
 @Composable
 fun RenderActionVisual(
     action: Action,
-    enterKeyLabel: String?,
+    enterVisualOverride: ActionVisual?,
     modifiers: ModifierState?,
     colour: Color,
     activeColour: Color,
@@ -336,8 +339,10 @@ fun RenderActionVisual(
     modifier: Modifier = Modifier,
     style: ActionStyle = ActionStyle.default(action, modifiers),
 ) {
-    val overrideActionVisual =
-        enterKeyLabel.takeIf { action is Action.Enter }?.let { ActionVisual.Label(it) }
+    val actionVisualOverride = when (action) {
+        is Action.Enter -> enterVisualOverride
+        else -> null
+    }
     val usedColour = animateColorAsState(
         when (style) {
             ActionStyle.Normal -> colour
@@ -346,41 +351,54 @@ fun RenderActionVisual(
         },
         label = "key colour",
     )
-    when (val actionVisual = overrideActionVisual ?: action.visual(modifiers)) {
+    when (val actionVisual = actionVisualOverride ?: action.visual(modifiers)) {
         is ActionVisual.Label -> {
             BoxWithConstraints(modifier.padding(horizontal = 2.dp)) {
                 val density = LocalDensity.current
+                val textStyle = LocalTextStyle.current.merge(
+                    lineHeightStyle = LineHeightStyle(
+                        alignment = LineHeightStyle.Alignment.Center,
+                        trim = LineHeightStyle.Trim.Both,
+                    ),
+                    textDirection = when (actionVisual.directionOverride) {
+                        TextDirection.LeftToRight -> androidx.compose.ui.text.style.TextDirection.Ltr
+                        TextDirection.RightToLeft -> androidx.compose.ui.text.style.TextDirection.Rtl
+                        else -> when (layoutTextDirection) {
+                            TextDirection.LeftToRight -> androidx.compose.ui.text.style.TextDirection.Ltr
+                            TextDirection.RightToLeft ->
+                                when {
+                                    LocalAppSettings.current.noReverseRtlBrackets.state.value ->
+                                        androidx.compose.ui.text.style.TextDirection.Content
+
+                                    else ->
+                                        androidx.compose.ui.text.style.TextDirection.Rtl
+                                }
+                        }
+                    },
+                )
+                // Measure the actual size of the label first, so that we can then rescale it
+                // to fit the constraints without needing two layout passes.
+                val fontFamilyResolver = LocalFontFamilyResolver.current
+                val paragraph =
+                    remember(actionVisual.label, textStyle, density, fontFamilyResolver) {
+                        Paragraph(
+                            actionVisual.label,
+                            textStyle,
+                            Constraints(),
+                            density,
+                            fontFamilyResolver,
+                        )
+                    }
                 Text(
                     text = actionVisual.label,
                     color = usedColour.value,
                     fontSize = with(density) {
-                        min(
-                            maxWidth,
-                            // Make room for descenders
-                            maxHeight * 0.8F,
-                        ).toSp()
+                        textStyle.fontSize * min(
+                            maxWidth.toPx() / paragraph.maxIntrinsicWidth,
+                            maxHeight.toPx() / paragraph.height,
+                        )
                     },
-                    style = LocalTextStyle.current.merge(
-                        lineHeightStyle = LineHeightStyle(
-                            alignment = LineHeightStyle.Alignment.Center,
-                            trim = LineHeightStyle.Trim.Both,
-                        ),
-                        textDirection = when (actionVisual.directionOverride) {
-                            TextDirection.LeftToRight -> androidx.compose.ui.text.style.TextDirection.Ltr
-                            TextDirection.RightToLeft -> androidx.compose.ui.text.style.TextDirection.Rtl
-                            else -> when (layoutTextDirection) {
-                                TextDirection.LeftToRight -> androidx.compose.ui.text.style.TextDirection.Ltr
-                                TextDirection.RightToLeft ->
-                                    when {
-                                        LocalAppSettings.current.noReverseRtlBrackets.state.value ->
-                                            androidx.compose.ui.text.style.TextDirection.Content
-
-                                        else ->
-                                            androidx.compose.ui.text.style.TextDirection.Rtl
-                                    }
-                            }
-                        },
-                    ),
+                    style = textStyle,
                 )
             }
         }
@@ -709,7 +727,7 @@ fun KeyActionTakenPreview() {
             Box(Modifier.size(100.dp)) {
                 KeyActionTakenIndicator(
                     action = Action.Text("A"),
-                    enterKeyLabel = null,
+                    enterVisualOverride = null,
                     colour = MaterialTheme.colorScheme.onTertiary,
                     surfaceColour = MaterialTheme.colorScheme.tertiary,
                     shape = RectangleShape,
@@ -720,7 +738,7 @@ fun KeyActionTakenPreview() {
             Box(Modifier.size(100.dp)) {
                 KeyActionTakenIndicator(
                     action = Action.Text("{"),
-                    enterKeyLabel = null,
+                    enterVisualOverride = null,
                     colour = MaterialTheme.colorScheme.onTertiary,
                     surfaceColour = MaterialTheme.colorScheme.tertiary,
                     shape = RectangleShape,
