@@ -63,7 +63,7 @@ class EmojiTrie {
     val root: Node = Node()
 
     /**
-     * Mutable counterpart to [se.nullable.flickboard.model.EmojiTrie.Node], see it for details
+     * Mutable counterpart to [se.nullable.flickboard.model.emoji.EmojiTrie.Node], see it for details
      * Semantics and serialization must match it
      */
     @Serializable
