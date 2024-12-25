@@ -2,8 +2,9 @@ package se.nullable.flickboard.ui.emoji
 
 import android.annotation.SuppressLint
 import android.icu.lang.UCharacter
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -32,8 +34,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -41,10 +45,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import androidx.core.content.res.getResourceIdOrThrow
 import androidx.core.content.res.getStringOrThrow
 import androidx.core.content.res.use
@@ -54,6 +60,7 @@ import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.OnAction
 import androidx.emoji2.emojipicker.R as Emoji2R
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EmojiKeyboard(onAction: OnAction) {
     val appSettings = LocalAppSettings.current
@@ -75,6 +82,11 @@ fun EmojiKeyboard(onAction: OnAction) {
     val emojiPadding = 8.dp
     val emojiItemSize = emojiSize + emojiPadding * 3
     val emojiSizeSp = with(LocalDensity.current) { emojiSize.toSp() }
+    val emojiTextModifier = Modifier.padding(emojiPadding)
+    val emojiTextStyle = LocalTextStyle.current.merge(
+        fontSize = emojiSizeSp,
+        textAlign = TextAlign.Center,
+    )
     Column {
         Surface(color = MaterialTheme.colorScheme.primaryContainer) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -185,45 +197,113 @@ fun EmojiKeyboard(onAction: OnAction) {
                     .map { EmojiGroup(names = listOf(), variants = listOf(it)) }
             }
         }
+        val emojiGridColumns = GridCells.Adaptive(emojiItemSize)
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(emojiItemSize),
+            columns = emojiGridColumns,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
                 .background(MaterialTheme.colorScheme.surface),
         ) {
-            items(tabEmojis) {
-                val primaryVariant = it.variants[0]
-                Box(
-                    Modifier.clickable {
-                        if (saveHistory.value) {
-                            appSettings.emojiHistory.currentValue =
-                                "$primaryVariant\n${
-                                    emojiHistory.value
-                                        // Remove duplicates
-                                        .replace("$primaryVariant\n", "")
-                                }"
-                                    // Limit history length
-                                    .let { history ->
-                                        history.findAnyOf(listOf("\n"), startIndex = 50)
-                                            ?.let { (i) -> history.substring(0..i) }
-                                            ?: history
+            items(tabEmojis) { emoji ->
+                // dragAndDropSource modifier seems to break normal automatic updating
+                key(emoji) {
+                    Box {
+                        val primaryVariant = emoji.variants[0]
+                        val hasSecondaryVariants = emoji.variants.size > 1
+                        val showVariantPopup = remember { mutableStateOf(false) }
+                        if (showVariantPopup.value) {
+                            Popup(
+                                Alignment.TopEnd,
+                                onDismissRequest = { showVariantPopup.value = false },
+                            ) {
+                                Surface(color = MaterialTheme.colorScheme.secondaryContainer) {
+                                    LazyVerticalGrid(emojiGridColumns) {
+                                        items(emoji.variants) { variant ->
+                                            EmojiVariant(
+                                                variant,
+                                                onAction = onAction,
+                                                onClick = { showVariantPopup.value = false },
+                                                onLongClick = null,
+                                                emojiTextStyle = emojiTextStyle,
+                                                emojiTextModifier = emojiTextModifier,
+                                            )
+                                        }
                                     }
+                                }
+                            }
                         }
-                        onAction.onAction(Action.Text(primaryVariant), key = null, gesture = null)
-                    },
-                ) {
-                    Text(
-                        primaryVariant,
-                        fontSize = emojiSizeSp,
-                        style = LocalTextStyle.current.merge(
-                            textAlign = TextAlign.Center,
-                        ),
-                        modifier = Modifier.padding(emojiPadding),
-                    )
+                        EmojiVariant(
+                            primaryVariant,
+                            onAction = onAction,
+                            onClick = {},
+                            onLongClick = { showVariantPopup.value = true }
+                                .takeIf { hasSecondaryVariants },
+                            emojiTextStyle = emojiTextStyle,
+                            emojiTextModifier = emojiTextModifier,
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun EmojiVariant(
+    variant: String,
+    onAction: OnAction,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)?,
+    emojiTextStyle: TextStyle,
+    emojiTextModifier: Modifier,
+) {
+    val appSettings = LocalAppSettings.current
+    val saveHistory = appSettings.saveEmojiHistory.state
+    val emojiHistory = appSettings.emojiHistory.state
+    Box(
+        Modifier
+            .combinedClickable(onLongClick = onLongClick) {
+                if (saveHistory.value) {
+                    appSettings.emojiHistory.currentValue =
+                        "$variant\n${
+                            emojiHistory.value
+                                // Remove duplicates
+                                .replace("$variant\n", "")
+                        }"
+                            // Limit history length
+                            .let { history ->
+                                history
+                                    .findAnyOf(listOf("\n"), startIndex = 50)
+                                    ?.let { (i) -> history.substring(0..i) }
+                                    ?: history
+                            }
+                }
+                onAction.onAction(
+                    Action.Text(variant),
+                    key = null,
+                    gesture = null,
+                )
+                onClick()
+            },
+    ) {
+        if (onLongClick != null) {
+            Icon(
+                painterResource(R.drawable.corner),
+                "has variants",
+                Modifier
+                    .align(AbsoluteAlignment.TopRight)
+                    .size(12.dp)
+                    .padding(2.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+        Text(
+            variant,
+            style = emojiTextStyle,
+            modifier = emojiTextModifier,
+        )
     }
 }
 
