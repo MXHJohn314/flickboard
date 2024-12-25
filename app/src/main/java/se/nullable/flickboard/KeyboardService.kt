@@ -18,6 +18,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -167,6 +168,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                                 // effectively take over keyboard rendering
                                                 awaitCancellation()
                                             } finally {
+                                                newInputConnection.closeConnection()
                                                 currentInputSessions.remove(newInputSession)
                                             }
                                         },
@@ -195,105 +197,111 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                             )
                                         }
                                         currentInputSessions.forEachIndexed { inputSessionIdx, inputSession ->
-                                            SideEffect {
-                                                inputSession.updateIsShadowed(
-                                                    inputSessionIdx != currentInputSessions.lastIndex,
-                                                )
-                                            }
-                                            CompositionLocalProvider(
-                                                // Override LocalSoftwareKeyboardController to affect
-                                                // the nested input instead.
-                                                LocalSoftwareKeyboardController provides
-                                                        remember(inputSession) {
-                                                            val nestedInputSessionIdx =
-                                                                inputSessionIdx + 1
-                                                            object : SoftwareKeyboardController {
-                                                                var hiddenSession: InputSession? =
-                                                                    null
+                                            // A lot of state (including forwarded closures) depends on
+                                            // the inputSession - safer to just throw it all away if it changes
+                                            // than to try to track it precisely.
+                                            key(inputSession) {
+                                                SideEffect {
+                                                    inputSession.updateIsShadowed(
+                                                        inputSessionIdx != currentInputSessions.lastIndex,
+                                                    )
+                                                }
+                                                CompositionLocalProvider(
+                                                    // Override LocalSoftwareKeyboardController to affect
+                                                    // the nested input instead.
+                                                    LocalSoftwareKeyboardController provides
+                                                            remember(inputSessionIdx) {
+                                                                val nestedInputSessionIdx =
+                                                                    inputSessionIdx + 1
+                                                                object :
+                                                                    SoftwareKeyboardController {
+                                                                    var hiddenSession: InputSession? =
+                                                                        null
 
-                                                                override fun hide() {
-                                                                    hiddenSession =
-                                                                        currentInputSessions.removeAt(
-                                                                            nestedInputSessionIdx,
-                                                                        )
-                                                                }
-
-                                                                override fun show() {
-                                                                    hiddenSession?.let { session ->
-                                                                        currentInputSessions.add(
-                                                                            nestedInputSessionIdx,
-                                                                            session,
-                                                                        )
+                                                                    override fun hide() {
+                                                                        hiddenSession =
+                                                                            currentInputSessions.removeAt(
+                                                                                nestedInputSessionIdx,
+                                                                            )
                                                                     }
-                                                                    hiddenSession = null
-                                                                }
-                                                            }
-                                                        },
-                                                // Some UI components (like text selection handles)
-                                                // only render for the focused window.
-                                                // We're weird in that as an IME we're never considered
-                                                // focused by the OS, but are always the user's
-                                                // primary interaction target.
-                                                // Hence, we lie and pretend that we're always focused.
-                                                LocalWindowInfo provides FocusedWindowInfo,
-                                            ) {
-                                                val onAction = inputSession.actionHandler(
-                                                    warningSnackbarHostState = warningSnackbarHostState,
-                                                    switchInputMethod = ::switchInputMethod,
-                                                )
-                                                Box {
-                                                    when {
-                                                        inputSession.emojiMode.value -> EmojiKeyboard(
-                                                            onAction = onAction,
-                                                        )
 
-                                                        else -> {
-                                                            ConfiguredKeyboard(
-                                                                modifier = Modifier.fillMaxWidth(),
-                                                                onAction = onAction,
-                                                                onModifierStateUpdated = inputSession::updateModifierState,
-                                                                enterVisualOverride = inputSession.editorInfo?.let { editorInfo ->
-                                                                    editorInfo.actionLabel?.toString()
-                                                                        ?.let(ActionVisual::Label)
-                                                                        ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
-                                                                            EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
-                                                                                "GO",
+                                                                    override fun show() {
+                                                                        hiddenSession?.let { session ->
+                                                                            currentInputSessions.add(
+                                                                                nestedInputSessionIdx,
+                                                                                session,
                                                                             )
-
-                                                                            EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
-                                                                                R.drawable.baseline_search_24,
-                                                                            )
-
-                                                                            EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
-                                                                                R.drawable.baseline_send_24,
-                                                                            )
-
-                                                                            EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
-                                                                                R.drawable.baseline_done_24,
-                                                                            )
-                                                                            /* Not using the next/prev icons since they can be confused with the jump left/right icons */
-                                                                            EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
-                                                                                "NEXT",
-                                                                            )
-
-                                                                            EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
-                                                                                "PREV",
-                                                                            )
-
-                                                                            else -> null
                                                                         }
-                                                                },
-                                                                overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
-                                                                    InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers
-                                                                    else -> null
-                                                                },
+                                                                        hiddenSession = null
+                                                                    }
+                                                                }
+                                                            },
+                                                    // Some UI components (like text selection handles)
+                                                    // only render for the focused window.
+                                                    // We're weird in that as an IME we're never considered
+                                                    // focused by the OS, but are always the user's
+                                                    // primary interaction target.
+                                                    // Hence, we lie and pretend that we're always focused.
+                                                    LocalWindowInfo provides FocusedWindowInfo,
+                                                ) {
+                                                    val onAction = inputSession.actionHandler(
+                                                        warningSnackbarHostState = warningSnackbarHostState,
+                                                        switchInputMethod = ::switchInputMethod,
+                                                    )
+                                                    Box {
+                                                        when {
+                                                            inputSession.emojiMode.value -> EmojiKeyboard(
+                                                                onAction = onAction,
                                                             )
-                                                            SnackbarHost(
-                                                                warningSnackbarHostState,
-                                                                modifier = Modifier
-                                                                    .align(Alignment.BottomCenter)
-                                                                    .sharePointerInput(),
-                                                            )
+
+                                                            else -> {
+                                                                ConfiguredKeyboard(
+                                                                    modifier = Modifier.fillMaxWidth(),
+                                                                    onAction = onAction,
+                                                                    onModifierStateUpdated = inputSession::updateModifierState,
+                                                                    enterVisualOverride = inputSession.editorInfo?.let { editorInfo ->
+                                                                        editorInfo.actionLabel?.toString()
+                                                                            ?.let(ActionVisual::Label)
+                                                                            ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
+                                                                                EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
+                                                                                    "GO",
+                                                                                )
+
+                                                                                EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
+                                                                                    R.drawable.baseline_search_24,
+                                                                                )
+
+                                                                                EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
+                                                                                    R.drawable.baseline_send_24,
+                                                                                )
+
+                                                                                EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
+                                                                                    R.drawable.baseline_done_24,
+                                                                                )
+                                                                                /* Not using the next/prev icons since they can be confused with the jump left/right icons */
+                                                                                EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
+                                                                                    "NEXT",
+                                                                                )
+
+                                                                                EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
+                                                                                    "PREV",
+                                                                                )
+
+                                                                                else -> null
+                                                                            }
+                                                                    },
+                                                                    overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
+                                                                        InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers
+                                                                        else -> null
+                                                                    },
+                                                                )
+                                                                SnackbarHost(
+                                                                    warningSnackbarHostState,
+                                                                    modifier = Modifier
+                                                                        .align(Alignment.BottomCenter)
+                                                                        .sharePointerInput(),
+                                                                )
+                                                            }
                                                         }
                                                     }
                                                 }
