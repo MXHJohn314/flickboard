@@ -148,7 +148,7 @@ fun Key(
             lastActionIsVisible = false
         }
     }
-    val gestureLibrary = LocalDollar1GestureLibrary.current?.value
+    val gestureLibrary = LocalDollar1GestureLibrary.current
     val onActionModifier = if (onAction != null) {
         fun onGestureStart() {
             if (enableHapticFeedbackOnGestureStart.value) {
@@ -202,7 +202,7 @@ fun Key(
                         )
                     },
                     trailListenerState = keyPointerTrailListener,
-                    gestureLibrary = { gestureLibrary },
+                    gestureLibrary = { gestureLibrary.value.value },
                     dropLastGesturePoint = { dropLastGesturePoint.value },
                     ignoreJumpsLongerThanPx = { ignoreJumpsLongerThanPx.value },
                     flicksMustBeLongerThanSeconds = { flicksMustBeLongerThanSeconds.value },
