@@ -79,7 +79,6 @@ import se.nullable.flickboard.model.TextDirection
 import se.nullable.flickboard.times
 import se.nullable.flickboard.ui.layout.KeyLabelGrid
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
-import se.nullable.flickboard.ui.util.LocalDollar1GestureLibrary
 import kotlin.math.PI
 import kotlin.math.absoluteValue
 import kotlin.math.min
