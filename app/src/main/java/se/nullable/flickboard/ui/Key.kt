@@ -61,6 +61,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import se.nullable.flickboard.angle
 import se.nullable.flickboard.averageOf
@@ -352,13 +353,19 @@ fun RenderActionVisual(
     )
     when (val actionVisual = actionVisualOverride ?: action.visual(modifiers)) {
         is ActionVisual.Label -> {
-            BoxWithConstraints(modifier.padding(horizontal = 2.dp)) {
+            BoxWithConstraints(
+                modifier
+                    .padding(horizontal = 2.dp),
+            ) {
                 val density = LocalDensity.current
                 val textStyle = LocalTextStyle.current.merge(
                     lineHeightStyle = LineHeightStyle(
                         alignment = LineHeightStyle.Alignment.Center,
                         trim = LineHeightStyle.Trim.Both,
                     ),
+                    // Letter spacing makes text even smaller when space is at a premium,
+                    // and throws off the autoscaling, too (since it doesn't scale with fontSize)
+                    letterSpacing = 0.sp,
                     textDirection = when (actionVisual.directionOverride) {
                         TextDirection.LeftToRight -> androidx.compose.ui.text.style.TextDirection.Ltr
                         TextDirection.RightToLeft -> androidx.compose.ui.text.style.TextDirection.Rtl
@@ -388,15 +395,16 @@ fun RenderActionVisual(
                             fontFamilyResolver,
                         )
                     }
+                val fontSize = with(density) {
+                    textStyle.fontSize * min(
+                        maxWidth.toPx() / paragraph.maxIntrinsicWidth,
+                        maxHeight.toPx() / paragraph.height,
+                    )
+                }
                 Text(
                     text = actionVisual.label,
                     color = usedColour.value,
-                    fontSize = with(density) {
-                        textStyle.fontSize * min(
-                            maxWidth.toPx() / paragraph.maxIntrinsicWidth,
-                            maxHeight.toPx() / paragraph.height,
-                        )
-                    },
+                    fontSize = fontSize,
                     style = textStyle,
                 )
             }
