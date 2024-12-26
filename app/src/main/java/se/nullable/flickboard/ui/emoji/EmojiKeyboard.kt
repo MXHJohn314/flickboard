@@ -65,8 +65,10 @@ import se.nullable.flickboard.model.emoji.EmojiCategory
 import se.nullable.flickboard.model.emoji.EmojiGroup
 import se.nullable.flickboard.model.emoji.EmojiList
 import se.nullable.flickboard.ui.LocalAppSettings
+import se.nullable.flickboard.ui.LocalEmojiDb
 import se.nullable.flickboard.ui.LocalEmojiTrie
 import se.nullable.flickboard.ui.OnAction
+import se.nullable.flickboard.util.unique
 import androidx.emoji2.emojipicker.R as Emoji2R
 
 @Composable
@@ -188,14 +190,19 @@ fun EmojiKeyboard(onAction: OnAction) {
             is EmojiTab.Category -> emojis.categories[tab.index].emojis
 
             EmojiTab.Search -> {
+                val emojiDb = LocalEmojiDb.current.value
                 LocalEmojiTrie.current.value.matches(searchQuery.value)
-                    .map { EmojiGroup(names = listOf(), variants = listOf(it)) }
+                    .map(emojiDb::groupForBaseEmoji)
             }
 
-            EmojiTab.Recent -> remember { // Don't reshuffle recents while it's still visible
-                emojiHistory.value.split('\n')
-                    .filter { it.isNotBlank() }
-                    .map { EmojiGroup(names = listOf(), variants = listOf(it)) }
+            EmojiTab.Recent -> {
+                val emojiDb = LocalEmojiDb.current.value
+                // Don't reshuffle recents while it's still visible
+                remember {
+                    emojiHistory.value.split('\n')
+                        .filter { it.isNotBlank() }
+                        .map(emojiDb::groupForBaseEmoji)
+                }
             }
         }
         val emojiGridColumns = GridCells.Adaptive(emojiItemSize)
@@ -210,8 +217,8 @@ fun EmojiKeyboard(onAction: OnAction) {
                 // dragAndDropSource modifier seems to break normal automatic updating
                 key(emoji) {
                     Box {
-                        val primaryVariant = emoji.variants[0]
-                        val hasSecondaryVariants = emoji.variants.size > 1
+                        val primaryVariant = emoji.baseVariant
+                        val hasSecondaryVariants = emoji.variants != null
                         val showVariantPopup = remember { mutableStateOf(false) }
                         if (showVariantPopup.value) {
                             Popup(
@@ -220,7 +227,7 @@ fun EmojiKeyboard(onAction: OnAction) {
                             ) {
                                 Surface(color = MaterialTheme.colorScheme.secondaryContainer) {
                                     LazyVerticalGrid(emojiGridColumns) {
-                                        items(emoji.variants) { variant ->
+                                        items(emoji.variants?.value ?: emptyList()) { variant ->
                                             EmojiVariant(
                                                 variant,
                                                 onAction = onAction,
@@ -375,14 +382,15 @@ fun emojiList(): EmojiList {
                                 .split('\n')
                                 .filter { it.isNotEmpty() }
                                 .map { variantsStr ->
-                                    val variants = variantsStr.split(',')
+                                    val variants = variantsStr.split(',').unique()
                                     val codePoint = UCharacter.codePointAt(variants.first(), 0)
                                     EmojiGroup(
                                         names = listOfNotNull(
                                             UCharacter.getName(codePoint),
                                             UCharacter.getNameAlias(codePoint),
                                         ),
-                                        variants = variants,
+                                        baseVariant = variants[0],
+                                        variants = variants.takeIf { it.size > 1 }?.let(::lazyOf),
                                     )
                                 },
                         )

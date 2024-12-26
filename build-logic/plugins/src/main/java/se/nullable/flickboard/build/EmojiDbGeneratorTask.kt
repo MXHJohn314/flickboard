@@ -17,6 +17,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.extensions.stdlib.capitalized
 import java.io.File
 
+// NOTE: When editing codegen, DISABLE LIVE EDIT OR INTELLIJ WILL HANG ON BUILD
+
 abstract class EmojiDbGeneratorTask : DefaultTask() {
     @get:InputFile
     val gemojiEmojiJson: File = project.rootDir.resolve("vendor/gemoji/db/emoji.json")
@@ -29,8 +31,7 @@ abstract class EmojiDbGeneratorTask : DefaultTask() {
     fun taskAction() {
         val outDir = outputDirectory.get().asFile
         // Delete old build results to avoid stale data
-        // Disabled because it seems to cause IntelliJ to hang sometimes when the folder is visible...
-//        outDir.deleteRecursively()
+        outDir.deleteRecursively()
         val outRawResDir = outDir.resolve("raw")
         outRawResDir.mkdirs()
         val lenientJson = Json { ignoreUnknownKeys = true }
@@ -39,7 +40,7 @@ abstract class EmojiDbGeneratorTask : DefaultTask() {
             gemojiEmojiJson.inputStream().use(lenientJson::decodeFromStream)
         val trie = EmojiTrie()
         emojis.forEach { emoji ->
-            (emoji.tags + emoji.aliases).forEach {
+            (emoji.aliases + emoji.tags).forEach {
                 val tag = it.replace("_", " ")
                 // Include all substrings, for example: "illy" matches "silly"
                 tag.indices.forEach { startIndex ->
@@ -53,11 +54,39 @@ abstract class EmojiDbGeneratorTask : DefaultTask() {
         trie.root.compress()
         outRawResDir.resolve("emoji_trie.json").outputStream()
             .use { minJson.encodeToStream(trie.root, it) }
+        outRawResDir.resolve("emoji_db.json").outputStream()
+            .use { minJson.encodeToStream(EmojiDb(emojis), it) }
     }
 }
 
 @Serializable
-data class EmojiInfo(val emoji: String, val aliases: List<String>, val tags: List<String>)
+data class EmojiInfo(
+    val emoji: String,
+    val aliases: List<String>,
+    val tags: List<String>,
+    @SerialName("skin_tones") val skinTones: Boolean = false
+)
+
+/**
+ * Must match [se.nullable.flickboard.model.emoji.EmojiDb]
+ */
+@Serializable
+data class EmojiDb(val entries: Map<String, Metadata>) {
+    @Serializable
+    data class Metadata(
+        @SerialName("n") val name: String,
+        val skinTones: Boolean = false
+    )
+
+    constructor(emojis: List<EmojiInfo>) : this(
+        entries = emojis.associate { emoji ->
+            emoji.emoji to Metadata(
+                name = emoji.aliases.first(),
+                skinTones = emoji.skinTones,
+            )
+        },
+    )
+}
 
 class EmojiTrie {
     val root: Node = Node()
