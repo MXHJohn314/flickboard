@@ -147,6 +147,12 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                             window,
                                             window.decorView,
                                         )
+                                        // Let the app render the navbar for older Android versions, too
+                                        // This is deprecated because in API35 because it's the fixed
+                                        // behaviour there, we're effectively just backporting that change.
+                                        @Suppress("DEPRECATION")
+                                        window.navigationBarColor =
+                                            android.graphics.Color.TRANSPARENT
                                         insets.isAppearanceLightNavigationBars =
                                             !keyboardTheme.isDark
                                     }
