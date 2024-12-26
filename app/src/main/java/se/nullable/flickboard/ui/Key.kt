@@ -353,10 +353,7 @@ fun RenderActionVisual(
     )
     when (val actionVisual = actionVisualOverride ?: action.visual(modifiers)) {
         is ActionVisual.Label -> {
-            BoxWithConstraints(
-                modifier
-                    .padding(horizontal = 2.dp),
-            ) {
+            BoxWithConstraints(modifier.padding(horizontal = 2.dp)) {
                 val density = LocalDensity.current
                 val textStyle = LocalTextStyle.current.merge(
                     lineHeightStyle = LineHeightStyle(
@@ -397,7 +394,9 @@ fun RenderActionVisual(
                     }
                 val fontSize = with(density) {
                     textStyle.fontSize * min(
-                        maxWidth.toPx() / paragraph.maxIntrinsicWidth,
+                        // HACK: It seems like sometimes the final result will be just a smidge
+                        // wide to fit, so take away a bit to compensate.
+                        (maxWidth.toPx() * 0.9F) / paragraph.maxIntrinsicWidth,
                         maxHeight.toPx() / paragraph.height,
                     )
                 }
