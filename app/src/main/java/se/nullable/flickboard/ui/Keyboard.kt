@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,7 +58,7 @@ import se.nullable.flickboard.model.layouts.OVERLAY_TOGGLE_SYMBOLS_MESSAGEASE_LA
 import se.nullable.flickboard.model.layouts.overlayMessageaseLayer
 import se.nullable.flickboard.model.layouts.spacer
 import se.nullable.flickboard.ui.layout.Grid
-import se.nullable.flickboard.util.toOnAccentContainer
+import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import java.io.IOException
 
 // Returns false if action could not be processed
@@ -109,10 +108,6 @@ fun Keyboard(
     val enableAdvancedModifiers = appSettings.enableAdvancedModifiers.state
     val enableToggleShowSymbols = appSettings.enableToggleShowSymbolsGesture.state
     val keyGap = appSettings.keyGap.state
-    val keyColour = appSettings.keyColour.state
-    val keyColourChroma = appSettings.keyColourChroma.state
-    val toneMode = appSettings.keyColourTone.state
-    val toneConfig = rememberUpdatedState(toneMode.value.config)
     val backgroundImage = appSettings.backgroundImage.state
     val keyboardMargin = appSettings.keyboardMargin.state
     val keyboardMarginBottomPortrait = appSettings.keyboardMarginBottomPortrait.state
@@ -215,9 +210,7 @@ fun Keyboard(
             }
         }
     }
-    val pointerTrailColor =
-        keyColour.value?.toOnAccentContainer(keyColourChroma.value, toneConfig.value)
-            ?: MaterialTheme.colorScheme.onPrimaryContainer
+    val pointerTrailColor = LocalKeyboardTheme.current.pointerTrailColour
     BoxWithConstraints(
         modifier
             .onGloballyPositioned { globalPosition = it.positionInRoot() }
@@ -320,7 +313,7 @@ fun Keyboard(
             }
         }
 
-        val backgroundColor = toneConfig.value.surfaceColour
+        val backgroundColor = LocalKeyboardTheme.current.surfaceColour
         val backgroundImagePainter = remember {
             derivedStateOf {
                 try {

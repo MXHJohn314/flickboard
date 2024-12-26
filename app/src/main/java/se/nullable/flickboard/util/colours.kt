@@ -10,7 +10,7 @@ import se.nullable.flickboard.util.hct.HctSolver
 
 private fun Color.toHct(): Hct = Hct.fromInt(toArgb())
 fun colourOfHctHue(hue: Int): Color = Color(HctSolver.solveToInt(hue.toDouble(), 100.0, 50.0))
-private fun Hct.toColour(): Color = Color(toInt())
+fun Hct.toColour(): Color = Color(toInt())
 
 enum class MaterialToneMode(override val label: String) : Labeled {
     System("System"),
@@ -39,8 +39,6 @@ data class MaterialToneConfig(
     val onAccentContainer: Int,
     val surface: Int,
 ) {
-    val surfaceColour = Hct.from(0.0, 0.0, surface.toDouble()).toColour()
-
     companion object {
         // Constants based on Google/Material Design 3
         val light = MaterialToneConfig(

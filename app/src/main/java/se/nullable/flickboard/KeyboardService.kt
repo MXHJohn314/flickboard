@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.InterceptPlatformTextInput
@@ -147,12 +148,12 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                             window,
                                             window.decorView,
                                         )
-                                        // Let the app render the navbar for older Android versions, too
-                                        // This is deprecated because in API35 because it's the fixed
-                                        // behaviour there, we're effectively just backporting that change.
+                                        // This is deprecated because in API35 because it's the app's
+                                        // responsibility to handle there, but we also need to
+                                        // handle older versions.
                                         @Suppress("DEPRECATION")
                                         window.navigationBarColor =
-                                            android.graphics.Color.TRANSPARENT
+                                            keyboardTheme.surfaceColour.toArgb()
                                         insets.isAppearanceLightNavigationBars =
                                             !keyboardTheme.isDark
                                     }

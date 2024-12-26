@@ -15,8 +15,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.util.MaterialToneMode
+import se.nullable.flickboard.util.hct.Hct
 import se.nullable.flickboard.util.toAccent
 import se.nullable.flickboard.util.toAccentContainer
+import se.nullable.flickboard.util.toColour
 import se.nullable.flickboard.util.toOnAccentContainer
 import se.nullable.flickboard.util.toTertiary
 
@@ -44,11 +46,13 @@ private val LightColorScheme = lightColorScheme(
 
 data class KeyboardTheme(
     val isDark: Boolean,
+    val surfaceColour: Color,
     val keySurfaceColour: Color,
     val keyIndicatorColour: Color,
     val activeKeyIndicatorColour: Color,
     val lastActionSurfaceColour: Color,
     val lastActionColour: Color,
+    val pointerTrailColour: Color,
 )
 
 val LocalKeyboardTheme = compositionLocalOf<KeyboardTheme> {
@@ -102,6 +106,8 @@ fun FlickBoardTheme(
                             MaterialToneMode.Dark -> true
                             MaterialToneMode.Midnight -> true
                         },
+                        surfaceColour = Hct.from(0.0, 0.0, toneConfig.surface.toDouble())
+                            .toColour(),
                         keySurfaceColour = keySurfaceColour,
                         keyIndicatorColour = keyIndicatorColour,
                         activeKeyIndicatorColour = keyColour.value?.toAccent(
@@ -116,6 +122,7 @@ fun FlickBoardTheme(
                             visualFeedbackInvertColourScheme.value -> keySurfaceColour
                             else -> keyIndicatorColour
                         }.toTertiary(),
+                        pointerTrailColour = keyIndicatorColour,
                     )
                 }
             }),
