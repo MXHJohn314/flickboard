@@ -20,8 +20,11 @@ default_platform(:android)
 platform :android do
   lane :screenshots do
     gradle(task: "assembleScreengrabDebug assembleScreengrabAndroidTest")
-    # This will fail on modern Android devices, unless you run `adb root` (`adb unroot` after)
-    capture_android_screenshots
+    # The exact APK names depend on the app version
+    capture_android_screenshots(
+       app_apk_path: Dir["app/build/outputs/apk/screengrab/debug/*.apk", base: ".."][0],
+       tests_apk_path: Dir["app/build/outputs/apk/androidTest/screengrab/debug/*.apk", base: ".."][0],
+    )
   end
 
   desc "Runs all the tests"

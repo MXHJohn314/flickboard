@@ -40,6 +40,8 @@ android {
         targetSdk = 35
         versionCode = 58
         versionName = "0.2.1-beta2"
+        // This is actually a global, but set here since it depends on the versionName
+        // THIS IS NOT UPDATED FOR VARIANTS' versionNames!
         base.archivesName = "flickboard-v${versionName}"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -80,7 +82,6 @@ android {
         create("screengrab") {
             dimension = "purpose"
             applicationIdSuffix = ".screengrab"
-            base.archivesName = "app"
         }
     }
 
