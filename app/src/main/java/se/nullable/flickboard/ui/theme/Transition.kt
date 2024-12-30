@@ -11,7 +11,7 @@ object Transition {
     // widthPx is unused, but leaving it to fit the signature and
     // enabling future experimenting with other values
     @Suppress("SameReturnValue")
-    private fun widthTransform(widthPx: Int): Int = 100
+    private fun widthTransform(@Suppress("UNUSED_PARAMETER") widthPx: Int): Int = 100
     // private fun widthTransform(widthPx: Int): Int = widthPx + 20
 
     val pushEnter = slideInHorizontally(initialOffsetX = this::widthTransform) + fadeIn()
