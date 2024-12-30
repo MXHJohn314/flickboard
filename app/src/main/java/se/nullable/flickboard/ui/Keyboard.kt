@@ -51,6 +51,7 @@ import se.nullable.flickboard.model.Layout
 import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.ShiftState
 import se.nullable.flickboard.model.TextDirection
+import se.nullable.flickboard.model.layouts.CONTROL_OVERLAY_CLIPBOARD_HISTORY_MESSAGEASE
 import se.nullable.flickboard.model.layouts.EN_MESSAGEASE
 import se.nullable.flickboard.model.layouts.OVERLAY_ADVANCED_MODIFIERS_MESSAGEASE_LAYER
 import se.nullable.flickboard.model.layouts.OVERLAY_LONG_SWIPE_LAYER
@@ -83,6 +84,7 @@ fun Keyboard(
 ) {
     val context = LocalContext.current
     val appSettings = LocalAppSettings.current
+    val enableClipboardHistory = LocalAppSettings.current.saveClipboardHistory.state
     val enabledLayersForCurrentOrientation = appSettings.enabledLayersForCurrentOrientation
     val overrideEnabledLayersState = rememberUpdatedState(overrideEnabledLayers)
     val enabledLayers = remember {
@@ -192,7 +194,16 @@ fun Keyboard(
     }
     val controlLayer = remember {
         derivedStateOf {
-            layoutState.value.controlLayer?.let { it.setShift(it.autoShift(layoutState.value.locale)) }
+            layoutState.value.controlLayer
+                ?.let {
+                    when {
+                        enableClipboardHistory.value ->
+                            it.mergeFallback(CONTROL_OVERLAY_CLIPBOARD_HISTORY_MESSAGEASE)
+
+                        else -> it
+                    }
+                }
+                ?.let { it.setShift(it.autoShift(layoutState.value.locale)) }
         }
     }
     val isLandscape = rememberUpdatedState(LocalDisplayLimits.current?.isLandscape ?: false)

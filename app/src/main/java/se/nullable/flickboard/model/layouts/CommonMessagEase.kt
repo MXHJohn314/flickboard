@@ -193,11 +193,28 @@ val CONTROL_MESSAGEASE_LAYER =
                         ),
                         Direction.TOP_RIGHT to Action.ToggleEmojiKeyboard,
                         Direction.BOTTOM to Action.ToggleZalgo,
-                        // FIXME: find a better spot for it
-                        Direction.BOTTOM_RIGHT to Action.ToggleClipboardHistory,
                     ),
                 ),
             ),
+        ),
+    )
+
+val CONTROL_OVERLAY_CLIPBOARD_HISTORY_MESSAGEASE =
+    Layer(
+        keyRows = listOf(
+            // pointer
+            listOf(KeyM(actions = emptyMap())),
+            // clipboard
+            listOf(
+                KeyM(
+                    actions = emptyMap(),
+                    shift = KeyM(actions = mapOf(Direction.BOTTOM to Action.ToggleClipboardHistory)),
+                ),
+            ),
+            // backspace
+            listOf(KeyM(actions = emptyMap())),
+            // enter
+            listOf(KeyM(actions = emptyMap())),
         ),
     )
 
