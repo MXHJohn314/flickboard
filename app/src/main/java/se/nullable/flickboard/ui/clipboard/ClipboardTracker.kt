@@ -47,6 +47,8 @@ fun ClipboardTracker() {
                 clipboardManager.primaryClip?.let(onClipChanged)
             }
             clipboardManager.addPrimaryClipChangedListener(listener)
+            // Save current clip in case it was copied while the listener was disabled
+            listener.onPrimaryClipChanged()
             onDispose {
                 clipboardManager.removePrimaryClipChangedListener(listener)
             }
