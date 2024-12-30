@@ -103,6 +103,16 @@ fun ClipboardHistoryViewer(onAction: OnAction, snackbarHostState: SnackbarHostSt
 
                                         SwipeToDismissBoxValue.EndToStart -> {
                                             clipboardManager.setText(AnnotatedString(entry.clipData))
+                                            // API 33+ provides its own copy toast, so we don't need to provide one there
+                                            // see https://developer.android.com/develop/ui/compose/touch-input/copy-and-paste#feedback_to_copying_content
+                                            if (android.os.Build.VERSION.SDK_INT < 33) {
+                                                coroutineScope.launch {
+                                                    snackbarHostState.showSnackbar(
+                                                        "Copied \"${entry.clipData}\"",
+                                                        withDismissAction = true,
+                                                    )
+                                                }
+                                            }
                                             false // It's not deleted, so return to its original position
                                         }
                                     }
