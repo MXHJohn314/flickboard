@@ -48,7 +48,11 @@ import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.theme.BodyPlaceholder
 
 @Composable
-fun ClipboardHistoryViewer(onAction: OnAction, snackbarHostState: SnackbarHostState) {
+fun ClipboardHistoryViewer(
+    onAction: OnAction,
+    snackbarHostState: SnackbarHostState,
+    navigateUp: () -> Unit,
+) {
     val entryDao = LocalAppDatabase.current.value.clipboardEntryDao()
     val entries = entryDao.getAll().collectAsState(emptyList())
     val clipboardManager = LocalClipboardManager.current
@@ -58,13 +62,7 @@ fun ClipboardHistoryViewer(onAction: OnAction, snackbarHostState: SnackbarHostSt
             Surface(color = MaterialTheme.colorScheme.primaryContainer) {
                 Row(Modifier.fillMaxWidth()) {
                     Button(
-                        onClick = {
-                            onAction.onAction(
-                                Action.ToggleClipboardHistory,
-                                key = null,
-                                gesture = null,
-                            )
-                        },
+                        onClick = navigateUp,
                         Modifier.padding(8.dp),
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Return to keyboard")

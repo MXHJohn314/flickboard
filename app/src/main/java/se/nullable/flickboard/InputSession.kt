@@ -12,11 +12,12 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.getSystemService
+import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.CaseChangeDirection
 import se.nullable.flickboard.model.FastActionType
@@ -43,9 +44,16 @@ class InputSession(
     private val inputConnection: InputConnection,
     val editorInfo: EditorInfo?,
 ) {
-    enum class ActiveView { Keyboard, EmojiKeyboard, ClipboardHistory }
+    sealed class ActiveView {
+        @Serializable
+        data object Keyboard : ActiveView()
 
-    val activeView = mutableStateOf(ActiveView.Keyboard)
+        @Serializable
+        data object EmojiKeyboard : ActiveView()
+
+        @Serializable
+        data object ClipboardHistory : ActiveView()
+    }
 
     private val keycodeMapper = AndroidKeycodeMapper()
 
@@ -178,6 +186,7 @@ class InputSession(
     fun actionHandler(
         warningSnackbarHostState: SnackbarHostState,
         switchInputMethod: (String) -> Unit,
+        navController: NavController,
     ): OnAction {
         val context = LocalContext.current
         val appSettings = LocalAppSettings.current
@@ -672,17 +681,11 @@ class InputSession(
                 is Action.AdjustCellHeight ->
                     appSettings.keyHeight.currentValue += action.amount
 
-                Action.ToggleEmojiKeyboard ->
-                    activeView.value = when (activeView.value) {
-                        ActiveView.EmojiKeyboard -> ActiveView.Keyboard
-                        else -> ActiveView.EmojiKeyboard
-                    }
+                Action.OpenEmojiKeyboard ->
+                    navController.navigate(ActiveView.EmojiKeyboard)
 
-                Action.ToggleClipboardHistory ->
-                    activeView.value = when (activeView.value) {
-                        ActiveView.ClipboardHistory -> ActiveView.Keyboard
-                        else -> ActiveView.ClipboardHistory
-                    }
+                Action.OpenClipboardHistory ->
+                    navController.navigate(ActiveView.ClipboardHistory)
 
                 Action.ToggleShowSymbols ->
                     appSettings.showSymbols.currentValue =

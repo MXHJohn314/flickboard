@@ -72,7 +72,10 @@ import se.nullable.flickboard.util.unique
 import androidx.emoji2.emojipicker.R as Emoji2R
 
 @Composable
-fun EmojiKeyboard(onAction: OnAction) {
+fun EmojiKeyboard(
+    onAction: OnAction,
+    navigateUp: () -> Unit,
+) {
     val appSettings = LocalAppSettings.current
     val saveHistory = appSettings.saveEmojiHistory.state
     val emojiHistory = appSettings.emojiHistory.state
@@ -101,13 +104,7 @@ fun EmojiKeyboard(onAction: OnAction) {
         Surface(color = MaterialTheme.colorScheme.primaryContainer) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Button(
-                    onClick = {
-                        onAction.onAction(
-                            Action.ToggleEmojiKeyboard,
-                            key = null,
-                            gesture = null,
-                        )
-                    },
+                    onClick = navigateUp,
                     Modifier.padding(8.dp),
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, "Return to keyboard")
@@ -338,7 +335,7 @@ fun NarrowTab(selected: Boolean, onClick: () -> Unit, icon: @Composable () -> Un
 @Composable
 @Preview
 fun EmojiKeyboardPreview() {
-    EmojiKeyboard(onAction = { _, _, _ -> true })
+    EmojiKeyboard(onAction = { _, _, _ -> true }, navigateUp = {})
 }
 
 sealed class EmojiTab {

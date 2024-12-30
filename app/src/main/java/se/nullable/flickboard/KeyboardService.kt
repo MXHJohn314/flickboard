@@ -3,11 +3,21 @@ package se.nullable.flickboard
 import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.text.InputType
+import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -37,7 +47,13 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
@@ -54,13 +70,17 @@ import se.nullable.flickboard.ui.emoji.EmojiKeyboard
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.sharePointerInput
 
-class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistryOwner {
+class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner,
+    SavedStateRegistryOwner, OnBackPressedDispatcherOwner {
     private val lifecycleRegistry = LifecycleRegistry(this)
     override val lifecycle: Lifecycle = lifecycleRegistry
 
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     override val savedStateRegistry: SavedStateRegistry =
         savedStateRegistryController.savedStateRegistry
+
+    override val viewModelStore: ViewModelStore = ViewModelStore()
+
 
     private var viewHeight: Int = 0 // Set once view is measured
     private var keyboardHeight: Int = 0 // Set once view is measured
@@ -114,9 +134,12 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
 
     @OptIn(ExperimentalComposeUiApi::class)
     override fun onCreateInputView(): View {
-        window.window?.decorView?.let { decorView ->
+        window.window?.let { window ->
+            val decorView = window.decorView
             decorView.setViewTreeLifecycleOwner(this)
             decorView.setViewTreeSavedStateRegistryOwner(this)
+            decorView.setViewTreeViewModelStoreOwner(this)
+            decorView.setViewTreeOnBackPressedDispatcherOwner(this)
         }
         return ComposeView(this).also { view ->
             view.setContent {
@@ -256,61 +279,79 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                                     // Hence, we lie and pretend that we're always focused.
                                                     LocalWindowInfo provides FocusedWindowInfo,
                                                 ) {
+                                                    val navController = rememberNavController()
                                                     val onAction = inputSession.actionHandler(
                                                         warningSnackbarHostState = snackbarHostState,
                                                         switchInputMethod = ::switchInputMethod,
+                                                        navController = navController,
                                                     )
                                                     Box {
-                                                        when (inputSession.activeView.value) {
-                                                            InputSession.ActiveView.ClipboardHistory -> ClipboardHistoryViewer(
-                                                                onAction = onAction,
-                                                                snackbarHostState = snackbarHostState,
-                                                            )
+                                                        NavHost(
+                                                            navController,
+                                                            startDestination = InputSession.ActiveView.Keyboard,
+                                                            contentAlignment = Alignment.BottomCenter,
+                                                            enterTransition = { fadeIn() + slideInVertically { it } + expandVertically() },
+                                                            exitTransition = { fadeOut() + slideOutVertically { it } + shrinkVertically() },
+                                                            popEnterTransition = { fadeIn() + slideInVertically { it } + expandVertically() },
+                                                            popExitTransition = { fadeOut() + slideOutVertically { it } + shrinkVertically() },
+                                                        ) {
+                                                            composable<InputSession.ActiveView.ClipboardHistory> {
+                                                                ClipboardHistoryViewer(
+                                                                    onAction = onAction,
+                                                                    snackbarHostState = snackbarHostState,
+                                                                    navigateUp = navController::navigateUp,
+                                                                )
+                                                            }
 
-                                                            InputSession.ActiveView.EmojiKeyboard -> EmojiKeyboard(
-                                                                onAction = onAction,
-                                                            )
+                                                            composable<InputSession.ActiveView.EmojiKeyboard> {
+                                                                EmojiKeyboard(
+                                                                    onAction = onAction,
+                                                                    navigateUp = navController::navigateUp,
+                                                                )
+                                                            }
 
-                                                            InputSession.ActiveView.Keyboard -> ConfiguredKeyboard(
-                                                                modifier = Modifier.fillMaxWidth(),
-                                                                onAction = onAction,
-                                                                onModifierStateUpdated = inputSession::updateModifierState,
-                                                                enterVisualOverride = inputSession.editorInfo?.let { editorInfo ->
-                                                                    editorInfo.actionLabel?.toString()
-                                                                        ?.let(ActionVisual::Label)
-                                                                        ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
-                                                                            EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
-                                                                                "GO",
-                                                                            )
+                                                            composable<InputSession.ActiveView.Keyboard> {
+                                                                ConfiguredKeyboard(
+                                                                    modifier = Modifier.fillMaxWidth(),
+                                                                    onAction = onAction,
+                                                                    onModifierStateUpdated = inputSession::updateModifierState,
+                                                                    enterVisualOverride = inputSession.editorInfo?.let { editorInfo ->
+                                                                        editorInfo.actionLabel?.toString()
+                                                                            ?.let(ActionVisual::Label)
+                                                                            ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
+                                                                                EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
+                                                                                    "GO",
+                                                                                )
 
-                                                                            EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
-                                                                                R.drawable.baseline_search_24,
-                                                                            )
+                                                                                EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
+                                                                                    R.drawable.baseline_search_24,
+                                                                                )
 
-                                                                            EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
-                                                                                R.drawable.baseline_send_24,
-                                                                            )
+                                                                                EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
+                                                                                    R.drawable.baseline_send_24,
+                                                                                )
 
-                                                                            EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
-                                                                                R.drawable.baseline_done_24,
-                                                                            )
-                                                                            /* Not using the next/prev icons since they can be confused with the jump left/right icons */
-                                                                            EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
-                                                                                "NEXT",
-                                                                            )
+                                                                                EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
+                                                                                    R.drawable.baseline_done_24,
+                                                                                )
+                                                                                /* Not using the next/prev icons since they can be confused with the jump left/right icons */
+                                                                                EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
+                                                                                    "NEXT",
+                                                                                )
 
-                                                                            EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
-                                                                                "PREV",
-                                                                            )
+                                                                                EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
+                                                                                    "PREV",
+                                                                                )
 
-                                                                            else -> null
-                                                                        }
-                                                                },
-                                                                overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
-                                                                    InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers
-                                                                    else -> null
-                                                                },
-                                                            )
+                                                                                else -> null
+                                                                            }
+                                                                    },
+                                                                    overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
+                                                                        InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers
+                                                                        else -> null
+                                                                    },
+                                                                )
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -334,6 +375,15 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
         }
     }
 
+    override val onBackPressedDispatcher: OnBackPressedDispatcher = OnBackPressedDispatcher()
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean = when {
+        keyCode == KeyEvent.KEYCODE_BACK && onBackPressedDispatcher.hasEnabledCallbacks() -> {
+            onBackPressedDispatcher.onBackPressed()
+            true
+        }
+
+        else -> super.onKeyDown(keyCode, event)
+    }
 
     override fun onUpdateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo?) {
         super.onUpdateCursorAnchorInfo(cursorAnchorInfo)
@@ -343,6 +393,9 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
     override fun onCreate() {
         super.onCreate()
         savedStateRegistryController.performRestore(null)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            onBackPressedDispatcher.setOnBackInvokedDispatcher(window.onBackInvokedDispatcher)
+        }
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
     }
 
@@ -353,6 +406,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
 
     override fun onDestroy() {
         lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
+        viewModelStore.clear()
         super.onDestroy()
     }
 }
