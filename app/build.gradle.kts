@@ -3,9 +3,11 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose")
-    kotlin("plugin.serialization") version "2.0.21"
+    id("androidx.room")
+    kotlin("android")
+    kotlin("plugin.compose")
+    kotlin("plugin.serialization")
+    id("com.google.devtools.ksp")
     id("se.nullable.flickboard.build.emojidb")
 }
 
@@ -103,6 +105,10 @@ android {
     }
 }
 
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
@@ -130,4 +136,9 @@ dependencies {
     androidTestImplementation("tools.fastlane:screengrab:2.1.1")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
 }

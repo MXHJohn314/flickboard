@@ -1,4 +1,4 @@
-package se.nullable.flickboard
+package se.nullable.flickboard.util
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize

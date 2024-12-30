@@ -63,10 +63,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
-import se.nullable.flickboard.angle
-import se.nullable.flickboard.averageOf
-import se.nullable.flickboard.direction
-import se.nullable.flickboard.div
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.ActionClass
 import se.nullable.flickboard.model.ActionVisual
@@ -77,9 +73,13 @@ import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.TextDirection
-import se.nullable.flickboard.times
 import se.nullable.flickboard.ui.layout.KeyLabelGrid
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
+import se.nullable.flickboard.util.angle
+import se.nullable.flickboard.util.averageOf
+import se.nullable.flickboard.util.direction
+import se.nullable.flickboard.util.div
+import se.nullable.flickboard.util.times
 import kotlin.math.PI
 import kotlin.math.absoluteValue
 import kotlin.math.min

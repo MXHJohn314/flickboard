@@ -47,6 +47,8 @@ import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.EnabledLayers
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.ProvideDisplayLimits
+import se.nullable.flickboard.ui.clipboard.ClipboardHistoryViewer
+import se.nullable.flickboard.ui.clipboard.ClipboardTracker
 import se.nullable.flickboard.ui.emoji.EmojiKeyboard
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.sharePointerInput
@@ -148,7 +150,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                             window,
                                             window.decorView,
                                         )
-                                        // This is deprecated because in API35 because it's the app's
+                                        // This is deprecated in API35 because it's the app's
                                         // responsibility to handle there, but we also need to
                                         // handle older versions.
                                         @Suppress("DEPRECATION")
@@ -158,6 +160,8 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                             !keyboardTheme.isDark
                                     }
                                 }
+
+                                ClipboardTracker()
 
                                 Column {
                                     // Input methods aren't allowed to request input themselves, so
@@ -256,12 +260,16 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                                         switchInputMethod = ::switchInputMethod,
                                                     )
                                                     Box {
-                                                        when {
-                                                            inputSession.emojiMode.value -> EmojiKeyboard(
+                                                        when (inputSession.activeView.value) {
+                                                            InputSession.ActiveView.ClipboardHistory -> ClipboardHistoryViewer(
                                                                 onAction = onAction,
                                                             )
 
-                                                            else -> {
+                                                            InputSession.ActiveView.EmojiKeyboard -> EmojiKeyboard(
+                                                                onAction = onAction,
+                                                            )
+
+                                                            InputSession.ActiveView.Keyboard -> {
                                                                 ConfiguredKeyboard(
                                                                     modifier = Modifier.fillMaxWidth(),
                                                                     onAction = onAction,

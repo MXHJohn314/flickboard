@@ -5,7 +5,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import se.nullable.flickboard.neg
+import se.nullable.flickboard.util.neg
 
 object Transition {
     // widthPx is unused, but leaving it to fit the signature and

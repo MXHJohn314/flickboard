@@ -32,6 +32,7 @@ import se.nullable.flickboard.util.Boxed
 import se.nullable.flickboard.util.LastTypedData
 import se.nullable.flickboard.util.asCombiningMarkOrNull
 import se.nullable.flickboard.util.singleCodePointOrNull
+import se.nullable.flickboard.util.times
 import java.text.BreakIterator
 import kotlin.math.max
 
@@ -42,7 +43,9 @@ class InputSession(
     private val inputConnection: InputConnection,
     val editorInfo: EditorInfo?,
 ) {
-    val emojiMode = mutableStateOf(false)
+    enum class ActiveView { Keyboard, EmojiKeyboard, ClipboardHistory }
+
+    val activeView = mutableStateOf(ActiveView.Keyboard)
 
     private val keycodeMapper = AndroidKeycodeMapper()
 
@@ -669,8 +672,17 @@ class InputSession(
                 is Action.AdjustCellHeight ->
                     appSettings.keyHeight.currentValue += action.amount
 
-                Action.ToggleEmojiMode ->
-                    emojiMode.value = !emojiMode.value
+                Action.ToggleEmojiKeyboard ->
+                    activeView.value = when (activeView.value) {
+                        ActiveView.EmojiKeyboard -> ActiveView.Keyboard
+                        else -> ActiveView.EmojiKeyboard
+                    }
+
+                Action.ToggleClipboardHistory ->
+                    activeView.value = when (activeView.value) {
+                        ActiveView.ClipboardHistory -> ActiveView.Keyboard
+                        else -> ActiveView.ClipboardHistory
+                    }
 
                 Action.ToggleShowSymbols ->
                     appSettings.showSymbols.currentValue =

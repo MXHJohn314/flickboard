@@ -184,15 +184,17 @@ val CONTROL_MESSAGEASE_LAYER =
                 KeyM(
                     actions = mapOf(
                         Direction.CENTER to Action.Enter(),
-                        Direction.TOP_LEFT to Action.ToggleEmojiMode,
+                        Direction.TOP_LEFT to Action.ToggleEmojiKeyboard,
                         // Always enters a new line, rather than triggering special actions
                         Direction.TOP to Action.Text(
                             "\n",
                             visualOverride = Action.Enter().visual(null),
                             hidden = true,
                         ),
-                        Direction.TOP_RIGHT to Action.ToggleEmojiMode,
+                        Direction.TOP_RIGHT to Action.ToggleEmojiKeyboard,
                         Direction.BOTTOM to Action.ToggleZalgo,
+                        // FIXME: find a better spot for it
+                        Direction.BOTTOM_RIGHT to Action.ToggleClipboardHistory,
                     ),
                 ),
             ),

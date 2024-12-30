@@ -1,7 +1,7 @@
 package se.nullable.flickboard.model
 
 import android.view.KeyEvent
-import se.nullable.flickboard.times
+import se.nullable.flickboard.util.times
 
 data class ModifierState(
     val shift: ShiftState = ShiftState.Normal,

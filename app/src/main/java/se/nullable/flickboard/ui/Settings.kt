@@ -99,9 +99,9 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.BuildConfig
 import se.nullable.flickboard.MainActivitySharedElement
-import se.nullable.flickboard.PiF
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.ActionClass
+import se.nullable.flickboard.model.AppDatabase
 import se.nullable.flickboard.model.Layer
 import se.nullable.flickboard.model.Layout
 import se.nullable.flickboard.model.layouts.AR_MESSAGEASE
@@ -142,6 +142,7 @@ import se.nullable.flickboard.ui.theme.Title
 import se.nullable.flickboard.ui.util.isSamsungDevice
 import se.nullable.flickboard.util.Boxed
 import se.nullable.flickboard.util.MaterialToneMode
+import se.nullable.flickboard.util.PiF
 import se.nullable.flickboard.util.orNull
 import se.nullable.flickboard.util.tryEnumValueOf
 import java.io.FileOutputStream
@@ -830,6 +831,7 @@ fun AppSettingsProvider(prefs: SharedPreferences? = null, content: @Composable (
                     Context.MODE_PRIVATE,
                 ),
                 coroutineScope = rememberCoroutineScope(),
+                appDatabase = LocalAppDatabase.current,
             ),
         ),
     ) {
@@ -1420,11 +1422,29 @@ class AppSettings(val ctx: SettingsContext) {
         label = "Remember recent emojis",
         defaultValue = false,
         ctx = ctx,
-        description = "History is only saved locally, and will not be shared",
+        description = "History is only saved locally, and will not be shared.",
         onChange = {
             // Reset history on disable
             if (!it) {
                 emojiHistory.currentValue = ""
+            }
+        },
+    )
+
+    val saveClipboardHistory = Setting.Bool(
+        key = "saveClipboardHistory",
+        label = "Save clipboard history",
+        defaultValue = false,
+        ctx = ctx,
+        description = "History is only saved locally, and will not be shared.\n" +
+                "Clipboard entries marked as \"sensitive\" will not be stored," +
+                " but this requires the sharing app to know that it is sensitive.",
+        onChange = {
+            // Reset history on disable
+            if (!it) {
+                ctx.coroutineScope.launch {
+                    ctx.appDatabase.value.clipboardEntryDao().clear()
+                }
             }
         },
     )
@@ -1518,7 +1538,10 @@ class AppSettings(val ctx: SettingsContext) {
                 key = "privacy",
                 label = "Privacy",
                 icon = R.drawable.baseline_fingerprint_24,
-                settings = listOf(saveEmojiHistory),
+                settings = listOf(
+                    saveEmojiHistory,
+                    saveClipboardHistory,
+                ),
             ),
         )
 }
@@ -1641,7 +1664,11 @@ enum class ControlSectionOption(override val label: String) : Labeled {
     DoubleOutside("Double (outside)"),
 }
 
-class SettingsContext(val prefs: SharedPreferences, val coroutineScope: CoroutineScope)
+class SettingsContext(
+    val prefs: SharedPreferences,
+    val coroutineScope: CoroutineScope,
+    val appDatabase: Lazy<AppDatabase>,
+)
 
 abstract class SettingProjection<T> {
     abstract var currentValue: T

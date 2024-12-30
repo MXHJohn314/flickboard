@@ -548,12 +548,20 @@ sealed class Action {
         override val description: String = "Selects all text in the field."
     }
 
-    data object ToggleEmojiMode : Action() {
+    data object ToggleEmojiKeyboard : Action() {
         override fun visual(modifier: ModifierState?): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_emoji_emotions_24)
 
         override val title: String = "Emoji"
-        override val description: String = "Opens the emoji picker."
+        override val description: String = "Opens the emoji keyboard."
+    }
+
+    data object ToggleClipboardHistory : Action() {
+        override fun visual(modifier: ModifierState?): ActionVisual =
+            ActionVisual.Icon(R.drawable.baseline_history_edu_24)
+
+        override val title: String = "Clipboard History"
+        override val description: String = "Opens the clipboard history."
     }
 
     data object ToggleShowSymbols : Action() {

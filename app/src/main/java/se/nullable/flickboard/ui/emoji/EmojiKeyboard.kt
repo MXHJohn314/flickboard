@@ -103,7 +103,7 @@ fun EmojiKeyboard(onAction: OnAction) {
                 Button(
                     onClick = {
                         onAction.onAction(
-                            Action.ToggleEmojiMode,
+                            Action.ToggleEmojiKeyboard,
                             key = null,
                             gesture = null,
                         )
