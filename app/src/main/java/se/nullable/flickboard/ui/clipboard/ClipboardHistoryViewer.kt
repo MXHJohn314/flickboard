@@ -24,6 +24,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -46,7 +48,7 @@ import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.theme.BodyPlaceholder
 
 @Composable
-fun ClipboardHistoryViewer(onAction: OnAction) {
+fun ClipboardHistoryViewer(onAction: OnAction, snackbarHostState: SnackbarHostState) {
     val entryDao = LocalAppDatabase.current.value.clipboardEntryDao()
     val entries = entryDao.getAll().collectAsState(emptyList())
     val clipboardManager = LocalClipboardManager.current
@@ -87,6 +89,14 @@ fun ClipboardHistoryViewer(onAction: OnAction) {
                                         SwipeToDismissBoxValue.StartToEnd -> {
                                             coroutineScope.launch {
                                                 entryDao.delete(entry)
+                                                if (snackbarHostState.showSnackbar(
+                                                        "Deleted",
+                                                        actionLabel = "Undo",
+                                                        withDismissAction = true,
+                                                    ) == SnackbarResult.ActionPerformed
+                                                ) {
+                                                    entryDao.insertOrTouch(entry)
+                                                }
                                             }
                                             true
                                         }

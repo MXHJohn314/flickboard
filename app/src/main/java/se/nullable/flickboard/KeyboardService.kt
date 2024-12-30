@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
@@ -141,7 +142,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                     ) {
                         FlickBoardParent {
                             ProvideDisplayLimits {
-                                val warningSnackbarHostState = remember { SnackbarHostState() }
+                                val snackbarHostState = remember { SnackbarHostState() }
                                 val keyboardTheme = LocalKeyboardTheme.current
 
                                 SideEffect {
@@ -256,67 +257,60 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                                     LocalWindowInfo provides FocusedWindowInfo,
                                                 ) {
                                                     val onAction = inputSession.actionHandler(
-                                                        warningSnackbarHostState = warningSnackbarHostState,
+                                                        warningSnackbarHostState = snackbarHostState,
                                                         switchInputMethod = ::switchInputMethod,
                                                     )
                                                     Box {
                                                         when (inputSession.activeView.value) {
                                                             InputSession.ActiveView.ClipboardHistory -> ClipboardHistoryViewer(
                                                                 onAction = onAction,
+                                                                snackbarHostState = snackbarHostState,
                                                             )
 
                                                             InputSession.ActiveView.EmojiKeyboard -> EmojiKeyboard(
                                                                 onAction = onAction,
                                                             )
 
-                                                            InputSession.ActiveView.Keyboard -> {
-                                                                ConfiguredKeyboard(
-                                                                    modifier = Modifier.fillMaxWidth(),
-                                                                    onAction = onAction,
-                                                                    onModifierStateUpdated = inputSession::updateModifierState,
-                                                                    enterVisualOverride = inputSession.editorInfo?.let { editorInfo ->
-                                                                        editorInfo.actionLabel?.toString()
-                                                                            ?.let(ActionVisual::Label)
-                                                                            ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
-                                                                                EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
-                                                                                    "GO",
-                                                                                )
+                                                            InputSession.ActiveView.Keyboard -> ConfiguredKeyboard(
+                                                                modifier = Modifier.fillMaxWidth(),
+                                                                onAction = onAction,
+                                                                onModifierStateUpdated = inputSession::updateModifierState,
+                                                                enterVisualOverride = inputSession.editorInfo?.let { editorInfo ->
+                                                                    editorInfo.actionLabel?.toString()
+                                                                        ?.let(ActionVisual::Label)
+                                                                        ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
+                                                                            EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
+                                                                                "GO",
+                                                                            )
 
-                                                                                EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
-                                                                                    R.drawable.baseline_search_24,
-                                                                                )
+                                                                            EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
+                                                                                R.drawable.baseline_search_24,
+                                                                            )
 
-                                                                                EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
-                                                                                    R.drawable.baseline_send_24,
-                                                                                )
+                                                                            EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
+                                                                                R.drawable.baseline_send_24,
+                                                                            )
 
-                                                                                EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
-                                                                                    R.drawable.baseline_done_24,
-                                                                                )
-                                                                                /* Not using the next/prev icons since they can be confused with the jump left/right icons */
-                                                                                EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
-                                                                                    "NEXT",
-                                                                                )
+                                                                            EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
+                                                                                R.drawable.baseline_done_24,
+                                                                            )
+                                                                            /* Not using the next/prev icons since they can be confused with the jump left/right icons */
+                                                                            EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
+                                                                                "NEXT",
+                                                                            )
 
-                                                                                EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
-                                                                                    "PREV",
-                                                                                )
+                                                                            EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
+                                                                                "PREV",
+                                                                            )
 
-                                                                                else -> null
-                                                                            }
-                                                                    },
-                                                                    overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
-                                                                        InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers
-                                                                        else -> null
-                                                                    },
-                                                                )
-                                                                SnackbarHost(
-                                                                    warningSnackbarHostState,
-                                                                    modifier = Modifier
-                                                                        .align(Alignment.BottomCenter)
-                                                                        .sharePointerInput(),
-                                                                )
-                                                            }
+                                                                            else -> null
+                                                                        }
+                                                                },
+                                                                overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
+                                                                    InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers
+                                                                    else -> null
+                                                                },
+                                                            )
                                                         }
                                                     }
                                                 }
@@ -324,6 +318,14 @@ class KeyboardService : InputMethodService(), LifecycleOwner, SavedStateRegistry
                                         }
                                     }
                                 }
+
+                                SnackbarHost(
+                                    snackbarHostState,
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .sharePointerInput()
+                                        .safeContentPadding(),
+                                )
                             }
                         }
                     }
