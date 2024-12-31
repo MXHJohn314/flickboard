@@ -42,9 +42,11 @@ interface ClipboardEntryDao {
     @Query("DELETE FROM clipboardentry")
     suspend fun clear()
 
-    // Only keep the last 10 rows
-    @Query("DELETE FROM clipboardentry WHERE id IN (SELECT id FROM clipboardentry ORDER BY lastAddedOn DESC LIMIT -1 OFFSET 10)")
-    suspend fun prune()
+    /**
+     * Only keep the last [keep] rows, to avoid the db growing indefinitely.
+     */
+    @Query("DELETE FROM clipboardentry WHERE id IN (SELECT id FROM clipboardentry ORDER BY lastAddedOn DESC LIMIT -1 OFFSET :keep)")
+    suspend fun prune(keep: Int = 100)
 
     @Delete
     suspend fun delete(entry: ClipboardEntry)
