@@ -108,6 +108,10 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         val newInputConnection = currentInputConnection
 
         currentInputSessions.clear()
+        if (newInputConnection == null) {
+            return
+        }
+
         currentInputSessions.add(
             InputSession(
                 newInputConnection,
