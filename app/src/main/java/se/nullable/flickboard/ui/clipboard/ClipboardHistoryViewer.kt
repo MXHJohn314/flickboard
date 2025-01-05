@@ -33,6 +33,8 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -48,6 +50,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.Action
+import se.nullable.flickboard.model.clipboard.ClipboardEntry
 import se.nullable.flickboard.model.clipboard.clipboardHistorySize
 import se.nullable.flickboard.ui.LocalAppDatabase
 import se.nullable.flickboard.ui.OnAction
@@ -70,6 +73,26 @@ fun ClipboardHistoryViewer(
     val clipboardManager = LocalClipboardManager.current
     val listState = rememberLazyListState()
     val directionNames = directionNames()
+
+    val undoableDeletedEntries = remember { mutableStateListOf<ClipboardEntry>() }
+    LaunchedEffect(undoableDeletedEntries.lastOrNull()) {
+        // Specifically not storing entry here, since we don't want to capture a specific value
+        // until the user has responded.
+        if (undoableDeletedEntries.isNotEmpty()) {
+            val snackbarResult = snackbarHostState.showSnackbar(
+                "Deleted",
+                actionLabel = "Undo",
+                withDismissAction = true,
+            )
+            val entry = undoableDeletedEntries.lastOrNull()
+            if (entry != null) {
+                if (snackbarResult == SnackbarResult.ActionPerformed) {
+                    entryDao.insertOrTouch(entry)
+                }
+                undoableDeletedEntries.remove(entry)
+            }
+        }
+    }
 
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column {
@@ -126,14 +149,7 @@ fun ClipboardHistoryViewer(
                                             SwipeToDismissBoxValue.StartToEnd -> {
                                                 coroutineScope.launch {
                                                     entryDao.delete(entry)
-                                                    if (snackbarHostState.showSnackbar(
-                                                            "Deleted",
-                                                            actionLabel = "Undo",
-                                                            withDismissAction = true,
-                                                        ) == SnackbarResult.ActionPerformed
-                                                    ) {
-                                                        entryDao.insertOrTouch(entry)
-                                                    }
+                                                    undoableDeletedEntries.add(entry)
                                                 }
                                                 true
                                             }
