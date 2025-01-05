@@ -18,6 +18,8 @@ data class ClipboardEntry(
     val clipData: String,
 )
 
+val clipboardHistorySize = 100
+
 @Dao
 interface ClipboardEntryDao {
     @Query("SELECT * FROM clipboardentry ORDER BY lastAddedOn DESC")
@@ -46,7 +48,7 @@ interface ClipboardEntryDao {
      * Only keep the last [keep] rows, to avoid the db growing indefinitely.
      */
     @Query("DELETE FROM clipboardentry WHERE id IN (SELECT id FROM clipboardentry ORDER BY lastAddedOn DESC LIMIT -1 OFFSET :keep)")
-    suspend fun prune(keep: Int = 100)
+    suspend fun prune(keep: Int = clipboardHistorySize)
 
     @Delete
     suspend fun delete(entry: ClipboardEntry)
