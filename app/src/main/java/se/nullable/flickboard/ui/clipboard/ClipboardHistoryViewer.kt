@@ -51,7 +51,7 @@ import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.clipboard.clipboardHistorySize
 import se.nullable.flickboard.ui.LocalAppDatabase
 import se.nullable.flickboard.ui.OnAction
-import se.nullable.flickboard.ui.theme.Title
+import se.nullable.flickboard.ui.theme.PageTitle
 import se.nullable.flickboard.ui.util.directionNames
 import se.nullable.flickboard.ui.util.items
 
@@ -74,7 +74,7 @@ fun ClipboardHistoryViewer(
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column {
             Surface(color = MaterialTheme.colorScheme.primaryContainer) {
-                Row(Modifier.fillMaxWidth()) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Button(
                         onClick = navigateUp,
                         Modifier.padding(8.dp),
@@ -82,7 +82,7 @@ fun ClipboardHistoryViewer(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Return to keyboard")
                     }
 
-                    Title("Clipboard")
+                    PageTitle("Clipboard")
                 }
             }
             LazyColumn(
