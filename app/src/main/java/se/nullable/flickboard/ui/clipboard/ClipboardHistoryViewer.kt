@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -33,10 +32,8 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -47,7 +44,6 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.compose.collectAsLazyPagingItems
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.Action
@@ -57,7 +53,6 @@ import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.theme.Title
 import se.nullable.flickboard.ui.util.directionNames
 import se.nullable.flickboard.ui.util.items
-import java.time.Instant
 
 @Composable
 fun ClipboardHistoryViewer(
@@ -72,22 +67,7 @@ fun ClipboardHistoryViewer(
             .flow.cachedIn(coroutineScope)
     }.collectAsLazyPagingItems()
     val clipboardManager = LocalClipboardManager.current
-    val listState = rememberLazyListState()
     val directionNames = directionNames()
-
-    // Scroll to the top of the list whenever it changes
-    LaunchedEffect(Unit) {
-        snapshotFlow {
-            when {
-                entries.itemCount > 0 -> entries[0]
-                else -> null
-            }
-        }.collectLatest { firstEntry ->
-            if (firstEntry != null) {
-                listState.animateScrollToItem(0)
-            }
-        }
-    }
 
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column {
@@ -108,15 +88,11 @@ fun ClipboardHistoryViewer(
                     .height(300.dp)
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                // top padding is provided by the dummy item instead (via the arrangement)
-                // contentPadding = PaddingValues(vertical = 8.dp),
-                state = listState,
             ) {
-                // Dummy item that is always on top, which we can always scroll to safely
-                // without worrying about whether [listState] has seen the latest modifications
-                // to the list.
-                item {}
-
+                // The header is important not just for visual clarity, but it also provides space
+                // where the *previous* item (or the header) is considered the top item, so that if
+                // the visible top item is deleted and restored it will reappear within the visible
+                // area.
                 clipboardHistoryHeader("History")
 
                 if (entries.loadState.isIdle && entries.itemCount == 0) {
@@ -150,9 +126,7 @@ fun ClipboardHistoryViewer(
                                                             withDismissAction = true,
                                                         ) == SnackbarResult.ActionPerformed
                                                     ) {
-                                                        entryDao.insertOrTouch(
-                                                            entry.copy(lastAddedOn = Instant.now()),
-                                                        )
+                                                        entryDao.insertOrTouch(entry)
                                                     }
                                                 }
                                                 true
@@ -266,7 +240,7 @@ private fun LazyListScope.clipboardHistoryHeader(label: String) {
 private fun ClipboardEntryCard(
     clipData: String,
     onClick: (() -> Unit)?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     OutlinedCard(
         onClick = { onClick?.invoke() },
