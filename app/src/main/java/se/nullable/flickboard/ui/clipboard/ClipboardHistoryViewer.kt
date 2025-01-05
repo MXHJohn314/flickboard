@@ -59,7 +59,6 @@ import se.nullable.flickboard.ui.util.directionNames
 import se.nullable.flickboard.ui.util.items
 import java.time.Instant
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ClipboardHistoryViewer(
     onAction: OnAction,
