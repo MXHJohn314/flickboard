@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -67,6 +68,7 @@ fun ClipboardHistoryViewer(
             .flow.cachedIn(coroutineScope)
     }.collectAsLazyPagingItems()
     val clipboardManager = LocalClipboardManager.current
+    val listState = rememberLazyListState()
     val directionNames = directionNames()
 
     Surface(color = MaterialTheme.colorScheme.surface) {
@@ -88,7 +90,11 @@ fun ClipboardHistoryViewer(
                     .height(300.dp)
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
+                state = listState,
             ) {
+                // Anchor for scrolling to the top of the list
+                item {}
+
                 // The header is important not just for visual clarity, but it also provides space
                 // where the *previous* item (or the header) is considered the top item, so that if
                 // the visible top item is deleted and restored it will reappear within the visible
@@ -134,6 +140,9 @@ fun ClipboardHistoryViewer(
 
                                             SwipeToDismissBoxValue.EndToStart -> {
                                                 clipboardManager.setText(AnnotatedString(entry.clipData))
+                                                coroutineScope.launch {
+                                                    listState.animateScrollToItem(0)
+                                                }
                                                 // API 33+ provides its own copy toast, so we don't need to provide one there
                                                 // see https://developer.android.com/develop/ui/compose/touch-input/copy-and-paste#feedback_to_copying_content
                                                 if (android.os.Build.VERSION.SDK_INT < 33) {
