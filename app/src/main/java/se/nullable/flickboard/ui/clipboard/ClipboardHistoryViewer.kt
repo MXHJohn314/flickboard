@@ -37,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -140,7 +141,8 @@ fun ClipboardHistoryViewer(
                             entry == null ->
                                 rememberSwipeToDismissBoxState(confirmValueChange = { false })
 
-                            else ->
+                            else -> {
+                                val currentEntry = rememberUpdatedState(entry)
                                 rememberSwipeToDismissBoxState(
                                     confirmValueChange = {
                                         when (it) {
@@ -148,8 +150,9 @@ fun ClipboardHistoryViewer(
 
                                             SwipeToDismissBoxValue.StartToEnd -> {
                                                 coroutineScope.launch {
-                                                    entryDao.delete(entry)
-                                                    undoableDeletedEntries.add(entry)
+                                                    val e = currentEntry.value
+                                                    entryDao.delete(e)
+                                                    undoableDeletedEntries.add(e)
                                                 }
                                                 true
                                             }
@@ -174,6 +177,7 @@ fun ClipboardHistoryViewer(
                                         }
                                     },
                                 )
+                            }
                         }
                     SwipeToDismissBox(
                         swipeState,
