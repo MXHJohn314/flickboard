@@ -1,12 +1,12 @@
 package se.nullable.flickboard.model.clipboard
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.Instant
@@ -21,7 +21,7 @@ data class ClipboardEntry(
 @Dao
 interface ClipboardEntryDao {
     @Query("SELECT * FROM clipboardentry ORDER BY lastAddedOn DESC")
-    fun getAll(): Flow<List<ClipboardEntry>>
+    fun getAll(): PagingSource<Int, ClipboardEntry>
 
     @Query("UPDATE clipboardentry SET lastAddedOn = :lastAddedOn WHERE clipData = :clipData")
     suspend fun touchByData(clipData: String, lastAddedOn: Instant): Int

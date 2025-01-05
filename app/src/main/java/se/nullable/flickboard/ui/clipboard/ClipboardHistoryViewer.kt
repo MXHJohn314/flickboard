@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -32,7 +31,7 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,12 +39,17 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
+import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.ui.LocalAppDatabase
 import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.theme.BodyPlaceholder
+import se.nullable.flickboard.ui.util.items
 
 @Composable
 fun ClipboardHistoryViewer(
@@ -53,10 +57,13 @@ fun ClipboardHistoryViewer(
     snackbarHostState: SnackbarHostState,
     navigateUp: () -> Unit,
 ) {
-    val entryDao = LocalAppDatabase.current.value.clipboardEntryDao()
-    val entries = entryDao.getAll().collectAsState(emptyList())
-    val clipboardManager = LocalClipboardManager.current
     val coroutineScope = rememberCoroutineScope()
+    val entryDao = LocalAppDatabase.current.value.clipboardEntryDao()
+    val entries = remember(coroutineScope, entryDao) {
+        Pager(PagingConfig(pageSize = 10), pagingSourceFactory = entryDao::getAll)
+            .flow.cachedIn(coroutineScope)
+    }.collectAsLazyPagingItems()
+    val clipboardManager = LocalClipboardManager.current
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column {
             Surface(color = MaterialTheme.colorScheme.primaryContainer) {
@@ -77,45 +84,51 @@ fun ClipboardHistoryViewer(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(vertical = 8.dp),
                 ) {
-                    items(entries.value, key = { it.id }) { entry ->
+                    items(entries, key = { it.id }) { entry ->
                         val swipeState =
-                            rememberSwipeToDismissBoxState(
-                                confirmValueChange = {
-                                    when (it) {
-                                        SwipeToDismissBoxValue.Settled -> true
+                            when {
+                                entry == null ->
+                                    rememberSwipeToDismissBoxState(confirmValueChange = { false })
 
-                                        SwipeToDismissBoxValue.StartToEnd -> {
-                                            coroutineScope.launch {
-                                                entryDao.delete(entry)
-                                                if (snackbarHostState.showSnackbar(
-                                                        "Deleted",
-                                                        actionLabel = "Undo",
-                                                        withDismissAction = true,
-                                                    ) == SnackbarResult.ActionPerformed
-                                                ) {
-                                                    entryDao.insertOrTouch(entry)
+                                else ->
+                                    rememberSwipeToDismissBoxState(
+                                        confirmValueChange = {
+                                            when (it) {
+                                                SwipeToDismissBoxValue.Settled -> true
+
+                                                SwipeToDismissBoxValue.StartToEnd -> {
+                                                    coroutineScope.launch {
+                                                        entryDao.delete(entry)
+                                                        if (snackbarHostState.showSnackbar(
+                                                                "Deleted",
+                                                                actionLabel = "Undo",
+                                                                withDismissAction = true,
+                                                            ) == SnackbarResult.ActionPerformed
+                                                        ) {
+                                                            entryDao.insertOrTouch(entry)
+                                                        }
+                                                    }
+                                                    true
+                                                }
+
+                                                SwipeToDismissBoxValue.EndToStart -> {
+                                                    clipboardManager.setText(AnnotatedString(entry.clipData))
+                                                    // API 33+ provides its own copy toast, so we don't need to provide one there
+                                                    // see https://developer.android.com/develop/ui/compose/touch-input/copy-and-paste#feedback_to_copying_content
+                                                    if (android.os.Build.VERSION.SDK_INT < 33) {
+                                                        coroutineScope.launch {
+                                                            snackbarHostState.showSnackbar(
+                                                                "Copied \"${entry.clipData}\"",
+                                                                withDismissAction = true,
+                                                            )
+                                                        }
+                                                    }
+                                                    false // It's not deleted, so return to its original position
                                                 }
                                             }
-                                            true
-                                        }
-
-                                        SwipeToDismissBoxValue.EndToStart -> {
-                                            clipboardManager.setText(AnnotatedString(entry.clipData))
-                                            // API 33+ provides its own copy toast, so we don't need to provide one there
-                                            // see https://developer.android.com/develop/ui/compose/touch-input/copy-and-paste#feedback_to_copying_content
-                                            if (android.os.Build.VERSION.SDK_INT < 33) {
-                                                coroutineScope.launch {
-                                                    snackbarHostState.showSnackbar(
-                                                        "Copied \"${entry.clipData}\"",
-                                                        withDismissAction = true,
-                                                    )
-                                                }
-                                            }
-                                            false // It's not deleted, so return to its original position
-                                        }
-                                    }
-                                },
-                            )
+                                        },
+                                    )
+                            }
                         SwipeToDismissBox(
                             swipeState,
                             backgroundContent = {
@@ -160,17 +173,20 @@ fun ClipboardHistoryViewer(
                         ) {
                             OutlinedCard(
                                 onClick = {
-                                    onAction.onAction(
-                                        Action.Text(entry.clipData, hidden = true),
-                                        key = null,
-                                        gesture = null,
-                                    )
+                                    if (entry != null) {
+                                        onAction.onAction(
+                                            Action.Text(entry.clipData, hidden = true),
+                                            key = null,
+                                            gesture = null,
+                                        )
+                                    }
                                 },
+                                enabled = entry != null,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 8.dp),
                             ) {
-                                Text(entry.clipData, Modifier.padding(16.dp))
+                                Text(entry?.clipData ?: "(loading)", Modifier.padding(16.dp))
                             }
                         }
                     }
@@ -179,7 +195,7 @@ fun ClipboardHistoryViewer(
                         Spacer(Modifier.safeDrawingPadding())
                     }
                 }
-                if (entries.value.isEmpty()) {
+                if (entries.loadState.isIdle && entries.itemCount == 0) {
                     BodyPlaceholder(
                         "The clipboard history is empty, go and copy something!",
                         Modifier.align(Alignment.Center),
