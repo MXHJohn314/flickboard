@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -31,8 +31,10 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -43,6 +45,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.compose.collectAsLazyPagingItems
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.Action
@@ -50,6 +53,7 @@ import se.nullable.flickboard.ui.LocalAppDatabase
 import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.theme.BodyPlaceholder
 import se.nullable.flickboard.ui.util.items
+import java.time.Instant
 
 @Composable
 fun ClipboardHistoryViewer(
@@ -64,6 +68,22 @@ fun ClipboardHistoryViewer(
             .flow.cachedIn(coroutineScope)
     }.collectAsLazyPagingItems()
     val clipboardManager = LocalClipboardManager.current
+    val listState = rememberLazyListState()
+
+    // Scroll to the top of the list whenever it changes
+    LaunchedEffect(Unit) {
+        snapshotFlow {
+            when {
+                entries.itemCount > 0 -> entries[0]
+                else -> null
+            }
+        }.collectLatest { firstEntry ->
+            if (firstEntry != null) {
+                listState.animateScrollToItem(0)
+            }
+        }
+    }
+
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column {
             Surface(color = MaterialTheme.colorScheme.primaryContainer) {
@@ -82,8 +102,15 @@ fun ClipboardHistoryViewer(
                         .height(300.dp)
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(vertical = 8.dp),
+                    // top padding is provided by the dummy item instead (via the arrangement)
+                    // contentPadding = PaddingValues(vertical = 8.dp),
+                    state = listState,
                 ) {
+                    // Dummy item that is always on top, which we can always scroll to safely
+                    // without worrying about whether [listState] has seen the latest modifications
+                    // to the list.
+                    item {}
+
                     items(entries, key = { it.id }) { entry ->
                         val swipeState =
                             when {
@@ -105,7 +132,9 @@ fun ClipboardHistoryViewer(
                                                                 withDismissAction = true,
                                                             ) == SnackbarResult.ActionPerformed
                                                         ) {
-                                                            entryDao.insertOrTouch(entry)
+                                                            entryDao.insertOrTouch(
+                                                                entry.copy(lastAddedOn = Instant.now()),
+                                                            )
                                                         }
                                                     }
                                                     true
@@ -168,8 +197,7 @@ fun ClipboardHistoryViewer(
                                     }
                                 }
                             },
-                            Modifier
-                                .animateItem(),
+                            Modifier.animateItem(),
                         ) {
                             OutlinedCard(
                                 onClick = {
