@@ -9,6 +9,7 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,6 +39,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import se.nullable.flickboard.KeyboardService
+import se.nullable.flickboard.ui.theme.Transition
 
 @Composable
 fun OnboardingPrompt() {
@@ -65,19 +67,32 @@ fun OnboardingPrompt() {
     val keyboardServiceId =
         remember(context) { ComponentName(context, KeyboardService::class.java) }
 
-    if (!inputManager.enabledInputMethodList.any { it.component == keyboardServiceId }) {
+    val inputMethodEnabled =
+        inputManager.enabledInputMethodList.any { it.component == keyboardServiceId }
+    val inputMethodSelected = ComponentName.unflattenFromString(
+        Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.DEFAULT_INPUT_METHOD,
+        ),
+    ) == keyboardServiceId
+
+    AnimatedVisibility(
+        !inputMethodEnabled,
+        enter = Transition.enterFromTop,
+        exit = Transition.exitToTop,
+    ) {
         OnboardingPromptEnable()
-    } else if (
-        ComponentName.unflattenFromString(
-            Settings.Secure.getString(
-                context.contentResolver,
-                Settings.Secure.DEFAULT_INPUT_METHOD,
-            ),
-        ) != keyboardServiceId
+    }
+    AnimatedVisibility(
+        inputMethodEnabled
+                && !inputMethodSelected,
+        enter = Transition.enterFromTop,
+        exit = Transition.exitToTop,
     ) {
         OnboardingPromptSelect(inputManager)
-    } else {
-        Box(modifier = Modifier.testTag("onboardingComplete"))
+    }
+    if (inputMethodEnabled && inputMethodSelected) {
+        Box(Modifier.testTag("onboardingComplete"))
     }
 }
 

@@ -1,10 +1,13 @@
 package se.nullable.flickboard.ui.theme
 
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.ui.Alignment
 import se.nullable.flickboard.util.neg
 
 object Transition {
@@ -21,4 +24,7 @@ object Transition {
     val popEnter = slideInHorizontally(initialOffsetX = neg(this::widthTransform)) + fadeIn()
     val popExit = slideOutHorizontally(targetOffsetX = this::widthTransform) + fadeOut()
     val pop = popEnter togetherWith popExit
+
+    val enterFromTop = expandVertically(expandFrom = Alignment.Top)
+    val exitToTop = shrinkVertically(shrinkTowards = Alignment.Top)
 }
