@@ -22,6 +22,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -78,6 +79,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -386,17 +388,32 @@ fun SettingsKeyboardPreview(
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                 ) {
                     ProvideDisplayLimits {
-                        ConfiguredKeyboard(
-                            onAction = { _, _, _ -> true }, // Keyboard provides internal visual feedback if enabled
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .excludeFromBottomInset()
-                                // sharedElement can't encompass AnimatedVisibility, or the size animation breaks
-                                .sharedElement(
-                                    rememberSharedContentState(MainActivitySharedElement.SettingsKeyboardPreview.toString()),
-                                    animatedVisibilityScope,
-                                ),
-                        )
+                        Box {
+                            ConfiguredKeyboard(
+                                onAction = { _, _, _ -> true }, // Keyboard provides internal visual feedback if enabled
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .excludeFromBottomInset()
+                                    // sharedElement can't encompass AnimatedVisibility, or the size animation breaks
+                                    .sharedElement(
+                                        rememberSharedContentState(MainActivitySharedElement.SettingsKeyboardPreview.toString()),
+                                        animatedVisibilityScope,
+                                    ),
+                            )
+                            androidx.compose.animation.AnimatedVisibility(
+                                realKeyboardVisible,
+                                Modifier.matchParentSize(),
+                                enter = fadeIn(),
+                                exit = fadeOut(),
+                            ) {
+                                Box(
+                                    Modifier
+                                        .background(MaterialTheme.colorScheme.surfaceDim.copy(alpha = 0.9F))
+                                        // Block tap input for convered nodes
+                                        .pointerInput(Unit) {},
+                                )
+                            }
+                        }
                     }
                 }
             }
