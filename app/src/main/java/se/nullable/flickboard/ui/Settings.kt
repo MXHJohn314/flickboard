@@ -843,10 +843,7 @@ fun AppSettingsProvider(prefs: SharedPreferences? = null, content: @Composable (
     CompositionLocalProvider(
         LocalAppSettings provides AppSettings(
             SettingsContext(
-                prefs = prefs ?: LocalContext.current.getSharedPreferences(
-                    "flickboard",
-                    Context.MODE_PRIVATE,
-                ),
+                prefs = prefs ?: SettingsContext.appPrefsForContext(LocalContext.current),
                 coroutineScope = rememberCoroutineScope(),
                 appDatabase = LocalAppDatabase.current,
             ),
@@ -1685,7 +1682,18 @@ class SettingsContext(
     val prefs: SharedPreferences,
     val coroutineScope: CoroutineScope,
     val appDatabase: Lazy<AppDatabase>,
-)
+) {
+    companion object {
+        /**
+         * Do not use in a composable context! Use [LocalAppSettings] instead!
+         */
+        fun appPrefsForContext(context: Context): SharedPreferences =
+            context.getSharedPreferences(
+                "flickboard",
+                Context.MODE_PRIVATE,
+            )
+    }
+}
 
 abstract class SettingProjection<T> {
     abstract var currentValue: T
@@ -1759,7 +1767,7 @@ sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>
             return v.value
         }
 
-    private val watch: Flow<T> = callbackFlow {
+    val watch: Flow<T> = callbackFlow {
         // Type MUST Be initialized by name to ensure that the same object is passed to
         // register and unregister. Otherwise no strong reference is held to the listener,
         // meaning that the registration can be "lost" on any garbage collection.

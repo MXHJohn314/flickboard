@@ -1,5 +1,6 @@
 package se.nullable.flickboard.ui
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.gesture.GestureLibraries
 import android.gesture.GestureLibrary
@@ -29,6 +30,12 @@ val LocalAppDatabase = staticCompositionLocalOf<Lazy<AppDatabase>> {
     throw Exception("LocalAppDatabase used outside of FlickBoardParent")
 }
 
+/**
+ * Do not use in a composable context! Use [LocalAppDatabase] to share the instance.
+ */
+fun appDatabaseForContext(context: Context): AppDatabase =
+    Room.databaseBuilder(context, AppDatabase::class.java, "flickboard-appdb").build()
+
 // HACK: Boxing allows the variable to exist on platforms that do not provide the type
 // (like the IDE previews)
 val LocalDollar1GestureLibrary = staticCompositionLocalOf<Lazy<Boxed<GestureLibrary>>> {
@@ -55,7 +62,7 @@ fun FlickBoardParent(prefs: SharedPreferences? = null, content: @Composable () -
     }
     val appDatabase = remember(context) {
         lazy {
-            Room.databaseBuilder(context, AppDatabase::class.java, "flickboard-appdb").build()
+            appDatabaseForContext(context)
         }
     }
     val dollar1GestureLibrary: Lazy<Boxed<GestureLibrary>> = remember(context) {

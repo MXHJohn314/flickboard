@@ -49,6 +49,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.navigation.compose.NavHost
@@ -59,13 +60,16 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.launch
 import se.nullable.flickboard.model.ActionVisual
+import se.nullable.flickboard.ui.AppSettings
 import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.EnabledLayers
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.ProvideDisplayLimits
+import se.nullable.flickboard.ui.SettingsContext
+import se.nullable.flickboard.ui.appDatabaseForContext
 import se.nullable.flickboard.ui.clipboard.ClipboardHistoryViewer
-import se.nullable.flickboard.ui.clipboard.ClipboardTracker
 import se.nullable.flickboard.ui.emoji.EmojiKeyboard
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.sharePointerInput
@@ -188,8 +192,6 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                             !keyboardTheme.isDark
                                     }
                                 }
-
-                                ClipboardTracker()
 
                                 Column {
                                     // Input methods aren't allowed to request input themselves, so
@@ -401,6 +403,23 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             onBackPressedDispatcher.setOnBackInvokedDispatcher(window.onBackInvokedDispatcher)
         }
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
+        lifecycleScope.launch {
+            // Background jobs (which should be active even while composables are not) cannot
+            // access the composable context.
+            val backgroundAppSettings = AppSettings(
+                SettingsContext(
+                    prefs = SettingsContext.appPrefsForContext(
+                        context = this@KeyboardService,
+                    ),
+                    coroutineScope = this,
+                    appDatabase = lazy { appDatabaseForContext(this@KeyboardService) },
+                ),
+            )
+            clipboardTracker(
+                appSettings = backgroundAppSettings,
+                context = this@KeyboardService,
+            )
+        }
     }
 
     override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
