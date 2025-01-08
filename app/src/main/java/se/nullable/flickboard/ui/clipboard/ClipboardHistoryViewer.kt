@@ -131,16 +131,8 @@ fun ClipboardHistoryViewer(
                 // Anchor for scrolling to the top of the list
                 item {}
 
-                clipboardHistoryHeader("Pinned")
-
-                if (pinnedEntries.loadState.isIdle && pinnedEntries.itemCount == 0) {
-                    item {
-                        ClipboardEntryCard(
-                            "You have no pinned items.",
-                            onClick = null,
-                            modifier = Modifier.animateItem(),
-                        )
-                    }
+                if (pinnedEntries.itemCount > 0) {
+                    clipboardHistoryHeader("Pinned")
                 }
 
                 items(
@@ -217,9 +209,11 @@ fun ClipboardHistoryViewer(
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.clipboardHistoryHeader(label: String) {
-    stickyHeader {
+    stickyHeader(key = label, contentType = "header") {
         Surface(
-            Modifier.fillMaxWidth(),
+            Modifier
+                .fillMaxWidth()
+                .animateItem(),
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7F),
         ) { Text(label, Modifier.padding(8.dp)) }
     }
