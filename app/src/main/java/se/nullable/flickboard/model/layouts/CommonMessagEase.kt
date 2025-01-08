@@ -152,7 +152,12 @@ val CONTROL_MESSAGEASE_LAYER =
                         Direction.BOTTOM_LEFT to Action.EnableVoiceMode,
                         Direction.BOTTOM_RIGHT to Action.EnableVoiceMode,
                     ),
-                    shift = KeyM(actions = mapOf(Direction.CENTER to Action.SelectAll)),
+                    shift = KeyM(
+                        actions = mapOf(
+                            Direction.CENTER to Action.SelectAll,
+                            Direction.BOTTOM to Action.OpenClipboardHistory,
+                        ),
+                    ),
                 ),
             ),
             // backspace
@@ -196,25 +201,6 @@ val CONTROL_MESSAGEASE_LAYER =
                     ),
                 ),
             ),
-        ),
-    )
-
-val CONTROL_OVERLAY_CLIPBOARD_HISTORY_MESSAGEASE =
-    Layer(
-        keyRows = listOf(
-            // pointer
-            listOf(KeyM(actions = emptyMap())),
-            // clipboard
-            listOf(
-                KeyM(
-                    actions = emptyMap(),
-                    shift = KeyM(actions = mapOf(Direction.BOTTOM to Action.OpenClipboardHistory)),
-                ),
-            ),
-            // backspace
-            listOf(KeyM(actions = emptyMap())),
-            // enter
-            listOf(KeyM(actions = emptyMap())),
         ),
     )
 

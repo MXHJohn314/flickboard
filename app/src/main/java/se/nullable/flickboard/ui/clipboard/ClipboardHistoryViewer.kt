@@ -55,6 +55,7 @@ import se.nullable.flickboard.model.clipboard.ClipboardEntry
 import se.nullable.flickboard.model.clipboard.ClipboardEntryDao
 import se.nullable.flickboard.model.clipboard.clipboardHistorySize
 import se.nullable.flickboard.ui.LocalAppDatabase
+import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.theme.PageTitle
 import se.nullable.flickboard.ui.util.items
@@ -66,10 +67,15 @@ fun ClipboardHistoryViewer(
     snackbarHostState: SnackbarHostState,
     navigateUp: () -> Unit,
 ) {
+    val appSettings = LocalAppSettings.current
+    val clipboardHistoryEnabled = appSettings.saveClipboardHistory.state
     val coroutineScope = rememberCoroutineScope()
     val entryDao = LocalAppDatabase.current.value.clipboardEntryDao()
     val pinnedEntries = remember(coroutineScope, entryDao) {
-        Pager(PagingConfig(pageSize = 10), pagingSourceFactory = { entryDao.getAll(pinned = true) })
+        Pager(
+            PagingConfig(pageSize = 10),
+            pagingSourceFactory = { entryDao.getAll(pinned = true) },
+        )
             .flow.cachedIn(coroutineScope)
     }.collectAsLazyPagingItems()
     val unpinnedEntries = remember(coroutineScope, entryDao) {
@@ -148,6 +154,9 @@ fun ClipboardHistoryViewer(
                         onAction = onAction,
                         onEntryDeleted = undoableDeletedEntries::add,
                         snackbarHostState = snackbarHostState,
+                        // Don't allow unpinning when clipboard history is disabled,
+                        // since it would introduce unpinned history items.
+                        allowPinToggle = clipboardHistoryEnabled.value,
                     )
                 }
 
@@ -160,7 +169,12 @@ fun ClipboardHistoryViewer(
                 if (unpinnedEntries.loadState.isIdle && unpinnedEntries.itemCount == 0) {
                     item {
                         ClipboardEntryCard(
-                            "The history is empty, go and copy something!",
+                            when {
+                                clipboardHistoryEnabled.value ->
+                                    "The history is empty, go and copy something!"
+
+                                else -> "Clipboard history is disabled."
+                            },
                             onClick = null,
                             modifier = Modifier.animateItem(),
                         )
@@ -178,6 +192,7 @@ fun ClipboardHistoryViewer(
                         onAction = onAction,
                         onEntryDeleted = undoableDeletedEntries::add,
                         snackbarHostState = snackbarHostState,
+                        allowPinToggle = true,
                     )
                 }
 
@@ -217,6 +232,7 @@ private fun LazyItemScope.ClipboardEntryItem(
     onAction: OnAction,
     onEntryDeleted: (ClipboardEntry) -> Unit,
     snackbarHostState: SnackbarHostState,
+    allowPinToggle: Boolean,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val clipboardManager = LocalClipboardManager.current
@@ -260,6 +276,7 @@ private fun LazyItemScope.ClipboardEntryItem(
                             )
                         }
                         IconButton(
+                            enabled = allowPinToggle,
                             onClick = {
                                 currentEntry.value?.let {
                                     coroutineScope.launch {
