@@ -290,12 +290,12 @@ private fun LazyItemScope.ClipboardEntryItem(
                         ) {
                             when {
                                 entry?.pinned == true -> Icon(
-                                    painterResource(R.drawable.baseline_bookmark_remove_24),
+                                    painterResource(R.drawable.outline_keep_off_24),
                                     "Unpin",
                                 )
 
                                 else -> Icon(
-                                    painterResource(R.drawable.baseline_bookmark_add_24),
+                                    painterResource(R.drawable.outline_keep_24),
                                     "Pin",
                                 )
                             }
