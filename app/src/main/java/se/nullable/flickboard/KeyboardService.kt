@@ -85,6 +85,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
     override val viewModelStore: ViewModelStore = ViewModelStore()
 
+    private val appDatabase = lazy { appDatabaseForContext(this@KeyboardService) }
 
     private var viewHeight: Int = 0 // Set once view is measured
     private var keyboardHeight: Int = 0 // Set once view is measured
@@ -171,7 +172,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                             keyboardHeight = size.height
                         },
                     ) {
-                        FlickBoardParent {
+                        FlickBoardParent(appDatabase = appDatabase) {
                             ProvideDisplayLimits {
                                 val snackbarHostState = remember { SnackbarHostState() }
                                 val keyboardTheme = LocalKeyboardTheme.current
@@ -412,7 +413,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         context = this@KeyboardService,
                     ),
                     coroutineScope = this,
-                    appDatabase = lazy { appDatabaseForContext(this@KeyboardService) },
+                    appDatabase = appDatabase,
                 ),
             )
             clipboardTracker(

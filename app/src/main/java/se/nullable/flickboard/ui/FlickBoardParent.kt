@@ -44,7 +44,11 @@ val LocalDollar1GestureLibrary = staticCompositionLocalOf<Lazy<Boxed<GestureLibr
 
 @OptIn(ExperimentalSerializationApi::class)
 @Composable
-fun FlickBoardParent(prefs: SharedPreferences? = null, content: @Composable () -> Unit) {
+fun FlickBoardParent(
+    prefs: SharedPreferences? = null,
+    appDatabase: Lazy<AppDatabase>? = null,
+    content: @Composable () -> Unit
+) {
     val context = LocalContext.current
     val emojiTrie = remember(context) {
         lazy {
@@ -60,7 +64,7 @@ fun FlickBoardParent(prefs: SharedPreferences? = null, content: @Composable () -
             }
         }
     }
-    val appDatabase = remember(context) {
+    val providedAppDatabase = appDatabase ?: remember(context) {
         lazy {
             appDatabaseForContext(context)
         }
@@ -81,7 +85,7 @@ fun FlickBoardParent(prefs: SharedPreferences? = null, content: @Composable () -
     CompositionLocalProvider(
         LocalEmojiTrie provides emojiTrie,
         LocalEmojiDb provides emojiDb,
-        LocalAppDatabase provides appDatabase,
+        LocalAppDatabase provides providedAppDatabase,
         LocalDollar1GestureLibrary provides dollar1GestureLibrary,
     ) {
         AppSettingsProvider(prefs) {
