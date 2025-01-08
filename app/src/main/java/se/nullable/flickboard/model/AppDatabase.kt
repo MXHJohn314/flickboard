@@ -1,5 +1,6 @@
 package se.nullable.flickboard.model
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
@@ -8,7 +9,14 @@ import se.nullable.flickboard.model.clipboard.ClipboardEntry
 import se.nullable.flickboard.model.clipboard.ClipboardEntryDao
 import java.time.Instant
 
-@Database(entities = [ClipboardEntry::class], version = 1)
+@Database(
+    version = 3,
+    entities = [ClipboardEntry::class],
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3),
+    ],
+)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun clipboardEntryDao(): ClipboardEntryDao

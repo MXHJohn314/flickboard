@@ -1457,7 +1457,7 @@ class AppSettings(val ctx: SettingsContext) {
             // Reset history on disable
             if (!it) {
                 ctx.coroutineScope.launch {
-                    ctx.appDatabase.value.clipboardEntryDao().clear()
+                    ctx.appDatabase.value.clipboardEntryDao().clearUnpinned()
                 }
             }
         },

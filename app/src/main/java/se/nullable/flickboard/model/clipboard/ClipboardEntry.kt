@@ -1,6 +1,7 @@
 package se.nullable.flickboard.model.clipboard
 
 import androidx.paging.PagingSource
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Entity
@@ -16,14 +17,18 @@ data class ClipboardEntry(
     @PrimaryKey(autoGenerate = true) val id: Long,
     val lastAddedOn: Instant,
     val clipData: String,
+    @ColumnInfo(defaultValue = "0")
+    val pinned: Boolean = false,
+    @ColumnInfo(defaultValue = "0")
+    val generation: Long = 0,
 )
 
-val clipboardHistorySize = 100
+const val clipboardHistorySize = 100
 
 @Dao
 interface ClipboardEntryDao {
-    @Query("SELECT * FROM clipboardentry ORDER BY lastAddedOn DESC")
-    fun getAll(): PagingSource<Int, ClipboardEntry>
+    @Query("SELECT * FROM clipboardentry WHERE pinned = :pinned ORDER BY pinned DESC, lastAddedOn DESC")
+    fun getAll(pinned: Boolean): PagingSource<Int, ClipboardEntry>
 
     @Query("UPDATE clipboardentry SET lastAddedOn = :lastAddedOn WHERE clipData = :clipData")
     suspend fun touchByData(clipData: String, lastAddedOn: Instant): Int
@@ -41,13 +46,16 @@ interface ClipboardEntryDao {
         }
     }
 
-    @Query("DELETE FROM clipboardentry")
-    suspend fun clear()
+    @Query("UPDATE clipboardentry SET pinned = :pinned WHERE id = :id")
+    suspend fun setPinned(id: Long, pinned: Boolean)
+
+    @Query("DELETE FROM clipboardentry WHERE pinned = 0")
+    suspend fun clearUnpinned()
 
     /**
-     * Only keep the last [keep] rows, to avoid the db growing indefinitely.
+     * Only keep the last [keep] unpinned rows, to avoid the db growing indefinitely.
      */
-    @Query("DELETE FROM clipboardentry WHERE id IN (SELECT id FROM clipboardentry ORDER BY lastAddedOn DESC LIMIT -1 OFFSET :keep)")
+    @Query("DELETE FROM clipboardentry WHERE id IN (SELECT id FROM clipboardentry WHERE pinned = 0 ORDER BY lastAddedOn DESC LIMIT -1 OFFSET :keep)")
     suspend fun prune(keep: Int = clipboardHistorySize)
 
     @Delete
