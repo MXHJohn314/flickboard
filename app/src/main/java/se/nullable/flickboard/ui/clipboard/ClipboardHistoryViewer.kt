@@ -1,6 +1,7 @@
 package se.nullable.flickboard.ui.clipboard
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -40,8 +43,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.paging.Pager
@@ -69,6 +74,10 @@ fun ClipboardHistoryViewer(
 ) {
     val appSettings = LocalAppSettings.current
     val clipboardHistoryEnabled = appSettings.saveClipboardHistory.state
+    val showPinned = appSettings.clipboardHistoryShowPinned.state
+    val showHistory = appSettings.clipboardHistoryShowHistory.state
+    val showTips = appSettings.clipboardHistoryShowTips.state
+
     val coroutineScope = rememberCoroutineScope()
     val entryDao = LocalAppDatabase.current.value.clipboardEntryDao()
     val pinnedEntries = remember(coroutineScope, entryDao) {
@@ -132,71 +141,89 @@ fun ClipboardHistoryViewer(
                 item {}
 
                 if (pinnedEntries.itemCount > 0) {
-                    clipboardHistoryHeader("Pinned")
+                    clipboardHistoryHeader(
+                        "Pinned",
+                        expanded = showPinned.value,
+                        onSetExpanded = appSettings.clipboardHistoryShowPinned::currentValue::set,
+                    )
                 }
 
-                items(
-                    pinnedEntries,
-                    key = { it.id },
-                    contentType = { "history entry" },
-                ) { entry ->
-                    ClipboardEntryItem(
-                        entry,
-                        entryDao = entryDao,
-                        onAction = onAction,
-                        onEntryDeleted = undoableDeletedEntries::add,
-                        snackbarHostState = snackbarHostState,
-                        // Don't allow unpinning when clipboard history is disabled,
-                        // since it would introduce unpinned history items.
-                        allowPinToggle = clipboardHistoryEnabled.value,
-                    )
+                if (showPinned.value) {
+                    items(
+                        pinnedEntries,
+                        key = { it.id },
+                        contentType = { "history entry" },
+                    ) { entry ->
+                        ClipboardEntryItem(
+                            entry,
+                            entryDao = entryDao,
+                            onAction = onAction,
+                            onEntryDeleted = undoableDeletedEntries::add,
+                            snackbarHostState = snackbarHostState,
+                            // Don't allow unpinning when clipboard history is disabled,
+                            // since it would introduce unpinned history items.
+                            allowPinToggle = clipboardHistoryEnabled.value,
+                        )
+                    }
                 }
 
                 // The header is important not just for visual clarity, but it also provides space
                 // where the *previous* item (or the header) is considered the top item, so that if
                 // the visible top item is deleted and restored it will reappear within the visible
                 // area.
-                clipboardHistoryHeader("History")
+                clipboardHistoryHeader(
+                    "History",
+                    expanded = showHistory.value,
+                    onSetExpanded = appSettings.clipboardHistoryShowHistory::currentValue::set,
+                )
 
-                if (unpinnedEntries.loadState.isIdle && unpinnedEntries.itemCount == 0) {
-                    item {
-                        ClipboardEntryCard(
-                            when {
-                                clipboardHistoryEnabled.value ->
-                                    "The history is empty, go and copy something!"
+                if (showHistory.value) {
+                    if (unpinnedEntries.loadState.isIdle && unpinnedEntries.itemCount == 0) {
+                        item {
+                            ClipboardEntryCard(
+                                when {
+                                    clipboardHistoryEnabled.value ->
+                                        "The history is empty, go and copy something!"
 
-                                else -> "Clipboard history is disabled."
-                            },
-                            onClick = null,
-                            modifier = Modifier.animateItem(),
+                                    else -> "Clipboard history is disabled."
+                                },
+                                onClick = null,
+                                modifier = Modifier.animateItem(),
+                            )
+                        }
+                    }
+
+                    items(
+                        unpinnedEntries,
+                        key = { it.id },
+                        contentType = { "history entry" },
+                    ) { entry ->
+                        ClipboardEntryItem(
+                            entry,
+                            entryDao = entryDao,
+                            onAction = onAction,
+                            onEntryDeleted = undoableDeletedEntries::add,
+                            snackbarHostState = snackbarHostState,
+                            allowPinToggle = true,
                         )
                     }
                 }
 
-                items(
-                    unpinnedEntries,
-                    key = { it.id },
-                    contentType = { "history entry" },
-                ) { entry ->
-                    ClipboardEntryItem(
-                        entry,
-                        entryDao = entryDao,
-                        onAction = onAction,
-                        onEntryDeleted = undoableDeletedEntries::add,
-                        snackbarHostState = snackbarHostState,
-                        allowPinToggle = true,
-                    )
-                }
-
-                clipboardHistoryHeader("Tips")
-                val tips = listOf(
-                    "Any text copied (while clipboard history is enabled) will be saved here.",
-                    "Only the $clipboardHistorySize most recent unpinned items will be kept.",
-                    "An item can be inserted by tapping it.",
-                    "Items can be pinned, copied, or deleted by swiping them to the side.",
+                clipboardHistoryHeader(
+                    "Tips",
+                    expanded = showTips.value,
+                    onSetExpanded = appSettings.clipboardHistoryShowTips::currentValue::set,
                 )
-                items(tips) { tip ->
-                    ClipboardEntryCard(tip, onClick = null)
+                if (showTips.value) {
+                    val tips = listOf(
+                        "Any text copied (while clipboard history is enabled) will be saved here.",
+                        "Only the $clipboardHistorySize most recent unpinned items will be kept.",
+                        "An item can be inserted by tapping it.",
+                        "Items can be pinned, copied, or deleted by swiping them to the side.",
+                    )
+                    items(tips) { tip ->
+                        ClipboardEntryCard(tip, onClick = null)
+                    }
                 }
 
                 item {
@@ -208,14 +235,42 @@ fun ClipboardHistoryViewer(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-private fun LazyListScope.clipboardHistoryHeader(label: String) {
+private fun LazyListScope.clipboardHistoryHeader(
+    label: String,
+    expanded: Boolean,
+    onSetExpanded: (expanded: Boolean) -> Unit,
+) {
     stickyHeader(key = label, contentType = "header") {
         Surface(
             Modifier
                 .fillMaxWidth()
-                .animateItem(),
+                .animateItem()
+                .toggleable(expanded, onValueChange = onSetExpanded, role = Role.Checkbox),
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7F),
-        ) { Text(label, Modifier.padding(8.dp)) }
+        ) {
+            Row(
+                Modifier.padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(label, Modifier.padding(8.dp))
+                Spacer(Modifier.weight(1F))
+                val hideIconAngle = animateFloatAsState(
+                    when {
+                        expanded -> 180F
+                        else -> 0F
+                    },
+                    label = "hideIconAngle",
+                )
+                Icon(
+                    painterResource(R.drawable.baseline_arrow_drop_down_24),
+                    when {
+                        expanded -> "Hide"
+                        else -> "Show"
+                    },
+                    Modifier.rotate(hideIconAngle.value),
+                )
+            }
+        }
     }
 }
 
@@ -247,7 +302,7 @@ private fun LazyItemScope.ClipboardEntryItem(
                 Surface(color = MaterialTheme.colorScheme.primaryContainer) {
                     Row(
                         Modifier
-                            .fillMaxWidth()
+                            .fillMaxSize()
                             .padding(16.dp),
                         horizontalArrangement = when (swipeState.dismissDirection) {
                             SwipeToDismissBoxValue.StartToEnd -> Arrangement.Start

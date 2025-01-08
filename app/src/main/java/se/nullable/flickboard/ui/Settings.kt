@@ -1463,6 +1463,26 @@ class AppSettings(val ctx: SettingsContext) {
         },
     )
 
+    // Section display toggles that are intentionally not listed as regular settings
+    val clipboardHistoryShowPinned = Setting.Bool(
+        key = "clipboardHistoryShowPinned",
+        label = "Clipboard History: Show Pinned",
+        defaultValue = true,
+        ctx = ctx,
+    )
+    val clipboardHistoryShowHistory = Setting.Bool(
+        key = "clipboardHistoryShowHistory",
+        label = "Clipboard History: Show History",
+        defaultValue = true,
+        ctx = ctx,
+    )
+    val clipboardHistoryShowTips = Setting.Bool(
+        key = "clipboardHistoryShowTips",
+        label = "Clipboard History: Show Tips",
+        defaultValue = true,
+        ctx = ctx,
+    )
+
     val all =
         listOf(
             SettingsSection(
