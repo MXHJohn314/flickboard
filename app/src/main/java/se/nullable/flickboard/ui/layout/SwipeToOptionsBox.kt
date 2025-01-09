@@ -94,14 +94,6 @@ class SwipeToOptionsBoxState(
     val currentValue: SwipeToDismissBoxValue
         get() = draggableState.currentValue
 
-    val targetValue: SwipeToDismissBoxValue
-        get() = when {
-            (draggableState.isAnimationRunning) -> draggableState.targetValue
-            // draggableState.targetValue is "neutrally biased", the swipe must be >50% to count.
-            // We want to start easing into the swiped state as soon as there is a non-trivial motion.
-            else -> nontrivialSwipeDirection
-        }
-
     val swipeDirection: SwipeToDismissBoxValue
         get() = when (draggableState.offset) {
             in Float.NEGATIVE_INFINITY..<0F -> SwipeToDismissBoxValue.EndToStart
@@ -120,18 +112,6 @@ class SwipeToOptionsBoxState(
     val backgroundProgress: Float
         get() = (draggableState.offset.absoluteValue / epsilonPx.floatValue - 1F)
             .coerceIn(0F..1F)
-
-    /**
-     * [swipeDirection] if the swipe offset is greater than [epsilonPx].
-     */
-    private val nontrivialSwipeDirection: SwipeToDismissBoxValue
-        get() = run {
-            val epsilonPx = draggableState.anchors.maxAnchor() * 0.1F
-            when {
-                draggableState.offset.absoluteValue < epsilonPx -> SwipeToDismissBoxValue.Settled
-                else -> swipeDirection
-            }
-        }
 
     suspend fun animateReset() {
         draggableState.animateTo(SwipeToDismissBoxValue.Settled)
