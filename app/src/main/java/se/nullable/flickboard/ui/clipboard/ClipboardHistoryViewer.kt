@@ -1,6 +1,7 @@
 package se.nullable.flickboard.ui.clipboard
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -24,7 +25,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -77,6 +77,7 @@ import se.nullable.flickboard.ui.theme.PageTitle
 import se.nullable.flickboard.ui.util.defaultFocus
 import se.nullable.flickboard.ui.util.items
 import se.nullable.flickboard.ui.util.reverse
+import java.time.Instant
 
 @Composable
 fun ClipboardHistoryViewer(
@@ -128,20 +129,50 @@ fun ClipboardHistoryViewer(
         }
     }
 
+    val addingNewEntry = remember { mutableStateOf(false) }
+
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column {
             Surface(color = MaterialTheme.colorScheme.primaryContainer) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Button(
+                    IconButton(
                         onClick = navigateUp,
                         Modifier.padding(8.dp),
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Return to keyboard")
                     }
 
-                    PageTitle("Clipboard")
+                    PageTitle("Clipboard", Modifier.weight(1F))
+
+                    IconButton(onClick = { addingNewEntry.value = true }) {
+                        Icon(painterResource(R.drawable.baseline_add_24), "Add")
+                    }
                 }
             }
+
+            AnimatedVisibility(addingNewEntry.value) {
+                ClipboardEntryCard(
+                    "", onClick = null,
+                    modifier = Modifier.padding(top = 8.dp),
+                    editing = true,
+                    onEditDone = { newClipData ->
+                        addingNewEntry.value = false
+                        if (newClipData != null && newClipData != "") {
+                            coroutineScope.launch {
+                                entryDao.insertUnconditionally(
+                                    ClipboardEntry(
+                                        id = 0,
+                                        lastAddedOn = Instant.now(),
+                                        clipData = newClipData,
+                                        pinned = true,
+                                    ),
+                                )
+                            }
+                        }
+                    },
+                )
+            }
+
             LazyColumn(
                 Modifier
                     .height(300.dp)

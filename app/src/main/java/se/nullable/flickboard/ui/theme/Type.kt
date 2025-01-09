@@ -52,9 +52,10 @@ fun Title(text: String) {
 }
 
 @Composable
-fun PageTitle(text: String) {
+fun PageTitle(text: String, modifier: Modifier = Modifier) {
     Text(
         text,
+        modifier,
         style = Typography.titleLarge,
     )
 }
