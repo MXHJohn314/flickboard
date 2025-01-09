@@ -41,6 +41,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -134,7 +135,12 @@ fun ClipboardHistoryViewer(
             LazyColumn(
                 Modifier
                     .height(300.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    // Elements outside of the list's bounds end up causing flashing forward
+                    // briefly before animating out when removed from the view.
+                    // In practice, this happens when collapsing a section while the middle of that
+                    // section is rendered.
+                    .clipToBounds(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 state = listState,
             ) {
@@ -223,7 +229,7 @@ fun ClipboardHistoryViewer(
                         "Items can be pinned, copied, or deleted by swiping them to the side.",
                     )
                     items(tips) { tip ->
-                        ClipboardEntryCard(tip, onClick = null)
+                        ClipboardEntryCard(tip, onClick = null, Modifier.animateItem())
                     }
                 }
 
