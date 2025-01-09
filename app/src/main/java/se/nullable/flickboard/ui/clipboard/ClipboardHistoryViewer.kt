@@ -1,11 +1,9 @@
 package se.nullable.flickboard.ui.clipboard
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,10 +28,8 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
-import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
@@ -43,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
@@ -62,6 +59,8 @@ import se.nullable.flickboard.model.clipboard.clipboardHistorySize
 import se.nullable.flickboard.ui.LocalAppDatabase
 import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.OnAction
+import se.nullable.flickboard.ui.layout.SwipeToOptionsBox
+import se.nullable.flickboard.ui.layout.rememberSwipeToOptionsBoxState
 import se.nullable.flickboard.ui.theme.PageTitle
 import se.nullable.flickboard.ui.util.items
 import se.nullable.flickboard.ui.util.reverse
@@ -286,118 +285,107 @@ private fun LazyItemScope.ClipboardEntryItem(
     val coroutineScope = rememberCoroutineScope()
     val clipboardManager = LocalClipboardManager.current
     val swipeState = key(entry?.id, entry?.generation) {
-        rememberSwipeToDismissBoxState()
+        rememberSwipeToOptionsBoxState()
     }
-    SwipeToDismissBox(
+    SwipeToOptionsBox(
         swipeState,
+        swipeMarginOffset = 32.dp,
         // We can't show popup windows (like bottom sheets or dropdown menus) from IMEs,
         // so instead, use the swipe-to-dismiss background as a makeshift "menu".
         backgroundContent = {
-            AnimatedVisibility(
-                swipeState.targetValue != SwipeToDismissBoxValue.Settled,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                val currentEntry = rememberUpdatedState(entry)
-                Surface(color = MaterialTheme.colorScheme.primaryContainer) {
-                    Row(
-                        Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalArrangement = when (swipeState.dismissDirection) {
-                            SwipeToDismissBoxValue.StartToEnd -> Arrangement.Start
-                            else -> Arrangement.Start.reverse()
-                        },
-                        verticalAlignment = Alignment.CenterVertically,
+            // Use Modifier.alpha instead of AnimatedVisibility to sync the animation state with the
+            // swipe.
+            if (swipeState.backgroundProgress > 0F) {
+                Box(Modifier.alpha(swipeState.backgroundProgress)) {
+                    val currentEntry = rememberUpdatedState(entry)
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer,
                     ) {
-                        // FIXME: SwipeToDismissBox doesn't allow swiping an item *back*, once it
-                        //  has been dismissed.
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch {
-                                    swipeState.dismiss(SwipeToDismissBoxValue.Settled)
-                                }
+                        Row(
+                            Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            horizontalArrangement = when (swipeState.swipeDirection) {
+                                SwipeToDismissBoxValue.StartToEnd -> Arrangement.Start
+                                else -> Arrangement.Start.reverse()
                             },
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(
-                                painterResource(R.drawable.baseline_undo_24),
-                                "Undo",
-                            )
-                        }
-                        IconButton(
-                            enabled = allowPinToggle,
-                            onClick = {
-                                currentEntry.value?.let {
-                                    coroutineScope.launch {
-                                        entryDao.setPinned(id = it.id, pinned = !it.pinned)
+                            IconButton(
+                                enabled = allowPinToggle,
+                                onClick = {
+                                    currentEntry.value?.let {
+                                        coroutineScope.launch {
+                                            entryDao.setPinned(id = it.id, pinned = !it.pinned)
+                                        }
+                                        coroutineScope.launch {
+                                            swipeState.animateReset()
+                                        }
                                     }
-                                    coroutineScope.launch {
-                                        swipeState.dismiss(SwipeToDismissBoxValue.Settled)
-                                    }
-                                }
-                            },
-                        ) {
-                            when {
-                                entry?.pinned == true -> Icon(
-                                    painterResource(R.drawable.outline_keep_off_24),
-                                    "Unpin",
-                                )
+                                },
+                            ) {
+                                when {
+                                    entry?.pinned == true -> Icon(
+                                        painterResource(R.drawable.outline_keep_off_24),
+                                        "Unpin",
+                                    )
 
-                                else -> Icon(
-                                    painterResource(R.drawable.outline_keep_24),
-                                    "Pin",
+                                    else -> Icon(
+                                        painterResource(R.drawable.outline_keep_24),
+                                        "Pin",
+                                    )
+                                }
+                            }
+                            IconButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        currentEntry.value?.let {
+                                            entryDao.delete(it)
+                                            onEntryDeleted(it)
+                                        }
+                                    }
+                                },
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.baseline_delete_outline_24),
+                                    "Delete",
                                 )
                             }
-                        }
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch {
+                            IconButton(
+                                onClick = {
                                     currentEntry.value?.let {
-                                        entryDao.delete(it)
-                                        onEntryDeleted(it)
-                                    }
-                                }
-                            },
-                        ) {
-                            Icon(
-                                painterResource(R.drawable.baseline_delete_outline_24),
-                                "Delete",
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                currentEntry.value?.let {
-                                    clipboardManager.setText(AnnotatedString(it.clipData))
-                                    coroutineScope.launch {
-                                        swipeState.dismiss(SwipeToDismissBoxValue.Settled)
-                                    }
-                                    // TODO: does it still make sense to scroll here?
+                                        clipboardManager.setText(AnnotatedString(it.clipData))
+                                        coroutineScope.launch {
+                                            swipeState.animateReset()
+                                        }
+                                        // TODO: does it still make sense to scroll here?
 //                                coroutineScope.launch {
 //                                    listState.animateScrollToItem(0)
 //                                }
-                                    // API 33+ provides its own copy toast, so we don't need to provide one there
-                                    // see https://developer.android.com/develop/ui/compose/touch-input/copy-and-paste#feedback_to_copying_content
-                                    if (android.os.Build.VERSION.SDK_INT < 33) {
-                                        coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                "Copied \"${it.clipData}\"",
-                                                withDismissAction = true,
-                                            )
+                                        // API 33+ provides its own copy toast, so we don't need to provide one there
+                                        // see https://developer.android.com/develop/ui/compose/touch-input/copy-and-paste#feedback_to_copying_content
+                                        if (android.os.Build.VERSION.SDK_INT < 33) {
+                                            coroutineScope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    "Copied \"${it.clipData}\"",
+                                                    withDismissAction = true,
+                                                )
+                                            }
                                         }
                                     }
-                                }
-                            },
-                        ) {
-                            Icon(
-                                painterResource(R.drawable.baseline_content_copy_24),
-                                "Copy",
-                            )
+                                },
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.baseline_content_copy_24),
+                                    "Copy",
+                                )
+                            }
                         }
                     }
                 }
             }
         },
-        Modifier.animateItem(),
+        modifier = Modifier.animateItem(),
     ) {
         ClipboardEntryCard(
             clipData = entry?.clipData ?: "(loading)",

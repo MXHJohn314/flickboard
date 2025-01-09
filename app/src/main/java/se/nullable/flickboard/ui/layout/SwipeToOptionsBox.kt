@@ -1,0 +1,140 @@
+package se.nullable.flickboard.ui.layout
+
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.exponentialDecay
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material3.SwipeToDismissBoxDefaults
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
+
+/**
+ * Something that can be swiped aside to reveal a set of options.
+ *
+ * Like a [androidx.compose.material3.SwipeToDismissBox], but for use-cases where the "front object"
+ * will be persisted, rather than dismissed.
+ *
+ * Heavily based on [androidx.compose.material3.SwipeToDismissBox].
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun SwipeToOptionsBox(
+    state: SwipeToOptionsBoxState,
+    backgroundContent: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    swipeMarginOffset: Dp = 0.dp,
+    content: @Composable () -> Unit,
+) {
+    val swipeMarginOffsetPx = with(LocalDensity.current) {
+        swipeMarginOffset.toPx()
+    }
+    Box(modifier.anchoredDraggable(state.draggableState, Orientation.Horizontal)) {
+        Box(Modifier.matchParentSize()) { backgroundContent() }
+        Box(
+            Modifier
+                .onSizeChanged { size -> state.updateAnchors(size.width.toFloat() - swipeMarginOffsetPx) }
+                .offset { IntOffset(x = state.draggableState.offset.roundToInt(), y = 0) },
+        ) { content() }
+    }
+}
+
+@Composable
+fun rememberSwipeToOptionsBoxState(): SwipeToOptionsBoxState = run {
+    val density = LocalDensity.current
+    val positionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold
+    remember(density, positionalThreshold) {
+        SwipeToOptionsBoxState(
+            density = density,
+            positionalThreshold = positionalThreshold,
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+class SwipeToOptionsBoxState(
+    density: Density,
+    positionalThreshold: (totalDistance: Float) -> Float,
+) {
+    internal val draggableState = AnchoredDraggableState(
+        initialValue = SwipeToDismissBoxValue.Settled,
+        positionalThreshold = positionalThreshold,
+        velocityThreshold = { with(density) { dismissVelocityThreshold.toPx() } },
+        snapAnimationSpec = SpringSpec(),
+        decayAnimationSpec = exponentialDecay(),
+    )
+
+    fun updateAnchors(widthPx: Float) {
+        draggableState.updateAnchors(
+            DraggableAnchors {
+                SwipeToDismissBoxValue.EndToStart at -widthPx
+                SwipeToDismissBoxValue.Settled at 0F
+                SwipeToDismissBoxValue.StartToEnd at widthPx
+            },
+        )
+        epsilonPx.floatValue = widthPx * 0.1F
+    }
+
+    val targetValue: SwipeToDismissBoxValue
+        get() = when {
+            (draggableState.isAnimationRunning) -> draggableState.targetValue
+            // draggableState.targetValue is "neutrally biased", the swipe must be >50% to count.
+            // We want to start easing into the swiped state as soon as there is a non-trivial motion.
+            else -> nontrivialSwipeDirection
+        }
+
+    val swipeDirection: SwipeToDismissBoxValue
+        get() = when (draggableState.offset) {
+            in Float.NEGATIVE_INFINITY..<0F -> SwipeToDismissBoxValue.EndToStart
+            in Float.MIN_VALUE..Float.POSITIVE_INFINITY -> SwipeToDismissBoxValue.StartToEnd
+            else -> SwipeToDismissBoxValue.Settled
+        }
+
+    /**
+     * The smallest nontrivial offset
+     */
+    private val epsilonPx = mutableFloatStateOf(Float.NaN)
+
+    /**
+     * A float between 0..1 that represents how visible the background should be.
+     */
+    val backgroundProgress: Float
+        get() = (draggableState.offset.absoluteValue / epsilonPx.floatValue - 1F)
+            .coerceIn(0F..1F)
+
+    /**
+     * [swipeDirection] if the swipe offset is greater than [epsilonPx].
+     */
+    private val nontrivialSwipeDirection: SwipeToDismissBoxValue
+        get() = run {
+            val epsilonPx = draggableState.anchors.maxAnchor() * 0.1F
+            when {
+                draggableState.offset.absoluteValue < epsilonPx -> SwipeToDismissBoxValue.Settled
+                else -> swipeDirection
+            }
+        }
+
+    suspend fun animateReset() {
+        draggableState.animateTo(SwipeToDismissBoxValue.Settled)
+    }
+}
+
+// Private property in SwipeToDismissBox.kt,
+// doesn't have to be exact but it's nice to try to match them...
+private val dismissVelocityThreshold = 125.dp
