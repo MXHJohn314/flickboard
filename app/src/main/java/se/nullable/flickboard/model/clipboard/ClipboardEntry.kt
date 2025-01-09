@@ -49,6 +49,9 @@ interface ClipboardEntryDao {
     @Query("UPDATE clipboardentry SET pinned = :pinned WHERE id = :id")
     suspend fun setPinned(id: Long, pinned: Boolean)
 
+    @Query("UPDATE clipboardentry SET clipData = :clipData WHERE id = :id")
+    suspend fun setClipData(id: Long, clipData: String)
+
     @Query("DELETE FROM clipboardentry WHERE pinned = 0")
     suspend fun clearUnpinned()
 

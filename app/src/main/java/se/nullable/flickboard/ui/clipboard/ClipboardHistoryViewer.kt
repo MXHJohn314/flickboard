@@ -1,7 +1,9 @@
 package se.nullable.flickboard.ui.clipboard
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,8 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -30,11 +34,13 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -48,6 +54,9 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -65,6 +74,7 @@ import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.layout.SwipeToOptionsBox
 import se.nullable.flickboard.ui.layout.rememberSwipeToOptionsBoxState
 import se.nullable.flickboard.ui.theme.PageTitle
+import se.nullable.flickboard.ui.util.defaultFocus
 import se.nullable.flickboard.ui.util.items
 import se.nullable.flickboard.ui.util.reverse
 
@@ -295,6 +305,7 @@ private fun LazyItemScope.ClipboardEntryItem(
     val swipeState = key(entry?.id, entry?.generation) {
         rememberSwipeToOptionsBoxState()
     }
+    val editing = remember { mutableStateOf(false) }
     if (swipeState.currentValue != SwipeToDismissBoxValue.Settled) {
         // Pin when in a non-default state, so that we don't lose the state when scrolled offscreen.
         val pinnable = LocalPinnableContainer.current
@@ -398,6 +409,17 @@ private fun LazyItemScope.ClipboardEntryItem(
                                     "Copy",
                                 )
                             }
+                            IconButton(
+                                onClick = {
+                                    editing.value = true
+                                    coroutineScope.launch { swipeState.animateReset() }
+                                },
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.baseline_edit_24),
+                                    "Edit",
+                                )
+                            }
                         }
                     }
                 }
@@ -416,6 +438,15 @@ private fun LazyItemScope.ClipboardEntryItem(
                     )
                 }
             },
+            editing = editing.value,
+            onEditDone = { newClipData ->
+                editing.value = false
+                if (newClipData != null && entry != null) {
+                    coroutineScope.launch {
+                        entryDao.setClipData(entry.id, newClipData)
+                    }
+                }
+            },
         )
     }
 }
@@ -425,14 +456,51 @@ private fun ClipboardEntryCard(
     clipData: String,
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    editing: Boolean = false,
+    onEditDone: ((String?) -> Unit) = {},
 ) {
+    val clickModifier = when {
+        !editing -> Modifier.clickable(enabled = onClick != null, onClick = { onClick?.invoke() })
+        else -> Modifier
+    }
     OutlinedCard(
-        onClick = { onClick?.invoke() },
-        enabled = onClick != null,
-        modifier = modifier
+        modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp)
+            .then(clickModifier),
     ) {
-        Text(clipData, Modifier.padding(16.dp))
+        AnimatedContent(editing, label = "entry card state") { editing ->
+            when {
+                editing -> {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        val editedClipData = remember {
+                            mutableStateOf(
+                                TextFieldValue(
+                                    clipData,
+                                    selection = TextRange(clipData.length),
+                                ),
+                            )
+                        }
+                        TextField(
+                            editedClipData.value,
+                            onValueChange = editedClipData::value::set,
+                            Modifier
+                                .weight(1F)
+                                .defaultFocus(),
+                            keyboardActions = KeyboardActions(onDone = { onEditDone(editedClipData.value.text) }),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        )
+                        IconButton(onClick = { onEditDone(null) }) {
+                            Icon(painterResource(R.drawable.baseline_clear_24), "Cancel")
+                        }
+                        IconButton(onClick = { onEditDone(editedClipData.value.text) }) {
+                            Icon(painterResource(R.drawable.baseline_check_24), "Save")
+                        }
+                    }
+                }
+
+                else -> Text(clipData, Modifier.padding(16.dp))
+            }
+        }
     }
 }

@@ -38,15 +38,12 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -68,6 +65,7 @@ import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.LocalEmojiDb
 import se.nullable.flickboard.ui.LocalEmojiTrie
 import se.nullable.flickboard.ui.OnAction
+import se.nullable.flickboard.ui.util.defaultFocus
 import se.nullable.flickboard.util.unique
 import androidx.emoji2.emojipicker.R as Emoji2R
 
@@ -167,20 +165,17 @@ fun EmojiKeyboard(
         }
 
         if (selectedTab.value == EmojiTab.Search) {
-            val focusRequester = remember { FocusRequester() }
             TextField(
                 searchQuery.value,
                 searchQuery::value::set,
                 Modifier
                     .fillMaxWidth()
-                    .focusRequester(focusRequester),
+                    .defaultFocus(),
                 label = { Text("Search") },
                 singleLine = true,
                 keyboardActions = KeyboardActions { this.defaultKeyboardAction(ImeAction.Done) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             )
-            // Grab focus when shown, since search is the natural first interaction point
-            LaunchedEffect(Unit) { focusRequester.requestFocus() }
         }
 
         val tabEmojis = when (val tab = selectedTab.value) {
