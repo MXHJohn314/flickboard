@@ -91,6 +91,9 @@ class SwipeToOptionsBoxState(
         epsilonPx.floatValue = widthPx * 0.1F
     }
 
+    val currentValue: SwipeToDismissBoxValue
+        get() = draggableState.currentValue
+
     val targetValue: SwipeToDismissBoxValue
         get() = when {
             (draggableState.isAnimationRunning) -> draggableState.targetValue

@@ -31,6 +31,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
@@ -41,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
@@ -286,6 +288,16 @@ private fun LazyItemScope.ClipboardEntryItem(
     val clipboardManager = LocalClipboardManager.current
     val swipeState = key(entry?.id, entry?.generation) {
         rememberSwipeToOptionsBoxState()
+    }
+    if (swipeState.currentValue != SwipeToDismissBoxValue.Settled) {
+        // Pin when in a non-default state, so that we don't lose the state when scrolled offscreen.
+        val pinnable = LocalPinnableContainer.current
+        DisposableEffect(pinnable) {
+            val pinHandle = pinnable?.pin()
+            onDispose {
+                pinHandle?.release()
+            }
+        }
     }
     SwipeToOptionsBox(
         swipeState,
