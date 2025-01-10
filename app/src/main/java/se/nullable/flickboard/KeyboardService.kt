@@ -54,6 +54,7 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
@@ -70,6 +71,7 @@ import se.nullable.flickboard.ui.SettingsContext
 import se.nullable.flickboard.ui.appDatabaseForContext
 import se.nullable.flickboard.ui.clipboard.ClipboardHistoryViewer
 import se.nullable.flickboard.ui.emoji.EmojiKeyboard
+import se.nullable.flickboard.ui.emoji.EmojiTab
 import se.nullable.flickboard.ui.layout.BottomUpColumn
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.sharePointerInput
@@ -310,10 +312,16 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                                 )
                                                             }
 
-                                                            composable<InputSession.ActiveView.EmojiKeyboard> {
+                                                            composable<InputSession.ActiveView.EmojiKeyboard> { backStackEntry ->
+                                                                val route =
+                                                                    backStackEntry.toRoute<InputSession.ActiveView.EmojiKeyboard>()
                                                                 EmojiKeyboard(
                                                                     onAction = onAction,
                                                                     navigateUp = navController::navigateUp,
+                                                                    defaultTab = when {
+                                                                        route.search -> EmojiTab.Search
+                                                                        else -> null
+                                                                    },
                                                                 )
                                                             }
 

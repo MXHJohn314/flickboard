@@ -548,12 +548,20 @@ sealed class Action {
         override val description: String = "Selects all text in the field."
     }
 
-    data object OpenEmojiKeyboard : Action() {
+    data class OpenEmojiKeyboard(val search: Boolean = false) : Action() {
         override fun visual(modifier: ModifierState?): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_emoji_emotions_24)
 
-        override val title: String = "Emoji"
-        override val description: String = "Opens the emoji keyboard."
+        override val title: String = when {
+            search -> "Emoji Search"
+            else -> "Emoji"
+        }
+        override val description: String = when {
+            search -> "Opens the emoji keyboard, in search mode."
+            else -> "Opens the emoji keyboard."
+        }
+
+        override fun shift(locale: Locale): Action = OpenEmojiKeyboard(search = true)
     }
 
     data object OpenClipboardHistory : Action() {

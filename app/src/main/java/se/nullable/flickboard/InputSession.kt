@@ -49,7 +49,7 @@ class InputSession(
         data object Keyboard : ActiveView()
 
         @Serializable
-        data object EmojiKeyboard : ActiveView()
+        data class EmojiKeyboard(val search: Boolean = false) : ActiveView()
 
         @Serializable
         data object ClipboardHistory : ActiveView()
@@ -681,8 +681,8 @@ class InputSession(
                 is Action.AdjustCellHeight ->
                     appSettings.keyHeight.currentValue += action.amount
 
-                Action.OpenEmojiKeyboard ->
-                    navController.navigate(ActiveView.EmojiKeyboard)
+                is Action.OpenEmojiKeyboard ->
+                    navController.navigate(ActiveView.EmojiKeyboard(search = action.search))
 
                 Action.OpenClipboardHistory ->
                     navController.navigate(ActiveView.ClipboardHistory)

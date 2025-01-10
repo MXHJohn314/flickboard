@@ -73,6 +73,7 @@ import androidx.emoji2.emojipicker.R as Emoji2R
 fun EmojiKeyboard(
     onAction: OnAction,
     navigateUp: () -> Unit,
+    defaultTab: EmojiTab? = null,
 ) {
     val appSettings = LocalAppSettings.current
     val saveHistory = appSettings.saveEmojiHistory.state
@@ -81,7 +82,7 @@ fun EmojiKeyboard(
     val searchQuery = remember { mutableStateOf("") }
     val selectedTab = remember(emojis) {
         mutableStateOf(
-            when {
+            defaultTab ?: when {
                 emojiHistory.value.isBlank() -> EmojiTab.Category(0)
                 else -> EmojiTab.Recent
             },
