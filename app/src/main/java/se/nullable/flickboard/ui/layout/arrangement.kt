@@ -1,4 +1,4 @@
-package se.nullable.flickboard.ui.util
+package se.nullable.flickboard.ui.layout
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.unit.Density

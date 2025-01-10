@@ -72,11 +72,12 @@ import se.nullable.flickboard.ui.LocalAppDatabase
 import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.layout.SwipeToOptionsBox
+import se.nullable.flickboard.ui.layout.centerInVisibleBounds
 import se.nullable.flickboard.ui.layout.rememberSwipeToOptionsBoxState
+import se.nullable.flickboard.ui.layout.reverse
 import se.nullable.flickboard.ui.theme.PageTitle
 import se.nullable.flickboard.ui.util.defaultFocus
 import se.nullable.flickboard.ui.util.items
-import se.nullable.flickboard.ui.util.reverse
 import java.time.Instant
 
 @Composable
@@ -360,13 +361,15 @@ private fun LazyItemScope.ClipboardEntryItem(
                 Box(Modifier.alpha(swipeState.backgroundProgress)) {
                     val currentEntry = rememberUpdatedState(entry)
                     Surface(
+                        Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.primaryContainer,
                     ) {
                         Row(
                             Modifier
-                                .fillMaxSize()
+                                .fillMaxWidth()
                                 .padding(horizontal = 8.dp)
-                                .padding(swipeState.swipeDirectionPadding(swipeMarginOffset - 8.dp)),
+                                .padding(swipeState.swipeDirectionPadding(swipeMarginOffset - 8.dp))
+                                .centerInVisibleBounds(),
                             horizontalArrangement = when (swipeState.swipeDirection) {
                                 SwipeToDismissBoxValue.StartToEnd -> Arrangement.Start
                                 else -> Arrangement.Start.reverse()
