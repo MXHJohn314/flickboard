@@ -347,9 +347,10 @@ private fun LazyItemScope.ClipboardEntryItem(
             }
         }
     }
+    val swipeMarginOffset = 32.dp
     SwipeToOptionsBox(
         swipeState,
-        swipeMarginOffset = 32.dp,
+        swipeMarginOffset = swipeMarginOffset,
         // We can't show popup windows (like bottom sheets or dropdown menus) from IMEs,
         // so instead, use the swipe-to-dismiss background as a makeshift "menu".
         backgroundContent = {
@@ -364,53 +365,14 @@ private fun LazyItemScope.ClipboardEntryItem(
                         Row(
                             Modifier
                                 .fillMaxSize()
-                                .padding(16.dp),
+                                .padding(16.dp)
+                                .padding(swipeState.swipeDirectionPadding(swipeMarginOffset - 8.dp)),
                             horizontalArrangement = when (swipeState.swipeDirection) {
                                 SwipeToDismissBoxValue.StartToEnd -> Arrangement.Start
                                 else -> Arrangement.Start.reverse()
                             },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            IconButton(
-                                enabled = allowPinToggle,
-                                onClick = {
-                                    currentEntry.value?.let {
-                                        coroutineScope.launch {
-                                            entryDao.setPinned(id = it.id, pinned = !it.pinned)
-                                        }
-                                        coroutineScope.launch {
-                                            swipeState.animateReset()
-                                        }
-                                    }
-                                },
-                            ) {
-                                when {
-                                    entry?.pinned == true -> Icon(
-                                        painterResource(R.drawable.outline_keep_off_24),
-                                        "Unpin",
-                                    )
-
-                                    else -> Icon(
-                                        painterResource(R.drawable.outline_keep_24),
-                                        "Pin",
-                                    )
-                                }
-                            }
-                            IconButton(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        currentEntry.value?.let {
-                                            entryDao.delete(it)
-                                            onEntryDeleted(it)
-                                        }
-                                    }
-                                },
-                            ) {
-                                Icon(
-                                    painterResource(R.drawable.baseline_delete_outline_24),
-                                    "Delete",
-                                )
-                            }
                             IconButton(
                                 onClick = {
                                     currentEntry.value?.let {
@@ -441,6 +403,32 @@ private fun LazyItemScope.ClipboardEntryItem(
                                 )
                             }
                             IconButton(
+                                enabled = allowPinToggle,
+                                onClick = {
+                                    currentEntry.value?.let {
+                                        coroutineScope.launch {
+                                            entryDao.setPinned(id = it.id, pinned = !it.pinned)
+                                        }
+                                        coroutineScope.launch {
+                                            swipeState.animateReset()
+                                        }
+                                    }
+                                },
+                            ) {
+                                when {
+                                    entry?.pinned == true -> Icon(
+                                        painterResource(R.drawable.outline_keep_off_24),
+                                        "Unpin",
+                                    )
+
+                                    else -> Icon(
+                                        painterResource(R.drawable.outline_keep_24),
+                                        "Pin",
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.weight(1F))
+                            IconButton(
                                 onClick = {
                                     editing.value = true
                                     coroutineScope.launch { swipeState.animateReset() }
@@ -449,6 +437,21 @@ private fun LazyItemScope.ClipboardEntryItem(
                                 Icon(
                                     painterResource(R.drawable.baseline_edit_24),
                                     "Edit",
+                                )
+                            }
+                            IconButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        currentEntry.value?.let {
+                                            entryDao.delete(it)
+                                            onEntryDeleted(it)
+                                        }
+                                    }
+                                },
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.baseline_delete_outline_24),
+                                    "Delete",
                                 )
                             }
                         }

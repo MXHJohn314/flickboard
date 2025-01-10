@@ -9,6 +9,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.SwipeToDismissBoxDefaults
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -100,6 +101,12 @@ class SwipeToOptionsBoxState(
             in Float.MIN_VALUE..Float.POSITIVE_INFINITY -> SwipeToDismissBoxValue.StartToEnd
             else -> SwipeToDismissBoxValue.Settled
         }
+
+    fun swipeDirectionPadding(padding: Dp): PaddingValues = when (swipeDirection) {
+        SwipeToDismissBoxValue.StartToEnd -> PaddingValues(end = padding)
+        SwipeToDismissBoxValue.EndToStart -> PaddingValues(start = padding)
+        SwipeToDismissBoxValue.Settled -> PaddingValues()
+    }
 
     /**
      * The smallest nontrivial offset
