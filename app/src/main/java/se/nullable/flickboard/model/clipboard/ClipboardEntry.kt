@@ -26,20 +26,29 @@ data class ClipboardEntry(
 const val clipboardHistorySize = 100
 
 @Dao
-interface ClipboardEntryDao {
+abstract class ClipboardEntryDao {
     @Query("SELECT * FROM clipboardentry WHERE pinned = :pinned ORDER BY pinned DESC, lastAddedOn DESC")
-    fun getAll(pinned: Boolean): PagingSource<Int, ClipboardEntry>
+    abstract fun getAll(pinned: Boolean): PagingSource<Int, ClipboardEntry>
 
-    @Query("UPDATE clipboardentry SET lastAddedOn = :lastAddedOn WHERE clipData = :clipData")
-    suspend fun touchByData(clipData: String, lastAddedOn: Instant): Int
+    @Query("UPDATE clipboardentry SET lastAddedOn = :lastAddedOn, pinned = (pinned OR :pinIfUnpinned) WHERE clipData = :clipData")
+    protected abstract suspend fun touchByData(
+        clipData: String,
+        lastAddedOn: Instant,
+        pinIfUnpinned: Boolean
+    ): Int
 
     @Insert
-    suspend fun insertUnconditionally(vararg entries: ClipboardEntry)
+    protected abstract suspend fun insertUnconditionally(vararg entries: ClipboardEntry)
 
     suspend fun insertOrTouch(entry: ClipboardEntry) {
         // Lock to avoid letting multiple concurrent callers create duplicate entries
         upsertMutex.withLock {
-            if (touchByData(entry.clipData, entry.lastAddedOn) == 0) {
+            if (touchByData(
+                    entry.clipData,
+                    lastAddedOn = entry.lastAddedOn,
+                    pinIfUnpinned = entry.pinned,
+                ) == 0
+            ) {
                 insertUnconditionally(entry)
                 prune()
             }
@@ -47,22 +56,22 @@ interface ClipboardEntryDao {
     }
 
     @Query("UPDATE clipboardentry SET pinned = :pinned WHERE id = :id")
-    suspend fun setPinned(id: Long, pinned: Boolean)
+    abstract suspend fun setPinned(id: Long, pinned: Boolean)
 
     @Query("UPDATE clipboardentry SET clipData = :clipData WHERE id = :id")
-    suspend fun setClipData(id: Long, clipData: String)
+    abstract suspend fun setClipData(id: Long, clipData: String)
 
     @Query("DELETE FROM clipboardentry WHERE pinned = 0")
-    suspend fun clearUnpinned()
+    abstract suspend fun clearUnpinned()
 
     /**
      * Only keep the last [keep] unpinned rows, to avoid the db growing indefinitely.
      */
     @Query("DELETE FROM clipboardentry WHERE id IN (SELECT id FROM clipboardentry WHERE pinned = 0 ORDER BY lastAddedOn DESC LIMIT -1 OFFSET :keep)")
-    suspend fun prune(keep: Int = clipboardHistorySize)
+    protected abstract suspend fun prune(keep: Int = clipboardHistorySize)
 
     @Delete
-    suspend fun delete(entry: ClipboardEntry)
+    abstract suspend fun delete(entry: ClipboardEntry)
 
     companion object {
         private val upsertMutex = Mutex()

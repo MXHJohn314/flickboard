@@ -159,7 +159,7 @@ fun ClipboardHistoryViewer(
                         addingNewEntry.value = false
                         if (newClipData != null && newClipData != "") {
                             coroutineScope.launch {
-                                entryDao.insertUnconditionally(
+                                entryDao.insertOrTouch(
                                     ClipboardEntry(
                                         id = 0,
                                         lastAddedOn = Instant.now(),
