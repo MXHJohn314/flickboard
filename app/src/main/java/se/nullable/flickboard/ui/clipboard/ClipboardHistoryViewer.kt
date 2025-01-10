@@ -71,7 +71,7 @@ import se.nullable.flickboard.ui.LocalAppDatabase
 import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.layout.SwipeToOptionsBox
-import se.nullable.flickboard.ui.layout.centerInVisibleBounds
+import se.nullable.flickboard.ui.layout.centerVerticallyInVisibleBounds
 import se.nullable.flickboard.ui.layout.rememberSwipeToOptionsBoxState
 import se.nullable.flickboard.ui.layout.reverse
 import se.nullable.flickboard.ui.theme.PageTitle
@@ -368,7 +368,7 @@ private fun LazyItemScope.ClipboardEntryItem(
                                 .fillMaxWidth()
                                 .padding(horizontal = 8.dp)
                                 .padding(swipeState.swipeDirectionPadding(swipeMarginOffset - 8.dp))
-                                .centerInVisibleBounds(),
+                                .centerVerticallyInVisibleBounds(),
                             horizontalArrangement = when (swipeState.swipeDirection) {
                                 SwipeToDismissBoxValue.StartToEnd -> Arrangement.Start
                                 else -> Arrangement.Start.reverse()
@@ -525,11 +525,16 @@ private fun ClipboardEntryCard(
                         ),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     )
-                    IconButton(onClick = { onEditDone(null) }) {
-                        Icon(painterResource(R.drawable.baseline_clear_24), "Cancel")
-                    }
-                    IconButton(onClick = { onEditDone(editedClipData.value.text) }) {
-                        Icon(painterResource(R.drawable.baseline_check_24), "Save")
+                    Row(
+                        Modifier.centerVerticallyInVisibleBounds(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        IconButton(onClick = { onEditDone(null) }) {
+                            Icon(painterResource(R.drawable.baseline_clear_24), "Cancel")
+                        }
+                        IconButton(onClick = { onEditDone(editedClipData.value.text) }) {
+                            Icon(painterResource(R.drawable.baseline_check_24), "Save")
+                        }
                     }
                 }
             }
