@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -496,47 +495,52 @@ private fun ClipboardEntryCard(
     editing: Boolean = false,
     onEditDone: ((String?) -> Unit) = {},
 ) {
-    val clickModifier = when {
-        !editing -> Modifier.clickable(enabled = onClick != null, onClick = { onClick?.invoke() })
-        else -> Modifier
-    }
-    OutlinedCard(
-        modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .then(clickModifier),
-    ) {
-        AnimatedContent(editing, label = "entry card state") { editing ->
-            when {
-                editing -> {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        val editedClipData = remember {
-                            mutableStateOf(
-                                TextFieldValue(
-                                    clipData,
-                                    selection = TextRange(clipData.length),
-                                ),
-                            )
-                        }
-                        TextField(
-                            editedClipData.value,
-                            onValueChange = editedClipData::value::set,
-                            Modifier
-                                .weight(1F)
-                                .defaultFocus(),
-                            keyboardActions = KeyboardActions(onDone = { onEditDone(editedClipData.value.text) }),
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+    val cardModifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 8.dp)
+    AnimatedContent(editing, modifier, label = "entry card state") { isEditing ->
+        when {
+            isEditing -> OutlinedCard(cardModifier) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val editedClipData = remember {
+                        mutableStateOf(
+                            TextFieldValue(
+                                clipData,
+                                selection = TextRange(clipData.length),
+                            ),
                         )
-                        IconButton(onClick = { onEditDone(null) }) {
-                            Icon(painterResource(R.drawable.baseline_clear_24), "Cancel")
-                        }
-                        IconButton(onClick = { onEditDone(editedClipData.value.text) }) {
-                            Icon(painterResource(R.drawable.baseline_check_24), "Save")
-                        }
+                    }
+                    TextField(
+                        editedClipData.value,
+                        onValueChange = editedClipData::value::set,
+                        Modifier
+                            .weight(1F)
+                            .defaultFocus(),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                onEditDone(
+                                    editedClipData.value.text,
+                                )
+                            },
+                        ),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    )
+                    IconButton(onClick = { onEditDone(null) }) {
+                        Icon(painterResource(R.drawable.baseline_clear_24), "Cancel")
+                    }
+                    IconButton(onClick = { onEditDone(editedClipData.value.text) }) {
+                        Icon(painterResource(R.drawable.baseline_check_24), "Save")
                     }
                 }
+            }
 
-                else -> Text(clipData, Modifier.padding(16.dp))
+
+            else -> OutlinedCard(
+                onClick = { onClick?.invoke() },
+                enabled = onClick != null,
+                modifier = cardModifier,
+            ) {
+                Text(clipData, Modifier.padding(16.dp))
             }
         }
     }
