@@ -516,6 +516,7 @@ private fun ClipboardEntryCard(
                         Modifier
                             .weight(1F)
                             .defaultFocus(),
+                        maxLines = 6,
                         keyboardActions = KeyboardActions(
                             onDone = {
                                 onEditDone(
