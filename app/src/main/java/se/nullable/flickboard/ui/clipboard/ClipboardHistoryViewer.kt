@@ -365,7 +365,7 @@ private fun LazyItemScope.ClipboardEntryItem(
                         Row(
                             Modifier
                                 .fillMaxSize()
-                                .padding(16.dp)
+                                .padding(horizontal = 8.dp)
                                 .padding(swipeState.swipeDirectionPadding(swipeMarginOffset - 8.dp)),
                             horizontalArrangement = when (swipeState.swipeDirection) {
                                 SwipeToDismissBoxValue.StartToEnd -> Arrangement.Start
