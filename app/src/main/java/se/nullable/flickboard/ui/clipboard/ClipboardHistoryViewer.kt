@@ -153,7 +153,7 @@ fun ClipboardHistoryViewer(
             AnimatedVisibility(addingNewEntry.value) {
                 ClipboardEntryCard(
                     "", onClick = null,
-                    modifier = Modifier.padding(top = 8.dp),
+                    modifier = Modifier.padding(vertical = 8.dp),
                     editing = true,
                     onEditDone = { newClipData ->
                         addingNewEntry.value = false

@@ -20,7 +20,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.safeContentPadding
@@ -71,6 +70,7 @@ import se.nullable.flickboard.ui.SettingsContext
 import se.nullable.flickboard.ui.appDatabaseForContext
 import se.nullable.flickboard.ui.clipboard.ClipboardHistoryViewer
 import se.nullable.flickboard.ui.emoji.EmojiKeyboard
+import se.nullable.flickboard.ui.layout.BottomUpColumn
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.sharePointerInput
 
@@ -194,7 +194,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                     }
                                 }
 
-                                Column {
+                                BottomUpColumn {
                                     // Input methods aren't allowed to request input themselves, so
                                     // instead we capture all nested input requests, and stack them.
                                     InterceptPlatformTextInput(
