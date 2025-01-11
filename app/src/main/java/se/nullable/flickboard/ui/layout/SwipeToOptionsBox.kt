@@ -41,12 +41,21 @@ fun SwipeToOptionsBox(
     backgroundContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     swipeMarginOffset: Dp = 0.dp,
+    allowSwipeGesture: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     val swipeMarginOffsetPx = with(LocalDensity.current) {
         swipeMarginOffset.toPx()
     }
-    Box(modifier.anchoredDraggable(state.draggableState, Orientation.Horizontal)) {
+    val draggableModifier = when {
+        allowSwipeGesture -> Modifier.anchoredDraggable(
+            state.draggableState,
+            Orientation.Horizontal,
+        )
+
+        else -> Modifier
+    }
+    Box(modifier.then(draggableModifier)) {
         Box(Modifier.matchParentSize()) { backgroundContent() }
         Box(
             Modifier

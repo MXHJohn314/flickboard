@@ -351,6 +351,7 @@ private fun LazyItemScope.ClipboardEntryItem(
     SwipeToOptionsBox(
         swipeState,
         swipeMarginOffset = swipeMarginOffset,
+        allowSwipeGesture = !editing.value,
         // We can't show popup windows (like bottom sheets or dropdown menus) from IMEs,
         // so instead, use the swipe-to-dismiss background as a makeshift "menu".
         backgroundContent = {
