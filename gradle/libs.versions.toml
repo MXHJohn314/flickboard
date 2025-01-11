@@ -13,6 +13,7 @@ androidx-test-junit = "1.2.1"
 androidx-test-uiautomator = "2.3.0"
 fastlane-screengrab = "2.1.1"
 junit = "4.13.2"
+gradle = "8.7.3"
 kotlin = "2.1.0"
 # Must start with ${kotlin}-
 kotlin-ksp = "2.1.0-1.0.29"
@@ -57,10 +58,13 @@ junit = { module = "junit:junit", version.ref = "junit" }
 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
+gradle-api = { module = "com.android.tools.build:gradle-api", version.ref = "gradle" }
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 androidx-room = { id = "androidx.room", version.ref = "androidx-room" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp" }
