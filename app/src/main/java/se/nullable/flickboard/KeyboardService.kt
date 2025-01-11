@@ -12,12 +12,8 @@ import android.view.inputmethod.InputConnection
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -299,10 +295,17 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                             navController,
                                                             startDestination = InputSession.ActiveView.Keyboard,
                                                             contentAlignment = Alignment.BottomCenter,
-                                                            enterTransition = { fadeIn() + slideInVertically { it } + expandVertically() },
-                                                            exitTransition = { fadeOut() + slideOutVertically { it } + shrinkVertically() },
-                                                            popEnterTransition = { fadeIn() + slideInVertically { it } + expandVertically() },
-                                                            popExitTransition = { fadeOut() + slideOutVertically { it } + shrinkVertically() },
+                                                            // The input connection stays open while the exit animation is running, so
+                                                            // disable animations for now to avoid having two visible "regular" keyboards
+                                                            // at the same time.
+                                                            enterTransition = { EnterTransition.None },
+                                                            exitTransition = { ExitTransition.None },
+                                                            popEnterTransition = { EnterTransition.None },
+                                                            popExitTransition = { ExitTransition.None },
+//                                                            enterTransition = { fadeIn() + slideInVertically { it } + expandVertically() },
+//                                                            exitTransition = { fadeOut() + slideOutVertically { it } + shrinkVertically() },
+//                                                            popEnterTransition = { fadeIn() + slideInVertically { it } + expandVertically() },
+//                                                            popExitTransition = { fadeOut() + slideOutVertically { it } + shrinkVertically() },
                                                         ) {
                                                             composable<InputSession.ActiveView.ClipboardHistory> {
                                                                 ClipboardHistoryViewer(
