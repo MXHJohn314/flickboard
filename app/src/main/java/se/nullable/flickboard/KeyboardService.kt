@@ -87,11 +87,18 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
     private var viewHeight: Int = 0 // Set once view is measured
     private var keyboardHeight: Int = 0 // Set once view is measured
+    private var baseKeyboardHeight: Int = 0 // Set once view is measured
     override fun onComputeInsets(outInsets: Insets) {
         super.onComputeInsets(outInsets)
-        // Invisible area "occupied by" the view
-        outInsets.contentTopInsets = viewHeight - keyboardHeight
-        outInsets.touchableInsets = Insets.TOUCHABLE_INSETS_CONTENT
+        // Some apps dislike it when there isn't enough room to render the text field.
+        // See for example: https://github.com/facebook/react-native/issues/48618
+        // To work around this, we only request that apps resize to make room for the bottommost keyboard,
+        // and request that the system pan the app to accomodate the others (if required).
+        outInsets.contentTopInsets = viewHeight - baseKeyboardHeight
+        // We fill the whole screen with an invisible background layer, to allow gestures in progress
+        // to leave the IME window.
+        outInsets.visibleTopInsets = viewHeight - keyboardHeight
+        outInsets.touchableInsets = Insets.TOUCHABLE_INSETS_VISIBLE
     }
 
     // The inset hack breaks fullscreen, and trying to adjust based on it causes glitches
@@ -290,7 +297,15 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                         switchInputMethod = ::switchInputMethod,
                                                         navController = navController,
                                                     )
-                                                    Box {
+                                                    val baseKeyboardHeightUpdaterModifier = when {
+                                                        inputSessionIdx == currentInputSessions.lastIndex ->
+                                                            Modifier.onSizeChanged { size ->
+                                                                baseKeyboardHeight = size.height
+                                                            }
+
+                                                        else -> Modifier
+                                                    }
+                                                    Box(baseKeyboardHeightUpdaterModifier) {
                                                         NavHost(
                                                             navController,
                                                             startDestination = InputSession.ActiveView.Keyboard,
