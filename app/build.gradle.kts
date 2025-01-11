@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.kotlin.ksp)
-    id("se.nullable.flickboard.build.emojidb")
+    alias(libs.plugins.flickboard.emojidb)
 }
 
 val keystorePropertiesFile = rootProject.file("../flickboard.keystore.properties")

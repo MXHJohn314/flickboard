@@ -1,8 +1,7 @@
 plugins {
     `java-gradle-plugin`
-    val kotlinVersion = "2.1.0"
-    kotlin("jvm") version kotlinVersion
-    kotlin("plugin.serialization") version kotlinVersion
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.plugin.serialization)
 }
 
 repositories {
@@ -17,8 +16,8 @@ java {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle-api:8.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation(libs.gradle.api)
+    implementation(libs.kotlinx.serialization.json)
 }
 
 gradlePlugin {

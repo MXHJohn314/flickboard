@@ -1,0 +1,12 @@
+[versions]
+gradle = "8.7.3"
+kotlin = "2.1.0"
+kotlinx-serialization = "1.8.0"
+
+[libraries]
+gradle-api = { module = "com.android.tools.build:gradle-api", version.ref = "gradle" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
