@@ -134,11 +134,14 @@ fun ClipboardHistoryViewer(
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column {
             Surface(color = MaterialTheme.colorScheme.primaryContainer) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = navigateUp,
-                        Modifier.padding(8.dp),
-                    ) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    IconButton(onClick = navigateUp) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Return to keyboard")
                     }
 
