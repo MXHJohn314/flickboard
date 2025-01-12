@@ -182,7 +182,11 @@ class SymbolLayerTest {
                 }
             }
             if (symbolKey.shift != null) {
-                assertKeyNoOverlap(letterLayer, symbolKey.autoShift(), letterKey.autoShift())
+                assertKeyNoOverlap(
+                    letterLayer,
+                    symbolKey.autoShift(letterLayer.layout.locale),
+                    letterKey.autoShift(letterLayer.layout.locale),
+                )
             }
         }
 
