@@ -9,6 +9,7 @@ import android.view.WindowManager
 import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
@@ -71,6 +72,7 @@ import se.nullable.flickboard.ui.emoji.EmojiTab
 import se.nullable.flickboard.ui.layout.BottomUpColumn
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.sharePointerInput
+import se.nullable.flickboard.util.onBackPressedDispatcherWrapperCallback
 
 class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner,
     SavedStateRegistryOwner, OnBackPressedDispatcherOwner {
@@ -426,9 +428,42 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     override fun onCreate() {
         super.onCreate()
         savedStateRegistryController.performRestore(null)
+
+        // Register predictive back
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            onBackPressedDispatcher.setOnBackInvokedDispatcher(window.onBackInvokedDispatcher)
+            // onBackInvoked: System API
+            // onBackPressed: Jetpack compatibility wrapper API
+            // This is a confusing mess, but essentially:
+            // - onBackInvokedDispatcher.registerOnBackInvokedCallback is *only* called for events
+            //   while the input window is focused
+            // - onBackPressedDispatcher.setOnBackInvokedDispatcher is *only* called for events
+            //   forwarded from the app being input into (so while the input window is unfocused).
+            // Not sure about why.. the implementations seem basically equivalent as far as I can tell.
+            val onBackInvokedDispatcher = window.onBackInvokedDispatcher
+            onBackPressedDispatcher.setOnBackInvokedDispatcher(onBackInvokedDispatcher)
+            // This means we can't unregister the onBackInvokedCallback, but there when focused
+            // there are always things to back to.
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                onBackPressedDispatcherWrapperCallback(onBackPressedDispatcher),
+            )
         }
+
+        // Normally, InputMethodService.onKeyDown (and co.) callbacks are only called for key events
+        // *forwarded from the application's input field*.
+        // This makes sense, since IMEs normally never have focus.
+        // However, we *sometimes do*, and in those cases we still want to intercept them as usual.
+        // --- QUIRKS
+        // On API 33+ (with OnBackInvokedDispatcher): setOnKeyListener does *not* get invoked
+        //   for back events, even if there is no backinvoked listener.
+        // However, on older (tested on API 30), backing when focused and not having an onKeyListener
+        //   invokes a system default back of some kind, that: 1) leaves an empty window, 2) seems
+        //   to clear window insets permanently.
+        val dialogDispatcherState = KeyEvent.DispatcherState()
+        window.setOnKeyListener { _, _, event ->
+            event.dispatch(this, dialogDispatcherState, this)
+        }
+
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
         lifecycleScope.launch {
             // Background jobs (which should be active even while composables are not) cannot
