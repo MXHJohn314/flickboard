@@ -12,6 +12,7 @@ import android.view.inputmethod.InputConnection
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.compose.BackHandler
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -255,36 +256,37 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                         inputSessionIdx != currentInputSessions.lastIndex,
                                                     )
                                                 }
+                                                val nestedKeyboardController: SoftwareKeyboardController =
+                                                    remember(inputSessionIdx) {
+                                                        val nestedInputSessionIdx =
+                                                            inputSessionIdx + 1
+                                                        object :
+                                                            SoftwareKeyboardController {
+                                                            var hiddenSession: InputSession? =
+                                                                null
+
+                                                            override fun hide() {
+                                                                hiddenSession =
+                                                                    currentInputSessions.removeAt(
+                                                                        nestedInputSessionIdx,
+                                                                    )
+                                                            }
+
+                                                            override fun show() {
+                                                                hiddenSession?.let { session ->
+                                                                    currentInputSessions.add(
+                                                                        nestedInputSessionIdx,
+                                                                        session,
+                                                                    )
+                                                                }
+                                                                hiddenSession = null
+                                                            }
+                                                        }
+                                                    }
                                                 CompositionLocalProvider(
                                                     // Override LocalSoftwareKeyboardController to affect
                                                     // the nested input instead.
-                                                    LocalSoftwareKeyboardController provides
-                                                            remember(inputSessionIdx) {
-                                                                val nestedInputSessionIdx =
-                                                                    inputSessionIdx + 1
-                                                                object :
-                                                                    SoftwareKeyboardController {
-                                                                    var hiddenSession: InputSession? =
-                                                                        null
-
-                                                                    override fun hide() {
-                                                                        hiddenSession =
-                                                                            currentInputSessions.removeAt(
-                                                                                nestedInputSessionIdx,
-                                                                            )
-                                                                    }
-
-                                                                    override fun show() {
-                                                                        hiddenSession?.let { session ->
-                                                                            currentInputSessions.add(
-                                                                                nestedInputSessionIdx,
-                                                                                session,
-                                                                            )
-                                                                        }
-                                                                        hiddenSession = null
-                                                                    }
-                                                                }
-                                                            },
+                                                    LocalSoftwareKeyboardController provides nestedKeyboardController,
                                                     // Some UI components (like text selection handles)
                                                     // only render for the focused window.
                                                     // We're weird in that as an IME we're never considered
@@ -389,6 +391,10 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                             }
                                                         }
                                                     }
+                                                }
+                                                // If there is nested input, let back hide it
+                                                BackHandler(inputSessionIdx < currentInputSessions.lastIndex) {
+                                                    nestedKeyboardController.hide()
                                                 }
                                             }
                                         }
