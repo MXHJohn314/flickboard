@@ -14,6 +14,7 @@ import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.BackHandler
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Box
@@ -417,6 +418,12 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     }
 
     override val onBackPressedDispatcher: OnBackPressedDispatcher = OnBackPressedDispatcher()
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private val onBackInvokedDispatcherWrapper = lazy {
+        onBackPressedDispatcherWrapperCallback(onBackPressedDispatcher)
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean = when {
         keyCode == KeyEvent.KEYCODE_BACK && onBackPressedDispatcher.hasEnabledCallbacks() -> {
             onBackPressedDispatcher.onBackPressed()
@@ -439,19 +446,29 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // onBackInvoked: System API
             // onBackPressed: Jetpack compatibility wrapper API
-            // This is a confusing mess, but essentially:
-            // - onBackInvokedDispatcher.registerOnBackInvokedCallback is *only* called for events
-            //   while the input window is focused
-            // - onBackPressedDispatcher.setOnBackInvokedDispatcher is *only* called for events
-            //   forwarded from the app being input into (so while the input window is unfocused).
-            // Not sure about why.. the implementations seem basically equivalent as far as I can tell.
+            // This is a confusing mess, but essentially, window.onBackInvokedDispatcher maintains
+            // *two* separate callback lists for input manager windows:
+            // - Calls registered *before* the window is first connected to the IME
+            //   are registered on the window itself, and invoked when the window has focus.
+            // - Calls registered *after* the window is connected are forwarded to the window
+            //   requesting the IME, and invocations are proxied from there when the IME target
+            //   window is focused.
+            // This is handled as follows:
+            // - onBackInvokedDispatcher.registerOnBackInvokedCallback is used to register on *our*
+            //   window. This means we'll get "stuck" when there if we have no registered callbacks,
+            //   but that's fine, since we'll only be focused when there are things on the back
+            //   stack anyway.
+            // - onBackPressedDispatcher.setOnBackInvokedDispatcher will register
+            //   *when there are registered callbacks*. Since this will only be the case once the
+            //   window is done initializing, this will end up on the *IME target window.*
+            //   It's important to unregister here when we need to, since otherwise the user will be
+            //   prevented from dismissing the IME.
             val onBackInvokedDispatcher = window.onBackInvokedDispatcher
             onBackPressedDispatcher.setOnBackInvokedDispatcher(onBackInvokedDispatcher)
-            // This means we can't unregister the onBackInvokedCallback, but there when focused
-            // there are always things to back to.
             onBackInvokedDispatcher.registerOnBackInvokedCallback(
-                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
-                onBackPressedDispatcherWrapperCallback(onBackPressedDispatcher),
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT + 1,
+                // Cache the callback, since Android has a habit of using weakmaps for callbacks
+                onBackInvokedDispatcherWrapper.value,
             )
         }
 
