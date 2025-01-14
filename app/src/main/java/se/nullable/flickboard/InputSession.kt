@@ -429,12 +429,21 @@ class InputSession(
                             moveSelection(action.direction, action.boundary)
 
                         else -> {
-                            when (val currentPos =
-                                currentCursorPosition(action.direction)) {
+                            when (val currentPos = when {
+                                activeModifiers.useRawKeyEvent -> null
+                                else -> currentCursorPosition(action.direction)
+                            }) {
                                 null -> sendKeyPressEvents(
                                     keyCode = when (action.direction) {
                                         SearchDirection.Backwards -> KeyEvent.KEYCODE_DPAD_LEFT
                                         SearchDirection.Forwards -> KeyEvent.KEYCODE_DPAD_RIGHT
+                                    },
+                                    extraModifiers = when (action.boundary) {
+                                        TextBoundary.Character -> 0
+                                        TextBoundary.Word -> KeyEvent.META_CTRL_LEFT_ON
+                                        // No modifier we can apply here, but we handle this case in
+                                        // JumpLineKeepPos anyway
+                                        TextBoundary.Line -> 0
                                     },
                                 )
 
@@ -460,7 +469,7 @@ class InputSession(
                     // How is this different from Action.Jump? Action.Jump jumps to *the boundary*,
                     // for TextBoundary.Line this is equivalent to Home/End.
                     val currentPos = when {
-                        action.rawEvent -> null
+                        action.rawEvent || activeModifiers.useRawKeyEvent -> null
                         else -> currentCursorPosition(action.direction)
                     }
                     when (currentPos) {
