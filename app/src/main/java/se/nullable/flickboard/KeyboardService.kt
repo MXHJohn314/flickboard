@@ -41,6 +41,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -89,18 +91,30 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
     private val appDatabase = lazy { appDatabaseForContext(this@KeyboardService) }
 
+    private val density = lazy { Density(this) }
     private var viewHeight: Int = 0 // Set once view is measured
     private var keyboardHeight: Int = 0 // Set once view is measured
-    private var baseKeyboardHeight: Int = 0 // Set once view is measured
     override fun onComputeInsets(outInsets: Insets) {
         super.onComputeInsets(outInsets)
-        // Some apps dislike it when there isn't enough room to render the text field.
-        // See for example: https://github.com/facebook/react-native/issues/48618
-        // To work around this, we only request that apps resize to make room for the bottommost keyboard,
-        // and request that the system pan the app to accomodate the others (if required).
-        outInsets.contentTopInsets = viewHeight - baseKeyboardHeight
+
         // We fill the whole screen with an invisible background layer, to allow gestures in progress
         // to leave the IME window.
+
+        // Some apps dislike it when there isn't enough room to render the text field.
+        // See for example: https://github.com/facebook/react-native/issues/48618
+        // To work around this, we never resize the app to below a set minimum height.
+        // The particular size is arbitrary, but seems to prevent at least Discord from closing the
+        // keyboard.
+        val appMinimumHeight = 200.dp
+
+        // Coordinates are relative to the top of the view:
+        // 0..visibleTop:              this zone is rendered *on top of* the app, no accomodation
+        // visibleTop..contentTop:     app will be *panned* as necessary to ensure input field is not in this zone
+        // contentTop..keyboardHeight: app will be *shrunk* to make room for this zone
+
+        outInsets.contentTopInsets = (viewHeight - keyboardHeight)
+            .coerceAtLeast(with(density.value) { appMinimumHeight.roundToPx() })
+            .coerceAtMost(viewHeight)
         outInsets.visibleTopInsets = viewHeight - keyboardHeight
         outInsets.touchableInsets = Insets.TOUCHABLE_INSETS_VISIBLE
     }
@@ -302,94 +316,84 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                         switchInputMethod = ::switchInputMethod,
                                                         navController = navController,
                                                     )
-                                                    val baseKeyboardHeightUpdaterModifier = when {
-                                                        inputSessionIdx == currentInputSessions.lastIndex ->
-                                                            Modifier.onSizeChanged { size ->
-                                                                baseKeyboardHeight = size.height
-                                                            }
+                                                    NavHost(
+                                                        navController,
+                                                        startDestination = InputSession.ActiveView.Keyboard,
+                                                        contentAlignment = Alignment.BottomCenter,
+                                                        // The input connection stays open while the exit animation is running, so
+                                                        // disable animations for now to avoid having two visible "regular" keyboards
+                                                        // at the same time.
+                                                        enterTransition = { EnterTransition.None },
+                                                        exitTransition = { ExitTransition.None },
+                                                        popEnterTransition = { EnterTransition.None },
+                                                        popExitTransition = { ExitTransition.None },
+//                                                      enterTransition = { fadeIn() + slideInVertically { it } + expandVertically() },
+//                                                      exitTransition = { fadeOut() + slideOutVertically { it } + shrinkVertically() },
+//                                                      popEnterTransition = { fadeIn() + slideInVertically { it } + expandVertically() },
+//                                                      popExitTransition = { fadeOut() + slideOutVertically { it } + shrinkVertically() },
+                                                    ) {
+                                                        composable<InputSession.ActiveView.ClipboardHistory> {
+                                                            ClipboardHistoryViewer(
+                                                                onAction = onAction,
+                                                                snackbarHostState = snackbarHostState,
+                                                                navigateUp = navController::navigateUp,
+                                                            )
+                                                        }
 
-                                                        else -> Modifier
-                                                    }
-                                                    Box(baseKeyboardHeightUpdaterModifier) {
-                                                        NavHost(
-                                                            navController,
-                                                            startDestination = InputSession.ActiveView.Keyboard,
-                                                            contentAlignment = Alignment.BottomCenter,
-                                                            // The input connection stays open while the exit animation is running, so
-                                                            // disable animations for now to avoid having two visible "regular" keyboards
-                                                            // at the same time.
-                                                            enterTransition = { EnterTransition.None },
-                                                            exitTransition = { ExitTransition.None },
-                                                            popEnterTransition = { EnterTransition.None },
-                                                            popExitTransition = { ExitTransition.None },
-//                                                            enterTransition = { fadeIn() + slideInVertically { it } + expandVertically() },
-//                                                            exitTransition = { fadeOut() + slideOutVertically { it } + shrinkVertically() },
-//                                                            popEnterTransition = { fadeIn() + slideInVertically { it } + expandVertically() },
-//                                                            popExitTransition = { fadeOut() + slideOutVertically { it } + shrinkVertically() },
-                                                        ) {
-                                                            composable<InputSession.ActiveView.ClipboardHistory> {
-                                                                ClipboardHistoryViewer(
-                                                                    onAction = onAction,
-                                                                    snackbarHostState = snackbarHostState,
-                                                                    navigateUp = navController::navigateUp,
-                                                                )
-                                                            }
+                                                        composable<InputSession.ActiveView.EmojiKeyboard> { backStackEntry ->
+                                                            val route =
+                                                                backStackEntry.toRoute<InputSession.ActiveView.EmojiKeyboard>()
+                                                            EmojiKeyboard(
+                                                                onAction = onAction,
+                                                                navigateUp = navController::navigateUp,
+                                                                defaultTab = when {
+                                                                    route.search -> EmojiTab.Search
+                                                                    else -> null
+                                                                },
+                                                            )
+                                                        }
 
-                                                            composable<InputSession.ActiveView.EmojiKeyboard> { backStackEntry ->
-                                                                val route =
-                                                                    backStackEntry.toRoute<InputSession.ActiveView.EmojiKeyboard>()
-                                                                EmojiKeyboard(
-                                                                    onAction = onAction,
-                                                                    navigateUp = navController::navigateUp,
-                                                                    defaultTab = when {
-                                                                        route.search -> EmojiTab.Search
-                                                                        else -> null
-                                                                    },
-                                                                )
-                                                            }
+                                                        composable<InputSession.ActiveView.Keyboard> {
+                                                            ConfiguredKeyboard(
+                                                                modifier = Modifier.fillMaxWidth(),
+                                                                onAction = onAction,
+                                                                onModifierStateUpdated = inputSession::updateModifierState,
+                                                                enterVisualOverride = inputSession.editorInfo?.let { editorInfo ->
+                                                                    editorInfo.actionLabel?.toString()
+                                                                        ?.let(ActionVisual::Label)
+                                                                        ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
+                                                                            EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
+                                                                                "GO",
+                                                                            )
 
-                                                            composable<InputSession.ActiveView.Keyboard> {
-                                                                ConfiguredKeyboard(
-                                                                    modifier = Modifier.fillMaxWidth(),
-                                                                    onAction = onAction,
-                                                                    onModifierStateUpdated = inputSession::updateModifierState,
-                                                                    enterVisualOverride = inputSession.editorInfo?.let { editorInfo ->
-                                                                        editorInfo.actionLabel?.toString()
-                                                                            ?.let(ActionVisual::Label)
-                                                                            ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
-                                                                                EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
-                                                                                    "GO",
-                                                                                )
+                                                                            EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
+                                                                                R.drawable.baseline_search_24,
+                                                                            )
 
-                                                                                EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
-                                                                                    R.drawable.baseline_search_24,
-                                                                                )
+                                                                            EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
+                                                                                R.drawable.baseline_send_24,
+                                                                            )
 
-                                                                                EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
-                                                                                    R.drawable.baseline_send_24,
-                                                                                )
+                                                                            EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
+                                                                                R.drawable.baseline_done_24,
+                                                                            )
+                                                                            /* Not using the next/prev icons since they can be confused with the jump left/right icons */
+                                                                            EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
+                                                                                "NEXT",
+                                                                            )
 
-                                                                                EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
-                                                                                    R.drawable.baseline_done_24,
-                                                                                )
-                                                                                /* Not using the next/prev icons since they can be confused with the jump left/right icons */
-                                                                                EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
-                                                                                    "NEXT",
-                                                                                )
+                                                                            EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
+                                                                                "PREV",
+                                                                            )
 
-                                                                                EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
-                                                                                    "PREV",
-                                                                                )
-
-                                                                                else -> null
-                                                                            }
-                                                                    },
-                                                                    overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
-                                                                        InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers
-                                                                        else -> null
-                                                                    },
-                                                                )
-                                                            }
+                                                                            else -> null
+                                                                        }
+                                                                },
+                                                                overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
+                                                                    InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers
+                                                                    else -> null
+                                                                },
+                                                            )
                                                         }
                                                     }
                                                 }
