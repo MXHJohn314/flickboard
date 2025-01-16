@@ -26,13 +26,13 @@ import se.nullable.flickboard.model.SearchDirection
 import se.nullable.flickboard.model.TextBoundary
 import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.LocalDisplayLimits
+import se.nullable.flickboard.ui.LocalZalgoDatabase
 import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.voice.getVoiceInputId
 import se.nullable.flickboard.util.AndroidKeycodeMapper
 import se.nullable.flickboard.util.Boxed
 import se.nullable.flickboard.util.LastTypedData
 import se.nullable.flickboard.util.asCombiningMarkOrNull
-import se.nullable.flickboard.util.singleCodePointOrNull
 import se.nullable.flickboard.util.times
 import java.text.BreakIterator
 import kotlin.math.max
@@ -193,6 +193,7 @@ class InputSession(
         val periodOnDoubleSpace = appSettings.periodOnDoubleSpace.state
         val disabledDeadkeys = appSettings.disabledDeadkeys.state
         val displayLimits = LocalDisplayLimits.current
+        val zalgoDb = LocalZalgoDatabase.current
 
         val warningMessageScope = rememberCoroutineScope()
 
@@ -232,7 +233,7 @@ class InputSession(
                                 lastTyped?.tryCombineWith(
                                     char,
                                     periodOnDoubleSpace = false,
-                                    tryHarder = true,
+                                    zalgoDatabase = zalgoDb.value,
                                 ) ?: char.asCombiningMarkOrNull()
                                     ?.let {
                                         LastTypedData.Combiner(
@@ -252,14 +253,13 @@ class InputSession(
                         if (combiner != null) {
                             char = combiner.combinedReplacement
                         }
-                        val codePoint = char.singleCodePointOrNull()
                         val positionOfChar =
                             currentCursorPosition(SearchDirection.Backwards)
                                 ?.plus(char.length)
                                 ?.minus(combiner?.baseCharLength ?: 0)
                         lastTyped = when {
                             positionOfChar != null -> LastTypedData(
-                                codePoint = codePoint,
+                                char = char,
                                 position = positionOfChar,
                                 combiner = combiner,
                             )

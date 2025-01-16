@@ -19,12 +19,16 @@ import se.nullable.flickboard.model.emoji.EmojiDb
 import se.nullable.flickboard.model.emoji.EmojiTrie
 import se.nullable.flickboard.ui.theme.FlickBoardTheme
 import se.nullable.flickboard.util.Boxed
+import se.nullable.flickboard.util.ZalgoDatabase
 
 val LocalEmojiTrie = staticCompositionLocalOf<Lazy<EmojiTrie>> {
     throw Exception("LocalEmojiTrie used outside of FlickBoardParent")
 }
 val LocalEmojiDb = staticCompositionLocalOf<Lazy<EmojiDb>> {
     throw Exception("LocalEmojiDb used outside of FlickBoardParent")
+}
+val LocalZalgoDatabase = staticCompositionLocalOf<Lazy<ZalgoDatabase>> {
+    throw Exception("LocalZalgoDatabase used outside of FlickBoardParent")
 }
 val LocalAppDatabase = staticCompositionLocalOf<Lazy<AppDatabase>> {
     throw Exception("LocalAppDatabase used outside of FlickBoardParent")
@@ -64,6 +68,15 @@ fun FlickBoardParent(
             }
         }
     }
+    val zalgoDatabase = remember(context) {
+        lazy {
+            context.resources.openRawResource(R.raw.zalgo_substitutions).use { stream ->
+                stream.reader(Charsets.UTF_8).use {
+                    ZalgoDatabase.parse(it.readText())
+                }
+            }
+        }
+    }
     val providedAppDatabase = appDatabase ?: remember(context) {
         lazy {
             appDatabaseForContext(context)
@@ -85,6 +98,7 @@ fun FlickBoardParent(
     CompositionLocalProvider(
         LocalEmojiTrie provides emojiTrie,
         LocalEmojiDb provides emojiDb,
+        LocalZalgoDatabase provides zalgoDatabase,
         LocalAppDatabase provides providedAppDatabase,
         LocalDollar1GestureLibrary provides dollar1GestureLibrary,
     ) {
