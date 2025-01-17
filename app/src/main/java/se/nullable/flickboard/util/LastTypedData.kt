@@ -26,7 +26,8 @@ data class LastTypedData(val char: String?, val position: Int, val combiner: Com
             else -> zalgoDatabase?.findCombiner(char, nextChar) ?: run {
                 val normalizer = Normalizer2.getNFKDInstance()
                 val charCodePoint = char?.singleCodePointOrNull() ?: return null
-                val combiningMark = nextChar.asCombiningMarkOrNull() ?: return null
+                val combiningMark =
+                    nextChar.asCombiningMarkOrNull(zalgoMode = zalgoDatabase != null) ?: return null
                 val combiningMarkCodePoint = combiningMark.singleCodePointOrNull() ?: return null
                 val composed =
                     normalizer.composePair(charCodePoint, combiningMarkCodePoint)

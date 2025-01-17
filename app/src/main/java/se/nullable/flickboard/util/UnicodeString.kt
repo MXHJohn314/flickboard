@@ -15,7 +15,7 @@ fun String.dropInitialSpace(): String? =
         else -> null
     }
 
-fun String.asCombiningMarkOrNull(): String? =
+fun String.asCombiningMarkOrNull(zalgoMode: Boolean): String? =
     singleCodePointOrNull()?.let { codePoint ->
         when (codePoint) {
             // Some standalone diacritics are not considered composed of their composing variants...
@@ -27,7 +27,7 @@ fun String.asCombiningMarkOrNull(): String? =
             // the same and we're not adding a separate ring diacritic key
             '°'.code -> "\u030A"
             // Dot isn't strictly a diacritic, but it looks similar
-            '.'.code -> "\u0307"
+            '.'.code -> "\u0307".takeIf { zalgoMode }
             else -> Normalizer2.getNFKDInstance()
                 .getRawDecomposition(codePoint)?.dropInitialSpace()
         }

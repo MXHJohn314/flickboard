@@ -234,7 +234,7 @@ class InputSession(
                                     char,
                                     periodOnDoubleSpace = false,
                                     zalgoDatabase = zalgoDb.value,
-                                ) ?: char.asCombiningMarkOrNull()
+                                ) ?: char.asCombiningMarkOrNull(zalgoMode = true)
                                     ?.let {
                                         LastTypedData.Combiner(
                                             original = char,
