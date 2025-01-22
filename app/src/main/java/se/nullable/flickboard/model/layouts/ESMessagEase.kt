@@ -37,7 +37,7 @@ val ES_MESSAGEASE_MAIN_LAYER = Layer(
         listOf(
             KeyM(
                 actions = mapOf(
-                    Direction.CENTER to Action.Text("h"),
+                    Direction.CENTER to Action.Text("d"),
                     Direction.TOP to Action.Text("ü"),
                     Direction.RIGHT to Action.Text("k"),
                 ),
@@ -51,7 +51,7 @@ val ES_MESSAGEASE_MAIN_LAYER = Layer(
                     Direction.LEFT to Action.Text("c"),
                     Direction.RIGHT to Action.Text("b"),
                     Direction.BOTTOM_LEFT to Action.Text("g"),
-                    Direction.BOTTOM to Action.Text("d"),
+                    Direction.BOTTOM to Action.Text("h"),
                     Direction.BOTTOM_RIGHT to Action.Text("j"),
                 ),
             ),
