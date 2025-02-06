@@ -3,7 +3,6 @@ package se.nullable.flickboard.ui
 import android.gesture.GestureLibrary
 import android.gesture.GesturePoint
 import android.gesture.GestureStroke
-import android.view.HapticFeedbackConstants
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -150,24 +149,17 @@ fun Key(
     }
     val gestureLibrary = LocalDollar1GestureLibrary.current
     val onActionModifier = if (onAction != null) {
+        val haptics = Haptics.get
+
         fun onGestureStart() {
             if (enableHapticFeedbackOnGestureStart.value) {
-                // This gesture type is not supported by Compose 1.7.x, see #254
-                // Using Views gestures as a workaround
-                view.performHapticFeedback(
-                    when {
-                        android.os.Build.VERSION.SDK_INT >= 30 -> HapticFeedbackConstants.GESTURE_START
-                        else -> HapticFeedbackConstants.KEYBOARD_TAP
-                    },
-                )
+                haptics.vibrate(HapticFeedbackReason.GestureStart)
             }
         }
 
         fun handleAction(action: Action, gesture: Gesture?, isFast: Boolean): Boolean {
             if (enableHapticFeedbackOnGestureSuccess.value || (isFast && enableHapticFeedbackOnGestureStart.value)) {
-                // This gesture type is not supported by Compose 1.7.x, see #254
-                // Using Views gestures as a workaround
-                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                haptics.vibrate(HapticFeedbackReason.GestureSuccess)
             }
             if (enableVisualFeedback.value) {
                 if (!action.isHiddenAction) {

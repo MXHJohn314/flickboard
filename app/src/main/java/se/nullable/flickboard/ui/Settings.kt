@@ -1428,6 +1428,24 @@ class AppSettings(val ctx: SettingsContext) {
         description = "This is required for the correct brackets to be typed on some devices (especially Samsung)",
     )
 
+    val enableCustomHaptics = Setting.Bool(
+        key = "enableCustomHaptics",
+        label = "Enable custom vibration",
+        defaultValue = false,
+        ctx = ctx,
+        description = "This is required for some devices that ship broken vibration profiles that aren't strong enough to notice",
+    )
+
+    val customHapticsDuration = Setting.FloatSlider(
+        key = "customHapticsDuration",
+        label = "Custom vibration duration",
+        defaultValue = 30F,
+        range = 0F..300F,
+        ctx = ctx,
+        description = "Only used when custom vibration is enabled",
+        render = { "${it.roundToInt()}ms" },
+    )
+
     // Pseudo-option used to store history
     val emojiHistory =
         Setting.Text(key = "emojiHistory", label = "Emoji history", defaultValue = "", ctx = ctx)
@@ -1567,6 +1585,8 @@ class AppSettings(val ctx: SettingsContext) {
                     ignoreJumpsLongerThanPx,
                     flicksMustBeLongerThanSeconds,
                     noReverseRtlBrackets,
+                    enableCustomHaptics,
+                    customHapticsDuration,
                 ),
             ),
             SettingsSection(
