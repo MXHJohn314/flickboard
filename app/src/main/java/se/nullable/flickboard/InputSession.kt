@@ -62,22 +62,31 @@ class InputSession(
     private var cursor: CursorAnchorInfo? = null
 
     private var gestureBeginPosition: Int = 0
-    private fun selection(): IntRange? = when (val currentCursor = cursor) {
-        null -> {
+    private fun selection(): IntRange? = run {
+        val currentCursor = cursor
+        when {
             // Some apps (such as Firefox) don't always support requestCursorUpdates,
             // in those cases, fall back to making a synchronous getExtractedText request instead.
             // getExtractedText can still fail for non-standard text editors that don't use a typical
             // "selection" at all (like terminals).
-            inputConnection.getExtractedText(
-                ExtractedTextRequest().also {
-                    it.hintMaxChars = 1
-                    it.hintMaxLines = 1
-                },
-                0,
-            )?.let { it.selectionStart..it.selectionEnd }
-        }
+            currentCursor == null ||
+                    // Some apps (Google Docs) *do* support requestCursorUpdates, but always return -1
+                    // (no selection). Use the fallback for them, too.
+                    currentCursor.selectionStart == -1 || currentCursor.selectionEnd == -1 -> {
+                inputConnection.getExtractedText(
+                    ExtractedTextRequest().also {
+                        it.hintMaxChars = 1
+                        it.hintMaxLines = 1
+                    },
+                    0,
+                )?.let {
+                    val offset = it.startOffset
+                    (offset + it.selectionStart)..(offset + it.selectionEnd)
+                }
+            }
 
-        else -> currentCursor.selectionStart..currentCursor.selectionEnd
+            else -> currentCursor.selectionStart..currentCursor.selectionEnd
+        }
     }
 
     private var activeModifiers = ModifierState()
