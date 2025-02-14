@@ -1,4 +1,6 @@
-# FlickBoard
+# ![Logo](app/logo.png) FlickBoard
+
+(Logo by @MisterE123)
 
 [![Discord](https://img.shields.io/discord/1207841722327896104?logo=discord&logoColor=white&label=chat%20on%20discord)](https://discord.gg/tVp8MGaeUr)
 
