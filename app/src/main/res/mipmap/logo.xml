@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MonochromeLauncherIcon">
+    <!--    <background>-->
+    <!--        <layer-list>-->
+    <!--            <item>-->
+    <!--                <color android:color="#39314b" />-->
+    <!--            </item>-->
+    <!--            <item>-->
+    <!--                <inset-->
+    <!--                    android:drawable="@drawable/logo_background"-->
+    <!--                    android:inset="33dp" />-->
+    <!--            </item>-->
+    <!--        </layer-list>-->
+    <!--    </background>-->
+    <!--    <foreground>-->
+    <!--        <inset-->
+    <!--            android:drawable="@drawable/logo_foreground"-->
+    <!--            android:inset="33dp" />-->
+    <!--    </foreground>-->
+    <background android:drawable="@drawable/logo_background" />
+    <foreground android:drawable="@drawable/logo_foreground" />
+</adaptive-icon>
