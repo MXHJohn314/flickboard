@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="Theme.FlickBoard.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.FlickBoard</item>
+    </style>
     <style name="Theme.FlickBoard" parent="android:Theme.Material.NoActionBar" />
 </resources>

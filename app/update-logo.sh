@@ -6,7 +6,7 @@ set -euo pipefail
 mkdir -p tmp
 
 # Crop out border
-CROP=2,2,30,30
+BORDERCROP=2,2,30,30
 
 # Rescale by an integer factor to minimize the impact of renderer antialiasing
 SCALEFACTOR=800%
@@ -16,7 +16,7 @@ SCALEFACTOR=800%
 BORDERFACTOR=50%
 
 for layer in background foreground; do
-    libresprite --batch --layer $layer logo.aseprite --crop $CROP --save-as tmp/logo_$layer.png
+    libresprite --batch --layer $layer logo.aseprite --crop $BORDERCROP --save-as tmp/logo_$layer.png
     if [ $layer = background ]; then
         BORDERBG='#39314bff'
     else
@@ -27,3 +27,8 @@ for layer in background foreground; do
         -bordercolor $BORDERBG -border $BORDERFACTOR \
         src/main/res/drawable/logo_$layer.png
 done
+
+# libresprite --batch logo.aseprite --save-as tmp/logo_standalone.png
+# magick tmp/logo_standalone.png \
+#     -filter point -resize $SCALEFACTOR \
+#     src/main/res/drawable/logo_standalone.png
