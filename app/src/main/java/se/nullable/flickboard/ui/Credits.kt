@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,11 +25,8 @@ import se.nullable.flickboard.ui.theme.Typography
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Credits(
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
-) {
-    LazyColumn(modifier, contentPadding = contentPadding) {
+fun Credits(modifier: Modifier = Modifier) {
+    LazyColumn(modifier) {
         stickyHeader { CreditHeader("By") }
         item {
             CreditEntry(
@@ -223,9 +219,7 @@ fun CreditHeader(label: String) {
     Surface(Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
         Text(
             label,
-            Modifier
-                .padding(horizontal = 8.dp)
-                .padding(top = 8.dp),
+            Modifier.padding(all = 8.dp),
             style = Typography.headlineSmall,
         )
     }
@@ -245,7 +239,7 @@ fun CreditEntry(name: String, uri: String? = null, role: String? = null) {
         Column(Modifier.weight(1F)) {
             Text(name, style = Typography.labelLarge)
             if (role != null) {
-                Text(role, Modifier.padding(start = 8.dp), style = Typography.labelSmall)
+                Text(role, Modifier.padding(start = 8.dp), style = Typography.labelMedium)
             }
         }
         if (uri != null) {

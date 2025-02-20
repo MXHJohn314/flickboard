@@ -203,7 +203,7 @@ class MainActivity : ComponentActivity() {
                                                 )
                                             },
                                         ) { padding ->
-                                            Credits(contentPadding = padding)
+                                            Credits(Modifier.padding(padding))
                                         }
                                     }
                                     composable<MainActivityNav.SettingsSection> { backStackEntry ->
