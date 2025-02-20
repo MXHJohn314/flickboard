@@ -1,7 +1,6 @@
 package se.nullable.flickboard.ui
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.util.JsonReader
@@ -159,6 +158,7 @@ fun SettingsHomePage(
     onNavigateToSection: (SettingsSection) -> Unit,
     onNavigateToTutorial: () -> Unit,
     onNavigateToBetaMenu: () -> Unit,
+    onNavigateToCredits: () -> Unit,
     onNavigateToDescriber: () -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
@@ -169,9 +169,6 @@ fun SettingsHomePage(
         mutableStateOf("")
     }
     val context = LocalContext.current
-    fun openUri(uri: Uri) {
-        context.startActivity(Intent(Intent.ACTION_VIEW, uri))
-    }
     Column {
         LazyColumn(modifier.weight(1F)) {
             item {
@@ -257,17 +254,22 @@ fun SettingsHomePage(
                     )
                 }
                 MenuPageLink(
-                    onClick = { openUri(Uri.parse("https://discord.gg/tVp8MGaeUr")) },
+                    onClick = { onNavigateToCredits() },
+                    icon = painterResource(R.drawable.baseline_people_24),
+                    label = "Credits",
+                )
+                MenuPageUriLink(
+                    uri = "https://discord.gg/tVp8MGaeUr",
                     icon = painterResource(R.drawable.baseline_chat_24),
                     label = "Discuss on Discord",
                 )
-                MenuPageLink(
-                    onClick = { openUri(Uri.parse("https://codeberg.org/natkr/flickboard")) },
+                MenuPageUriLink(
+                    uri = "https://codeberg.org/natkr/flickboard",
                     icon = painterResource(id = R.drawable.baseline_code_24),
                     label = "View Source on Codeberg",
                 )
-                MenuPageLink(
-                    onClick = { openUri(Uri.parse("https://codeberg.org/natkr/flickboard/issues")) },
+                MenuPageUriLink(
+                    uri = "https://codeberg.org/natkr/flickboard/issues",
                     icon = painterResource(id = R.drawable.baseline_bug_report_24),
                     label = "Report Bugs on Codeberg",
                 )
@@ -805,6 +807,7 @@ fun SettingsHomePreview() {
                         onNavigateToSection = {},
                         onNavigateToTutorial = {},
                         onNavigateToBetaMenu = {},
+                        onNavigateToCredits = {},
                         onNavigateToDescriber = {},
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@AnimatedVisibility,

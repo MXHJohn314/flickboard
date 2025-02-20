@@ -38,6 +38,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 import se.nullable.flickboard.ui.BetaMenu
+import se.nullable.flickboard.ui.Credits
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.SettingsHomePage
@@ -157,6 +158,9 @@ class MainActivity : ComponentActivity() {
                                                 onNavigateToBetaMenu = {
                                                     navController.navigate(MainActivityNav.BetaMenu)
                                                 },
+                                                onNavigateToCredits = {
+                                                    navController.navigate(MainActivityNav.Credits)
+                                                },
                                                 onNavigateToDescriber = {
                                                     navController.navigate(MainActivityNav.KeyboardDescriber)
                                                 },
@@ -175,9 +179,7 @@ class MainActivity : ComponentActivity() {
                                                 )
                                             },
                                         ) { padding ->
-                                            KeyboardDescriber(
-                                                modifier = Modifier.padding(padding),
-                                            )
+                                            KeyboardDescriber(Modifier.padding(padding))
                                         }
                                     }
                                     composable<MainActivityNav.BetaMenu> {
@@ -189,9 +191,19 @@ class MainActivity : ComponentActivity() {
                                                 )
                                             },
                                         ) { padding ->
-                                            BetaMenu(
-                                                modifier = Modifier.padding(padding),
-                                            )
+                                            BetaMenu(Modifier.padding(padding))
+                                        }
+                                    }
+                                    composable<MainActivityNav.Credits> {
+                                        Scaffold(
+                                            topBar = {
+                                                TopAppBar(
+                                                    title = { Text("Credits") },
+                                                    navigationIcon = { NavigateUpIcon(navController) },
+                                                )
+                                            },
+                                        ) { padding ->
+                                            Credits(contentPadding = padding)
                                         }
                                     }
                                     composable<MainActivityNav.SettingsSection> { backStackEntry ->
@@ -241,6 +253,9 @@ sealed class MainActivityNav {
 
     @Serializable
     data object BetaMenu : MainActivityNav()
+
+    @Serializable
+    data object Credits : MainActivityNav()
 }
 
 sealed class MainActivitySharedElement {
