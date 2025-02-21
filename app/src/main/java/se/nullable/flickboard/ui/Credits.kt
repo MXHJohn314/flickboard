@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
@@ -26,6 +27,7 @@ import se.nullable.flickboard.ui.theme.Typography
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Credits(modifier: Modifier = Modifier) {
+    val dependencyInfo = LocalDependencyInfo.current
     LazyColumn(modifier) {
         stickyHeader { CreditHeader("By") }
         item {
@@ -209,6 +211,15 @@ fun Credits(modifier: Modifier = Modifier) {
                 "dessalines",
                 uri = "https://github.com/dessalines/thumb-key",
                 role = "Thumb-Key layouts",
+            )
+        }
+
+        stickyHeader { CreditHeader("Third-party components") }
+        items(dependencyInfo.value) { dependency ->
+            CreditEntry(
+                dependency.name,
+                uri = dependency.url,
+                role = dependency.license,
             )
         }
     }

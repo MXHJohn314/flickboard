@@ -23,8 +23,13 @@ dependencies {
 gradlePlugin {
     plugins {
         create("emojiDb") {
-            id = "se.nullable.flickboard.build.emojidb"
+            id = libs.plugins.flickboard.emojidb.get().pluginId
             implementationClass = "se.nullable.flickboard.build.EmojiDbGeneratorPlugin"
+        }
+
+        create("dependencyCollector") {
+            id = libs.plugins.flickboard.dependencycollector.get().pluginId
+            implementationClass = "se.nullable.flickboard.build.DependencyCollectorPlugin"
         }
     }
 }

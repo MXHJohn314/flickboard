@@ -71,3 +71,4 @@ kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.re
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp" }
 flickboard-emojidb = { id = "se.nullable.flickboard.build.emojidb" }
+flickboard-dependencycollector = { id = "se.nullable.flickboard.build.dependencycollector" }

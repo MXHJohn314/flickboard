@@ -15,6 +15,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.AppDatabase
+import se.nullable.flickboard.model.credits.DependencyInfo
 import se.nullable.flickboard.model.emoji.EmojiDb
 import se.nullable.flickboard.model.emoji.EmojiTrie
 import se.nullable.flickboard.ui.theme.FlickBoardTheme
@@ -26,6 +27,9 @@ val LocalEmojiTrie = staticCompositionLocalOf<Lazy<EmojiTrie>> {
 }
 val LocalEmojiDb = staticCompositionLocalOf<Lazy<EmojiDb>> {
     throw Exception("LocalEmojiDb used outside of FlickBoardParent")
+}
+val LocalDependencyInfo = staticCompositionLocalOf<Lazy<List<DependencyInfo>>> {
+    throw Exception("LocalDependencyInfo used outside of FlickBoardParent")
 }
 val LocalZalgoDatabase = staticCompositionLocalOf<Lazy<ZalgoDatabase>> {
     throw Exception("LocalZalgoDatabase used outside of FlickBoardParent")
@@ -68,6 +72,13 @@ fun FlickBoardParent(
             }
         }
     }
+    val dependencyInfo = remember(context) {
+        lazy {
+            context.resources.openRawResource(R.raw.dependencies).use { dependenciesStr ->
+                Json.decodeFromStream<List<DependencyInfo>>(dependenciesStr)
+            }
+        }
+    }
     val zalgoDatabase = remember(context) {
         lazy {
             context.resources.openRawResource(R.raw.zalgo_substitutions).use { stream ->
@@ -98,6 +109,7 @@ fun FlickBoardParent(
     CompositionLocalProvider(
         LocalEmojiTrie provides emojiTrie,
         LocalEmojiDb provides emojiDb,
+        LocalDependencyInfo provides dependencyInfo,
         LocalZalgoDatabase provides zalgoDatabase,
         LocalAppDatabase provides providedAppDatabase,
         LocalDollar1GestureLibrary provides dollar1GestureLibrary,
