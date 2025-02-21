@@ -40,11 +40,16 @@ fun spacer(width: Dp) =
     }
 
 val OVERLAY_LONG_SWIPE_LAYER = run {
-    val row = listOf(
-        KeyM(actions = emptyMap(), longActions = mapOf(Direction.RIGHT to Action.Text(" "))),
-        KeyM(actions = emptyMap()),
-        KeyM(actions = emptyMap(), longActions = mapOf(Direction.LEFT to Action.Delete())),
+    val key = KeyM(
+        actions = emptyMap(),
+        longActions = mapOf(
+            (Direction.RIGHT to Action.Text(" ")),
+            (Direction.LEFT to Action.Delete()),
+            (Direction.BOTTOM to Action.Enter()),
+            (Direction.TOP to Action.Text("\t")),
+        ),
     )
+    val row = listOf(key, key, key)
     Layer(
         keyRows = listOf(
             row,
