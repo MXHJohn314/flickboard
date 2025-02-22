@@ -46,7 +46,7 @@ val OVERLAY_LONG_SWIPE_LAYER = run {
             (Direction.RIGHT to Action.Text(" ")),
             (Direction.LEFT to Action.Delete()),
             (Direction.BOTTOM to Action.Enter()),
-            (Direction.TOP to Action.Text("\t")),
+            (Direction.TOP to Action.Tab),
         ),
     )
     val row = listOf(key, key, key)

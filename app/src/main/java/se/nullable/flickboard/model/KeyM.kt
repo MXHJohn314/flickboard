@@ -597,6 +597,14 @@ sealed class Action {
         override val title: String = "Voice"
         override val description: String = "Switches to the voice keyboard, if any is installed."
     }
+
+    companion object {
+        val Tab = Text(
+            "\t",
+            forceRawKeyEvent = true,
+            visualOverride = ActionVisual.Icon(R.drawable.baseline_keyboard_tab_24),
+        )
+    }
 }
 
 enum class FastActionType {

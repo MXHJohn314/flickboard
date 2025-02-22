@@ -2,9 +2,7 @@ package se.nullable.flickboard.model.layouts
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import se.nullable.flickboard.R
 import se.nullable.flickboard.model.Action
-import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.model.Direction
 import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.Layer
@@ -116,11 +114,7 @@ val MESSAGEASE_SYMBOLS_LAYER = Layer(
                     Direction.LEFT to Action.Text("<"),
                     Direction.BOTTOM_LEFT to Action.Text("ˇ"),
                     Direction.RIGHT to Action.Text("*"),
-                    Direction.BOTTOM_RIGHT to Action.Text(
-                        "\t",
-                        forceRawKeyEvent = true,
-                        visualOverride = ActionVisual.Icon(R.drawable.baseline_keyboard_tab_24),
-                    ),
+                    Direction.BOTTOM_RIGHT to Action.Tab,
                 ),
                 shift = KeyM(
                     actions = mapOf(
