@@ -166,7 +166,7 @@ val MESSAGEASE_SYMBOLS_LAYER = Layer(
         ),
         listOf(
             KeyM(actions = mapOf(), colspan = 2),
-            SPACE.copy(colspan = 1),
+            KEY_SPACE.copy(colspan = 1),
         ),
     ),
 )
@@ -193,7 +193,7 @@ fun messageaseNumericPhoneLayer(digits: String) = Layer(
                 actions = mapOf(Direction.CENTER to Action.Text(digits[0].toString())),
                 colspan = 2,
             ),
-            SPACE.copy(colspan = 1),
+            KEY_SPACE.copy(colspan = 1),
         ),
     ),
 )

@@ -19,7 +19,7 @@ import se.nullable.flickboard.model.TextBoundary
 import se.nullable.flickboard.ui.KeyboardLayoutPreview
 import java.util.Locale
 
-val SPACE = KeyM(
+val KEY_SPACE = KeyM(
     actions = mapOf(
         Direction.CENTER to Action.Text(" "),
         Direction.LEFT to Action.Jump(direction = SearchDirection.Backwards),

@@ -82,7 +82,7 @@ val NO_THUMBKEY_MAIN_LAYER = Layer(
                 ),
             ),
         ),
-        listOf(SPACE),
+        listOf(KEY_SPACE),
     ),
 )
 

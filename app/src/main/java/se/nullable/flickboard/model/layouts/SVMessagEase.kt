@@ -82,7 +82,7 @@ val SV_MESSAGEASE_MAIN_LAYER = Layer(
                 ),
             ),
         ),
-        listOf(SPACE),
+        listOf(KEY_SPACE),
     ),
 )
 

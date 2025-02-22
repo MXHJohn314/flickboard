@@ -36,7 +36,7 @@ val UK_MESSAGEASE_MAIN_LAYER = Layer(
             KeyM(actions = mapOf()),
             KeyM(actions = mapOf()),
         ),
-        listOf(SPACE),
+        listOf(KEY_SPACE),
     ),
 ).mergeFallback(RU_MESSAGEASE_MAIN_LAYER)
 
