@@ -105,6 +105,7 @@ import se.nullable.flickboard.model.ActionClass
 import se.nullable.flickboard.model.AppDatabase
 import se.nullable.flickboard.model.Layer
 import se.nullable.flickboard.model.Layout
+import se.nullable.flickboard.model.ModifierSettings
 import se.nullable.flickboard.model.layouts.AR_MESSAGEASE
 import se.nullable.flickboard.model.layouts.DA_MESSAGEASE
 import se.nullable.flickboard.model.layouts.DE_EO_MESSAGEASE
@@ -1263,6 +1264,18 @@ class AppSettings(val ctx: SettingsContext) {
         ctx = ctx,
     )
 
+    val stickyModifiers = Setting.Bool(
+        key = "stickyModifiers",
+        label = "Sticky modifiers",
+        description = "When disabled, ctrl and alt modifiers are automatically cleared after typing a letter. When enabled, they must be cleared manually.",
+        defaultValue = false,
+        ctx = ctx,
+    )
+
+    val modifierSettings: ModifierSettings
+        @Composable
+        get() = ModifierSettings(stickyModifiers = stickyModifiers.state)
+
     val periodOnDoubleSpace = Setting.Bool(
         key = "periodOnDoubleSpace",
         label = "Period on double space",
@@ -1557,6 +1570,7 @@ class AppSettings(val ctx: SettingsContext) {
                     enableLongSwipes,
                     longSwipeThreshold,
                     enableAdvancedModifiers,
+                    stickyModifiers,
                     periodOnDoubleSpace,
                     longHoldOnClockwiseCircle,
                     longHoldOnCounterClockwiseCircle,

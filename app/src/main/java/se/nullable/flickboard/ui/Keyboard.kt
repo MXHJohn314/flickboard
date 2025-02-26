@@ -106,6 +106,7 @@ fun Keyboard(
     }
     val enableHiddenActions = appSettings.enableHiddenActions.state
     val enableAdvancedModifiers = appSettings.enableAdvancedModifiers.state
+    val modifierSettings = appSettings.modifierSettings
     val enableToggleShowSymbols = appSettings.enableToggleShowSymbolsGesture.state
     val keyGap = appSettings.keyGap.state
     val backgroundImage = appSettings.backgroundImage.state
@@ -396,7 +397,7 @@ fun Keyboard(
 
                                             else -> when {
                                                 action.isHiddenAction -> modifierState
-                                                else -> modifierState.next()
+                                                else -> modifierState.next(modifierSettings)
                                             }
                                         }
                                         wrappedOnAction.onAction(action, key, gesture)

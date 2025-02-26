@@ -1,6 +1,7 @@
 package se.nullable.flickboard.model
 
 import android.view.KeyEvent
+import androidx.compose.runtime.State
 import se.nullable.flickboard.util.times
 
 data class ModifierState(
@@ -10,7 +11,12 @@ data class ModifierState(
     val zalgo: Boolean = false,
     val select: Boolean = false,
 ) {
-    fun next(): ModifierState = ModifierState(shift = shift.next())
+    fun next(settings: ModifierSettings): ModifierState =
+        ModifierState(
+            shift = shift.next(),
+            ctrl = ctrl and settings.stickyModifiers.value,
+            alt = alt and settings.stickyModifiers.value,
+        )
 
     val useRawKeyEvent = ctrl || alt
 
@@ -41,3 +47,4 @@ enum class ShiftState {
     }
 }
 
+data class ModifierSettings(val stickyModifiers: State<Boolean>)
