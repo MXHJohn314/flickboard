@@ -14,8 +14,8 @@ data class ModifierState(
     fun next(settings: ModifierSettings): ModifierState =
         ModifierState(
             shift = shift.next(),
-            ctrl = ctrl and settings.stickyModifiers.value,
-            alt = alt and settings.stickyModifiers.value,
+            ctrl = ctrl && settings.stickyModifiers.value,
+            alt = alt && settings.stickyModifiers.value,
         )
 
     val useRawKeyEvent = ctrl || alt

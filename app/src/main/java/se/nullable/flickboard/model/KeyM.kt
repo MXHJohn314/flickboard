@@ -131,14 +131,17 @@ data class KeyM(
 }
 
 sealed class Action {
-    abstract fun visual(modifier: ModifierState?): ActionVisual
-
     abstract val title: String
     abstract val description: String
     open val showAsRelatedInHelp: Boolean = true
 
-    open fun isActive(modifier: ModifierState?): Boolean = false
+    abstract fun visual(modifier: ModifierState?, modifierSettings: ModifierSettings?): ActionVisual
     open val actionClass = ActionClass.Other
+    open fun tint(modifier: ModifierState?): ActionTint = when (actionClass) {
+        ActionClass.Symbol -> ActionTint.Dim
+        else -> ActionTint.Normal
+    }
+
     open val fastActionType: FastActionType? = null
     open fun shift(locale: Locale): Action = this
     open fun withHidden(hidden: Boolean): Action = this
@@ -153,7 +156,10 @@ sealed class Action {
         val visualOverride: ActionVisual? = null,
         val hidden: Boolean = false,
     ) : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             when {
                 hidden -> ActionVisual.None
                 else -> visualOverride ?: ActionVisual.Label(character)
@@ -187,7 +193,10 @@ sealed class Action {
         val boundary: TextBoundary = TextBoundary.Character,
         val hidden: Boolean = false,
     ) : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual = when {
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual = when {
             hidden -> ActionVisual.None
             else -> ActionVisual.Icon(R.drawable.baseline_backspace_24)
         }
@@ -215,7 +224,10 @@ sealed class Action {
         val direction: SearchDirection,
         val boundary: TextBoundary = TextBoundary.Character
     ) : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_backspace_24)
 
         override val title: String = "Fast Delete"
@@ -228,7 +240,11 @@ sealed class Action {
     }
 
     data object BeginFastAction : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual = ActionVisual.None
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual = ActionVisual.None
+
         override val isHiddenAction: Boolean = true
 
         override val title: String = "Begin Fast Action"
@@ -237,7 +253,11 @@ sealed class Action {
     }
 
     data class FastActionDone(val type: FastActionType) : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual = ActionVisual.None
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual = ActionVisual.None
+
         override val isHiddenAction: Boolean = true
 
         override val title: String = "Fast Action Done"
@@ -246,7 +266,10 @@ sealed class Action {
     }
 
     data class Enter(val shift: Boolean = false) : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_keyboard_return_24)
 
         override val title: String = "Enter"
@@ -257,7 +280,10 @@ sealed class Action {
     }
 
     data object Escape : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual {
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual {
             return ActionVisual.Label("esc")
         }
 
@@ -269,7 +295,10 @@ sealed class Action {
         val direction: SearchDirection,
         val boundary: TextBoundary = TextBoundary.Character,
     ) : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual = when (direction) {
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual = when (direction) {
             SearchDirection.Backwards -> ActionVisual.Icon(R.drawable.baseline_keyboard_arrow_left_24)
             SearchDirection.Forwards -> ActionVisual.Icon(R.drawable.baseline_keyboard_arrow_right_24)
         }
@@ -286,7 +315,10 @@ sealed class Action {
 
     data class JumpLineKeepPos(val direction: SearchDirection, val rawEvent: Boolean = false) :
         Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual = when (direction) {
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual = when (direction) {
             SearchDirection.Backwards -> ActionVisual.Icon(R.drawable.baseline_keyboard_arrow_up_24)
             SearchDirection.Forwards -> ActionVisual.Icon(R.drawable.baseline_keyboard_arrow_down_24)
         }
@@ -302,7 +334,10 @@ sealed class Action {
     data class ToggleShift(val state: ShiftState) : Action() {
         override val isModifier: Boolean = true
 
-        override fun visual(modifier: ModifierState?): ActionVisual = when (state) {
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual = when (state) {
             ShiftState.Normal -> ActionVisual.Icon(R.drawable.baseline_arrow_drop_down_24)
             ShiftState.Shift -> ActionVisual.Icon(R.drawable.baseline_arrow_drop_up_24)
             ShiftState.CapsLock -> ActionVisual.Icon(R.drawable.baseline_keyboard_capslock_24)
@@ -322,7 +357,10 @@ sealed class Action {
             ShiftState.CapsLock -> "Turns all letters upper-case until shift is disabled manually."
         }
 
-        override fun isActive(modifier: ModifierState?): Boolean = state == modifier?.shift
+        override fun tint(modifier: ModifierState?): ActionTint = when {
+            state == modifier?.shift -> ActionTint.Active
+            else -> ActionTint.Normal
+        }
 
         override fun shift(locale: Locale): Action {
             return when (state) {
@@ -336,7 +374,10 @@ sealed class Action {
     data object TransientShift : Action() {
         override val isModifier: Boolean = true
 
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_rotate_right_24)
 
         override val title: String = "Transient Shift"
@@ -350,7 +391,10 @@ sealed class Action {
      * Shift the case for the current word up/down one step (lower <-> Title <-> UPPER )
      */
     data class ToggleWordCase(val direction: CaseChangeDirection, val locale: Locale) : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual = when (direction) {
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual = when (direction) {
             CaseChangeDirection.Up -> ActionVisual.Icon(R.drawable.baseline_keyboard_double_arrow_up_24)
             CaseChangeDirection.Down -> ActionVisual.Icon(R.drawable.baseline_keyboard_double_arrow_down_24)
         }
@@ -365,9 +409,20 @@ sealed class Action {
     data object ToggleCtrl : Action() {
         override val isModifier: Boolean = true
 
-        override fun visual(modifier: ModifierState?): ActionVisual = when {
-            modifier?.ctrl ?: true -> ActionVisual.Label("ctrl")
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual = when {
+            modifier?.ctrl ?: true
+                    || modifierSettings?.stickyModifiers?.value ?: false ->
+                ActionVisual.Label("ctrl")
+
             else -> ActionVisual.None
+        }
+
+        override fun tint(modifier: ModifierState?): ActionTint = when {
+            modifier?.ctrl ?: true -> ActionTint.Active
+            else -> ActionTint.Dim
         }
 
         override val title: String = "Toggle Control Modifier"
@@ -378,9 +433,20 @@ sealed class Action {
     data object ToggleAlt : Action() {
         override val isModifier: Boolean = true
 
-        override fun visual(modifier: ModifierState?): ActionVisual = when {
-            modifier?.alt ?: true -> ActionVisual.Label("alt")
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual = when {
+            modifier?.alt ?: true
+                    || modifierSettings?.stickyModifiers?.value ?: false ->
+                ActionVisual.Label("alt")
+
             else -> ActionVisual.None
+        }
+
+        override fun tint(modifier: ModifierState?): ActionTint = when {
+            modifier?.alt ?: true -> ActionTint.Active
+            else -> ActionTint.Dim
         }
 
         override val title: String = "Toggle Alt Modifier"
@@ -391,7 +457,10 @@ sealed class Action {
     data object ToggleZalgo : Action() {
         override val isModifier: Boolean = true
 
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.outline_cell_merge_24)
 
         override val title: String = "Toggle Zalgo Modifier"
@@ -399,13 +468,19 @@ sealed class Action {
             "If enabled, the next typed character will be be combined into the previous (if supported).\n" +
                     "For example, c-zalgo-¨ becomes c̈, and a-zalgo-e becomes æ."
 
-        override fun isActive(modifier: ModifierState?): Boolean = modifier?.zalgo ?: false
+        override fun tint(modifier: ModifierState?): ActionTint = when {
+            modifier?.zalgo ?: false -> ActionTint.Active
+            else -> ActionTint.Dim
+        }
     }
 
     data object ToggleSelect : Action() {
         override val isModifier: Boolean = true
 
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             when {
                 modifier?.select
                     ?: false -> ActionVisual.Icon(R.drawable.outline_text_select_end_24)
@@ -417,11 +492,17 @@ sealed class Action {
         override val description: String =
             "If enabled, text movement (such as swiping on the space bar) will instead select text."
 
-        override fun isActive(modifier: ModifierState?): Boolean = modifier?.select ?: false
+        override fun tint(modifier: ModifierState?): ActionTint = when {
+            modifier?.select ?: false -> ActionTint.Active
+            else -> ActionTint.Normal
+        }
     }
 
     data object Cut : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_content_cut_24)
 
         override val title: String = "Cut"
@@ -430,7 +511,10 @@ sealed class Action {
     }
 
     data object Copy : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_content_copy_24)
 
         override val title: String = "Copy"
@@ -439,7 +523,10 @@ sealed class Action {
     }
 
     data object Paste : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_content_paste_24)
 
         override val title: String = "Paste"
@@ -447,7 +534,10 @@ sealed class Action {
     }
 
     data object Settings : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_settings_24)
 
         override val title: String = "FlickBoard Settings"
@@ -455,7 +545,10 @@ sealed class Action {
     }
 
     data class SwitchLetterLayer(val direction: SearchDirection) : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_keyboard_24)
 
         override val title: String = "${direction.nextOrPrevInTitle} Letter Layout"
@@ -464,7 +557,10 @@ sealed class Action {
     }
 
     data object SwitchSystemKeyboard : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_keyboard_24)
 
         override val title: String = "Switch Keyboard App"
@@ -478,7 +574,10 @@ sealed class Action {
      * Intent: "I want easy access to the opposite layer with my current hand"
      */
     data object ToggleActiveLayer : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_flip_camera_android_24)
 
         override val title: String = "Toggle Layers"
@@ -496,7 +595,10 @@ sealed class Action {
      * Intent: "I want to switch the active hand comfortably"
      */
     data object ToggleHandedness : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_flip_camera_android_24)
 
         override val title: String = "Toggle Handedness"
@@ -511,7 +613,10 @@ sealed class Action {
      * [ToggleActiveLayer] will also do this, if there is only one active layer.
      */
     data object ToggleNumbersLayer : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_flip_camera_android_24)
 
         override val title: String = "Toggle Numbers Layer"
@@ -519,7 +624,10 @@ sealed class Action {
     }
 
     data class AdjustCellHeight(val amount: Float) : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual = when {
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual = when {
             amount >= 0 -> ActionVisual.Icon(R.drawable.baseline_zoom_in_24)
             else -> ActionVisual.Icon(R.drawable.baseline_zoom_out_24)
         }
@@ -541,7 +649,10 @@ sealed class Action {
     }
 
     data object SelectAll : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_select_all_24)
 
         override val title: String = "Select All"
@@ -549,7 +660,10 @@ sealed class Action {
     }
 
     data class OpenEmojiKeyboard(val search: Boolean = false) : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_emoji_emotions_24)
 
         override val title: String = when {
@@ -565,7 +679,10 @@ sealed class Action {
     }
 
     data object OpenClipboardHistory : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_history_edu_24)
 
         override val title: String = "Clipboard History"
@@ -573,7 +690,10 @@ sealed class Action {
     }
 
     data object ToggleShowSymbols : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.None
 
         override val title: String = "Toggle Show Symbols"
@@ -583,7 +703,10 @@ sealed class Action {
     }
 
     data object ToggleShowLetters : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.None
 
         override val title: String = "Toggle Show Letters"
@@ -591,7 +714,10 @@ sealed class Action {
     }
 
     data object EnableVoiceMode : Action() {
-        override fun visual(modifier: ModifierState?): ActionVisual =
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_mic_24)
 
         override val title: String = "Voice"
@@ -623,6 +749,12 @@ sealed class ActionVisual {
     ) : ActionVisual()
 
     data object None : ActionVisual()
+}
+
+enum class ActionTint {
+    Normal,
+    Active,
+    Dim,
 }
 
 enum class TextBoundary(

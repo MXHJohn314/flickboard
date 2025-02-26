@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameter
 import androidx.compose.ui.unit.dp
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.Action
+import se.nullable.flickboard.model.ActionTint
 import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.model.Direction
 import se.nullable.flickboard.model.Gesture
@@ -45,7 +46,6 @@ import se.nullable.flickboard.model.SearchDirection
 import se.nullable.flickboard.model.ShiftState
 import se.nullable.flickboard.model.TextBoundary
 import se.nullable.flickboard.model.TextDirection
-import se.nullable.flickboard.ui.ActionStyle
 import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.MenuPageLink
@@ -78,7 +78,7 @@ fun KeyboardDescriber(modifier: Modifier = Modifier, initialAction: Action? = nu
                     Modifier
                         .verticalScroll(scrollState)
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(8.dp),
                 ) {
                     AnimatedContent(
                         Triple(
@@ -95,7 +95,7 @@ fun KeyboardDescriber(modifier: Modifier = Modifier, initialAction: Action? = nu
                                     (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
                                             scaleIn(
                                                 initialScale = 0.92f,
-                                                animationSpec = tween(220, delayMillis = 90)
+                                                animationSpec = tween(220, delayMillis = 90),
                                             ))
                                         .togetherWith(fadeOut(animationSpec = tween(90)))
 
@@ -103,7 +103,7 @@ fun KeyboardDescriber(modifier: Modifier = Modifier, initialAction: Action? = nu
                                 else -> Transition.pop
                             }
                         },
-                        label = "action description"
+                        label = "action description",
                     ) { (action, _, stackSize) ->
                         ActionDescription(
                             action = action?.first,
@@ -116,7 +116,7 @@ fun KeyboardDescriber(modifier: Modifier = Modifier, initialAction: Action? = nu
                             onNavigateToAction = { targetAction, key, gesture ->
                                 selectedActionStack.add(
                                     0,
-                                    Triple(targetAction, key, gesture)
+                                    Triple(targetAction, key, gesture),
                                 )
                             },
                         )
@@ -175,7 +175,7 @@ fun ActionDescription(
                     colour = MaterialTheme.colorScheme.onSurface,
                     activeColour = MaterialTheme.colorScheme.onSurface,
                     layoutTextDirection = TextDirection.LeftToRight,
-                    style = ActionStyle.Normal,
+                    tint = ActionTint.Normal,
                 )
                 SubTitle(action.title)
             }
@@ -201,7 +201,7 @@ fun ActionDescription(
                             painterResource(R.drawable.baseline_speed_24),
                             "Fast Action",
                             gesture = flick,
-                        )
+                        ),
                     )
                 }
                 val shiftAction = key?.shift?.actions?.get(flick.direction)
@@ -222,7 +222,7 @@ fun ActionDescription(
                                 else -> Modifier
                             },
                             gesture = flick.copy(shift = true),
-                        )
+                        ),
                     )
                 }
                 if (transientShiftAction != null && transientShiftAction != action && transientShiftAction.showAsRelatedInHelp) {
@@ -233,7 +233,7 @@ fun ActionDescription(
                             "Transient Shift",
                             gesture = flick.copy(shift = true),
                             iconModifier = transientShiftIconModifier,
-                        )
+                        ),
                     )
                 }
                 if (gesture == Gesture.Tap && key?.holdAction != null) {
@@ -243,7 +243,7 @@ fun ActionDescription(
                             painterResource(R.drawable.baseline_file_download_24),
                             "Hold",
                             gesture = flick.copy(longHold = true),
-                        )
+                        ),
                     )
                 }
                 if (flick.shift) {
@@ -255,7 +255,7 @@ fun ActionDescription(
                                 iconModifier = transientShiftIconModifier,
                                 label = "Reach",
                                 gesture = null,
-                            )
+                            ),
                         )
                     }
                     if (action == shiftAction) {
@@ -265,7 +265,7 @@ fun ActionDescription(
                                 painterResource(R.drawable.baseline_arrow_drop_up_24),
                                 "Reach",
                                 gesture = null,
-                            )
+                            ),
                         )
                     }
                 }
@@ -278,7 +278,7 @@ fun ActionDescription(
                         if (
                             direction != Direction.CENTER &&
                             // Only show otherwise hidden icons
-                            swipeAction.visual(ModifierState()) == ActionVisual.None
+                            swipeAction.visual(ModifierState(), null) == ActionVisual.None
                         ) {
                             relatedActions.add(
                                 RelatedAction(
@@ -286,10 +286,10 @@ fun ActionDescription(
                                     painterResource(R.drawable.baseline_swipe_up_alt_24),
                                     direction.title(),
                                     iconModifier = Modifier.rotate(
-                                        direction.angleFromTop().toFloat()
+                                        direction.angleFromTop().toFloat(),
                                     ),
                                     gesture = flick.copy(direction = direction),
-                                )
+                                ),
                             )
                         }
                     }
@@ -304,7 +304,7 @@ fun ActionDescription(
                                     onNavigateToAction(
                                         relatedAction.action,
                                         key.takeIf { relatedAction.sameKey },
-                                        relatedAction.gesture
+                                        relatedAction.gesture,
                                     )
                                 },
                                 icon = relatedAction.icon,
@@ -344,5 +344,5 @@ private class PreviewActionsProvider :
             Action.Delete(),
             Action.Delete(SearchDirection.Forwards, TextBoundary.Word),
             Action.Cut,
-        )
+        ),
     )

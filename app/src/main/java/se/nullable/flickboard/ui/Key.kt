@@ -63,7 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import se.nullable.flickboard.model.Action
-import se.nullable.flickboard.model.ActionClass
+import se.nullable.flickboard.model.ActionTint
 import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.model.CircleDirection
 import se.nullable.flickboard.model.Direction
@@ -253,11 +253,11 @@ fun Key(
                         modifiers = modifierState,
                         colour = keyboardTheme.keyIndicatorColour,
                         activeColour = keyboardTheme.activeKeyIndicatorColour,
-                        style = when {
-                            action == highlightedAction -> ActionStyle.Normal
+                        tint = when {
+                            action == highlightedAction -> ActionTint.Normal
                             // Dim all non-highlighted actions if one is active
-                            highlightedAction != null -> ActionStyle.Dim
-                            else -> ActionStyle.default(action, modifierState)
+                            highlightedAction != null -> ActionTint.Dim
+                            else -> action.tint(modifierState)
                         },
                         layoutTextDirection = layoutTextDirection,
                         modifier = actionModifier,
@@ -301,21 +301,9 @@ fun KeyActionTakenIndicator(
                 modifier = Modifier.align(Alignment.Center),
                 colour = colour,
                 activeColour = colour,
-                style = ActionStyle.Normal,
+                tint = ActionTint.Normal,
                 layoutTextDirection = layoutTextDirection,
             )
-        }
-    }
-}
-
-enum class ActionStyle {
-    Normal, Active, Dim;
-
-    companion object {
-        fun default(action: Action, modifiers: ModifierState?): ActionStyle = when {
-            action.actionClass == ActionClass.Symbol -> Dim
-            action.isActive(modifiers) -> Active
-            else -> Normal
         }
     }
 }
@@ -329,21 +317,24 @@ fun RenderActionVisual(
     activeColour: Color,
     layoutTextDirection: TextDirection,
     modifier: Modifier = Modifier,
-    style: ActionStyle = ActionStyle.default(action, modifiers),
+    tint: ActionTint = action.tint(modifiers),
 ) {
     val actionVisualOverride = when (action) {
         is Action.Enter -> enterVisualOverride
         else -> null
     }
     val usedColour = animateColorAsState(
-        when (style) {
-            ActionStyle.Normal -> colour
-            ActionStyle.Dim -> colour.copy(alpha = 0.4F)
-            ActionStyle.Active -> activeColour
+        when (tint) {
+            ActionTint.Normal -> colour
+            ActionTint.Dim -> colour.copy(alpha = 0.4F)
+            ActionTint.Active -> activeColour
         },
         label = "key colour",
     )
-    when (val actionVisual = actionVisualOverride ?: action.visual(modifiers)) {
+    when (val actionVisual = actionVisualOverride ?: action.visual(
+        modifiers,
+        LocalAppSettings.current.modifierSettings,
+    )) {
         is ActionVisual.Label -> {
             BoxWithConstraints(modifier.padding(horizontal = 2.dp)) {
                 val density = LocalDensity.current

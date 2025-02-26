@@ -204,7 +204,7 @@ val CONTROL_MESSAGEASE_LAYER =
                         // Always enters a new line, rather than triggering special actions
                         Direction.TOP to Action.Text(
                             "\n",
-                            visualOverride = Action.Enter().visual(null),
+                            visualOverride = Action.Enter().visual(null, null),
                             hidden = true,
                         ),
                         Direction.TOP_RIGHT to Action.OpenEmojiKeyboard(),
