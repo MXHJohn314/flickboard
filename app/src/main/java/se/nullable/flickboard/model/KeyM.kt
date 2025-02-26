@@ -730,6 +730,11 @@ sealed class Action {
             forceRawKeyEvent = true,
             visualOverride = ActionVisual.Icon(R.drawable.baseline_keyboard_tab_24),
         )
+        val Space = Text(
+            " ",
+            visualOverride = ActionVisual.Icon(R.drawable.baseline_space_bar_24),
+            hidden = true,
+        )
     }
 }
 

@@ -7,9 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import se.nullable.flickboard.R
 import se.nullable.flickboard.model.Action
-import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.model.CaseChangeDirection
 import se.nullable.flickboard.model.Direction
 import se.nullable.flickboard.model.KeyM
@@ -23,11 +21,7 @@ import java.util.Locale
 
 val KEY_SPACE = KeyM(
     actions = mapOf(
-        Direction.CENTER to Action.Text(
-            " ",
-            visualOverride = ActionVisual.Icon(R.drawable.baseline_space_bar_24),
-            hidden = true,
-        ),
+        Direction.CENTER to Action.Space,
         Direction.LEFT to Action.Jump(direction = SearchDirection.Backwards),
         Direction.RIGHT to Action.Jump(direction = SearchDirection.Forwards),
     ),
@@ -49,7 +43,7 @@ val OVERLAY_LONG_SWIPE_LAYER = run {
     val key = KeyM(
         actions = emptyMap(),
         longActions = mapOf(
-            (Direction.RIGHT to Action.Text(" ")),
+            (Direction.RIGHT to Action.Space),
             (Direction.LEFT to Action.Delete()),
             (Direction.BOTTOM to Action.Enter()),
             (Direction.TOP to Action.Tab),
