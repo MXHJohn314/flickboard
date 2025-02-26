@@ -52,7 +52,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.style.LineHeightStyle
@@ -104,9 +103,6 @@ fun Key(
         Box(modifier)
         return
     }
-
-    val view = LocalView.current
-//    val haptic = LocalHapticFeedback.current
 
     val settings = LocalAppSettings.current
     val actionVisualScale = settings.actionVisualScale.state
