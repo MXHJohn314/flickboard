@@ -103,12 +103,12 @@ val ES_CA_MESSAGEASE = Layout(
 
 @Composable
 @Preview
-fun EsKeyboardPreview() {
+fun EsCaKeyboardPreview() {
     KeyboardLayoutPreview(layout = Layout(ES_CA_MESSAGEASE_MAIN_LAYER))
 }
 
 @Composable
 @Preview
-fun EsFullKeyboardPreview() {
+fun EsCaFullKeyboardPreview() {
     KeyboardLayoutPreview(layout = ES_CA_MESSAGEASE)
 }
