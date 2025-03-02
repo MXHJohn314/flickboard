@@ -115,6 +115,7 @@ import se.nullable.flickboard.model.layouts.EN_ES_MESSAGEASE
 import se.nullable.flickboard.model.layouts.EN_MESSAGEASE
 import se.nullable.flickboard.model.layouts.EN_THUMBKEY
 import se.nullable.flickboard.model.layouts.ES_MESSAGEASE
+import se.nullable.flickboard.model.layouts.ES_CA_MESSAGEASE
 import se.nullable.flickboard.model.layouts.FA_MESSAGEASE
 import se.nullable.flickboard.model.layouts.FA_THUMBKEY
 import se.nullable.flickboard.model.layouts.FR_EXT_MESSAGEASE
@@ -1706,6 +1707,7 @@ enum class LetterLayerOption(override val label: String, val layout: Layout) : L
     Russian("Russian (MessagEase)", RU_MESSAGEASE),
     RussianPhonetic("Russian phonetic (MessagEase)", RU_PHONETIC_MESSAGEASE),
     Spanish("Spanish (MessagEase)", ES_MESSAGEASE),
+    SpanishCatalan("Spanish & Catalan (MessagEase)", ES_CA_MESSAGEASE),
     SpanishEnglish("Spanish/English (MessagEase)", EN_ES_MESSAGEASE),
     Swedish("Swedish (MessagEase-style)", SV_MESSAGEASE),
     SwedishDE("Swedish (MessagEase, German-style)", SV_DE_MESSAGEASE),
