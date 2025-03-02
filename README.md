@@ -35,12 +35,15 @@ installed.
 
 ## Why not MessagEase?
 
-It's proprietary, and is currently threatening everyone's existing installations unless they
-subscribe.
+It's proprietary, and suddenly started requiring a subscription.
 
 ## Why not Thumb-Key?
 
-Thumb-Key intentionally doesn't support some gestures that MessagEase supports.
+Back in the day, Thumb-Key didn't support MessagEase's more advanced gestures like circles and
+U-bends.
+
+They do now, so this section is mostly historical, but FlickBoard's detection might still feel
+different, in ways that people may or may not prefer.
 
 [MessagEase]: https://www.exideas.com/ME/index.php
 
