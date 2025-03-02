@@ -1358,7 +1358,7 @@ class AppSettings(val ctx: SettingsContext) {
         key = "circleDiscontinuityThreshold",
         label = "Circle discontinuity threshold",
         description = "How much a circle's angle is allowed to jump",
-        defaultValue = .3F * PiF,
+        defaultValue = PiF,
         range = 0F..PiF,
         ctx = ctx,
         render = Setting.FloatSlider::angle,
