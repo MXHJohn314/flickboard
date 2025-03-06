@@ -626,9 +626,9 @@ class InputSession(
                 }
 
                 Action.Cut ->
-                    inputConnection.performContextMenuAction(
-                        android.R.id.cut,
-                    )
+                    if (selectionSize() != SelectionSize.Empty) {
+                        inputConnection.performContextMenuAction(android.R.id.cut)
+                    }
 
                 Action.Paste ->
                     inputConnection.performContextMenuAction(
