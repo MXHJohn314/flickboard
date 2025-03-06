@@ -549,7 +549,7 @@ sealed class Action {
             modifier: ModifierState?,
             modifierSettings: ModifierSettings?
         ): ActionVisual =
-            ActionVisual.Icon(R.drawable.baseline_keyboard_24)
+            ActionVisual.Icon(R.drawable.baseline_language_24)
 
         override val title: String = "${direction.nextOrPrevInTitle} Letter Layout"
         override val description: String =
