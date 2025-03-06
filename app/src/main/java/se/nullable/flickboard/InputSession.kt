@@ -3,6 +3,7 @@ package se.nullable.flickboard
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
+import android.os.Handler
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.inputmethod.CursorAnchorInfo
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.getSystemService
+import androidx.core.os.postDelayed
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -198,6 +200,7 @@ class InputSession(
         navController: NavController,
     ): OnAction {
         val context = LocalContext.current
+        val handler = Handler(context.mainLooper)
         val appSettings = LocalAppSettings.current
         val periodOnDoubleSpace = appSettings.periodOnDoubleSpace.state
         val disabledDeadkeys = appSettings.disabledDeadkeys.state
@@ -616,13 +619,17 @@ class InputSession(
 
                 Action.Copy -> {
                     if (selectionSize() == SelectionSize.Empty) {
-                        inputConnection.performContextMenuAction(
-                            android.R.id.selectAll,
-                        )
+                        inputConnection.performContextMenuAction(android.R.id.selectAll)
+                        // HACK: In some editors (like Jetpack Compose's TextField), selectAll is
+                        // asynchronous and doesn't actually select immediately, so the copy
+                        // ends up copying nothing.
+                        // Delaying slightly seems to make it more reliable.
+                        handler.postDelayed(delayInMillis = 1) {
+                            inputConnection.performContextMenuAction(android.R.id.copy)
+                        }
+                    } else {
+                        inputConnection.performContextMenuAction(android.R.id.copy)
                     }
-                    inputConnection.performContextMenuAction(
-                        android.R.id.copy,
-                    )
                 }
 
                 Action.Cut ->
