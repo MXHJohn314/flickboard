@@ -26,6 +26,7 @@ import se.nullable.flickboard.model.FastActionType
 import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.SearchDirection
 import se.nullable.flickboard.model.TextBoundary
+import se.nullable.flickboard.ui.Handedness
 import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.LocalDisplayLimits
 import se.nullable.flickboard.ui.LocalZalgoDatabase
@@ -298,11 +299,20 @@ class InputSession(
                 direction: SearchDirection,
                 boundary: TextBoundary,
             ): Boolean {
+                // TODO make this configurable
+                val actualDirection =
+                    if (appSettings.handedness.currentValue == Handedness.RightHanded)
+                        when (direction) {
+                            SearchDirection.Forwards -> SearchDirection.Backwards
+                            SearchDirection.Backwards -> SearchDirection.Forwards
+                        }
+                    else
+                        direction
                 val range = selection() ?: return false
                 val movingSide = when {
                     range.first == range.last -> {
                         gestureBeginPosition = range.first
-                        direction
+                        actualDirection
                     }
 
                     range.last == gestureBeginPosition -> SearchDirection.Backwards
@@ -310,10 +320,10 @@ class InputSession(
                 }
                 val distance = findBoundary(
                     boundary,
-                    direction,
+                    actualDirection,
                     coalesce = true,
-                    includeSelection = movingSide != direction,
-                ) * direction.factor
+                    includeSelection = movingSide != actualDirection,
+                ) * actualDirection.factor
                 inputConnection.setSelection(
                     (range.first + distance * (movingSide == SearchDirection.Backwards))
                         .coerceAtMost(range.last),
