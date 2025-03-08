@@ -27,6 +27,7 @@ import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.SearchDirection
 import se.nullable.flickboard.model.TextBoundary
 import se.nullable.flickboard.ui.Handedness
+import se.nullable.flickboard.ui.InvertDelete
 import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.LocalDisplayLimits
 import se.nullable.flickboard.ui.LocalZalgoDatabase
@@ -299,12 +300,20 @@ class InputSession(
                 direction: SearchDirection,
                 boundary: TextBoundary,
             ): Boolean {
-                // TODO make this configurable
-                val actualDirection =
-                    if (appSettings.handedness.currentValue == Handedness.RightHanded)
+                val actualDirection = let {
+                    val invertDelete = appSettings.invertDelete.currentValue
+                    val handedness = appSettings.handedness.currentValue
+
+                    if (
+                        invertDelete == InvertDelete.Always
+                            || invertDelete == InvertDelete.RightOnly && handedness == Handedness.LeftHanded
+                            || invertDelete == InvertDelete.LeftOnly && handedness == Handedness.RightHanded
+                    )
                         !direction
                     else
                         direction
+                }
+
                 val range = selection() ?: return false
                 val movingSide = when {
                     range.first == range.last -> {

@@ -997,6 +997,16 @@ class AppSettings(val ctx: SettingsContext) {
         ctx = ctx,
     )
 
+    val invertDelete = Setting.Enum(
+        key = "invertDelete",
+        label = "Invert delete direction",
+        // description = "Useful for when the delete button is on the left",
+        defaultValue = InvertDelete.Never,
+        options = InvertDelete.entries,
+        tryEnumValueOfT = ::tryEnumValueOf,
+        ctx = ctx,
+    )
+
     val landscapeLocation = Setting.FloatSlider(
         key = "landscapeLocation",
         label = "Landscape location",
@@ -1530,6 +1540,7 @@ class AppSettings(val ctx: SettingsContext) {
                     enabledLayers,
                     enabledLayersLandscape,
                     handedness,
+                    invertDelete,
                     keyHeight,
                     keyboardMargin,
                     landscapeLocation,
@@ -1679,6 +1690,13 @@ enum class Handedness(override val label: String) : Labeled {
         LeftHanded -> RightHanded
         RightHanded -> LeftHanded
     }
+}
+
+enum class InvertDelete(override val label: String) : Labeled {
+    Never("Never"),
+    Always("Always"),
+    LeftOnly("When on the left"),
+    RightOnly("When on the right"),
 }
 
 enum class LetterLayerOption(override val label: String, val layout: Layout) : Labeled {
