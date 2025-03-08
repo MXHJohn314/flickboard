@@ -302,10 +302,7 @@ class InputSession(
                 // TODO make this configurable
                 val actualDirection =
                     if (appSettings.handedness.currentValue == Handedness.RightHanded)
-                        when (direction) {
-                            SearchDirection.Forwards -> SearchDirection.Backwards
-                            SearchDirection.Backwards -> SearchDirection.Forwards
-                        }
+                        !direction
                     else
                         direction
                 val range = selection() ?: return false
