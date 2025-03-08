@@ -300,25 +300,11 @@ class InputSession(
                 direction: SearchDirection,
                 boundary: TextBoundary,
             ): Boolean {
-                val actualDirection = let {
-                    val invertDelete = appSettings.invertDelete.currentValue
-                    val handedness = appSettings.handedness.currentValue
-
-                    if (
-                        invertDelete == InvertDelete.Always
-                            || invertDelete == InvertDelete.RightOnly && handedness == Handedness.LeftHanded
-                            || invertDelete == InvertDelete.LeftOnly && handedness == Handedness.RightHanded
-                    )
-                        !direction
-                    else
-                        direction
-                }
-
                 val range = selection() ?: return false
                 val movingSide = when {
                     range.first == range.last -> {
                         gestureBeginPosition = range.first
-                        actualDirection
+                        direction
                     }
 
                     range.last == gestureBeginPosition -> SearchDirection.Backwards
@@ -326,10 +312,10 @@ class InputSession(
                 }
                 val distance = findBoundary(
                     boundary,
-                    actualDirection,
+                    direction,
                     coalesce = true,
-                    includeSelection = movingSide != actualDirection,
-                ) * actualDirection.factor
+                    includeSelection = movingSide != direction,
+                ) * direction.factor
                 inputConnection.setSelection(
                     (range.first + distance * (movingSide == SearchDirection.Backwards))
                         .coerceAtMost(range.last),
@@ -361,9 +347,24 @@ class InputSession(
                 }
 
                 is Action.FastDelete -> {
+                    // The direction may be inverted based on a setting
+                    val possiblyInvertedDirection = let {
+                        val invertDelete = appSettings.invertDelete.currentValue
+                        val handedness = appSettings.handedness.currentValue
+
+                        if (
+                            invertDelete == InvertDelete.Always
+                                || invertDelete == InvertDelete.RightOnly && handedness == Handedness.LeftHanded
+                                || invertDelete == InvertDelete.LeftOnly && handedness == Handedness.RightHanded
+                        )
+                            !action.direction
+                        else
+                            action.direction
+                    }
+
                     // Let user select text, which is then deleted when FastActionDone is fired
                     actionSuccessful =
-                        moveSelection(action.direction, action.boundary)
+                        moveSelection(possiblyInvertedDirection, action.boundary)
                 }
 
                 is Action.Delete -> {
