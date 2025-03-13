@@ -18,10 +18,11 @@ The latest release builds are also available
 from [Codeberg Releases](https://codeberg.org/natkr/flickboard/releases), but I recommend
 downloading from one of the above instead to get automatic updates.
 
-If downloading from Codeberg, IzzyOnDroid, or F-Droid, you can verify using `apksigner verify` that
+If downloading from a source other than Google Play, you can verify using `apksigner verify` that
 the
 certificate matches the following SHA-256 digest:
 `51612a908aaf90aff66d1260a01992b3dde73a3ee3a94069412be2012272020f`.
+This should also match the digest listed at [natkr.com](https://natkr.com/flickboard/certificate/).
 
 You can also build it yourself, by running the following on a computer that is connected to your
 phone:
