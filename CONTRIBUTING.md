@@ -20,3 +20,5 @@ Generally, pull requests for layouts that follow the general conventions are wel
 Pull requests for features and bugfixes depend on the complexity of the issue, and should first
 be discussed in their corresponding issue. While I'd like to support (almost) every feature, I have
 to prioritize ensuring that the codebase stays maintainable (to me).
+
+Please do *not* rebase or squash your pull request branches.
