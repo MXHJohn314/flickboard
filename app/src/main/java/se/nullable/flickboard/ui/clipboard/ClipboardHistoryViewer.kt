@@ -178,7 +178,7 @@ fun ClipboardHistoryViewer(
 
             LazyColumn(
                 Modifier
-                    .height(300.dp)
+                    .height(200.dp)
                     .fillMaxWidth()
                     // Elements outside of the list's bounds end up causing flashing forward
                     // briefly before animating out when removed from the view.
@@ -520,7 +520,7 @@ private fun ClipboardEntryCard(
                         Modifier
                             .weight(1F)
                             .defaultFocus(),
-                        maxLines = 6,
+                        maxLines = 4,
                         keyboardActions = KeyboardActions(
                             onDone = {
                                 onEditDone(
