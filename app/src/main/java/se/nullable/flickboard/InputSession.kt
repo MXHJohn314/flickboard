@@ -405,6 +405,16 @@ class InputSession(
                     }
                 }
 
+                is Action.Tab -> {
+                    sendKeyPressEvents(
+                        KeyEvent.KEYCODE_TAB,
+                        extraModifiers = when {
+                            action.shift -> KeyEvent.normalizeMetaState(KeyEvent.META_SHIFT_LEFT_ON)
+                            else -> 0
+                        },
+                    )
+                }
+
                 is Action.Enter -> {
                     val imeOptions = editorInfo?.imeOptions ?: 0
                     if (activeModifiers.useRawKeyEvent ||

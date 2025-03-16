@@ -1,5 +1,7 @@
 package se.nullable.flickboard.model
 
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.Dp
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.layouts.MESSAGEASE_SYMBOLS_LAYER
@@ -263,6 +265,30 @@ sealed class Action {
         override val title: String = "Fast Action Done"
         override val description: String =
             "Fake event that marks that a gesture containing fast actions is done, and that any previewed actions should be executed. This should not be visible."
+    }
+
+    data class Tab(val shift: Boolean = false) : Action() {
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual = ActionVisual.Icon(
+            R.drawable.baseline_keyboard_tab_24,
+            when {
+                shift -> Modifier.rotate(degrees = 180F)
+                else -> Modifier
+            },
+        )
+
+        override val title: String = when {
+            shift -> "Backtab"
+            else -> "Tab"
+        }
+        override val description: String = when {
+            shift -> "Sends a shift+tab keypress, either shifting to the previous field or inserting a tab symbol."
+            else -> "Sends a tab keypress, either shifting to the next field or inserting a tab symbol."
+        }
+
+        override fun shift(locale: Locale): Action = copy(shift = true)
     }
 
     data class Enter(val shift: Boolean = false) : Action() {
@@ -725,11 +751,6 @@ sealed class Action {
     }
 
     companion object {
-        val Tab = Text(
-            "\t",
-            forceRawKeyEvent = true,
-            visualOverride = ActionVisual.Icon(R.drawable.baseline_keyboard_tab_24),
-        )
         val Space = Text(
             " ",
             visualOverride = ActionVisual.Icon(R.drawable.baseline_space_bar_24),
@@ -747,7 +768,7 @@ enum class ActionClass {
 }
 
 sealed class ActionVisual {
-    data class Icon(val resource: Int) : ActionVisual()
+    data class Icon(val resource: Int, val modifier: Modifier = Modifier) : ActionVisual()
     data class Label(
         val label: String,
         val directionOverride: TextDirection? = null

@@ -392,7 +392,7 @@ fun RenderActionVisual(
             painter = painterResource(id = actionVisual.resource),
             contentDescription = null,
             tint = usedColour.value,
-            modifier = modifier,
+            modifier = modifier then actionVisual.modifier,
         )
 
         ActionVisual.None -> {}
