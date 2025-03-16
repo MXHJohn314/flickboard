@@ -1,13 +1,20 @@
-# ![Logo](app/logo.png) FlickBoard
+# ![Logo](app/logo.png) FlickBoard - The Dumber Keyboard
 
 (Logo by @MisterE123)
 
 [![Discord](https://img.shields.io/discord/1207841722327896104?logo=discord&logoColor=white&label=chat%20on%20discord)](https://discord.gg/tVp8MGaeUr)
 
-FlickBoard is a flicking-style keyboard, in the style of [MessagEase] and [Thumb-Key].
+FlickBoard is a keyboard for Android that doesn't try to correct or predict you.
+It doesn't have an opinion on the correct spelling or tone. It certainly doesn't use any AI.
+Because it trusts you to write what you meant to write.
+
+Instead, FlickBoard uses swipes to get away with using vastly fewer (and larger!) buttons than
+a traditional QWERTY keyboard, minimizing typos and helping you type faster.
 
 Type the letters in the center of a key by tapping it. Type the keys in the corners by swiping in
-that direction. That's it!
+that direction. It's that simple!
+
+FlickBoard is inspired by [MessagEase] and [Thumb-Key].
 
 ## How do I install it?
 
