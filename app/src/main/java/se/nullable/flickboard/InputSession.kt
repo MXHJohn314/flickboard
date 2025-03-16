@@ -200,7 +200,6 @@ class InputSession(
         navController: NavController,
     ): OnAction {
         val context = LocalContext.current
-        val handler = Handler(context.mainLooper)
         val appSettings = LocalAppSettings.current
         val periodOnDoubleSpace = appSettings.periodOnDoubleSpace.state
         val disabledDeadkeys = appSettings.disabledDeadkeys.state
@@ -624,7 +623,10 @@ class InputSession(
                         // asynchronous and doesn't actually select immediately, so the copy
                         // ends up copying nothing.
                         // Delaying slightly seems to make it more reliable.
-                        handler.postDelayed(delayInMillis = 1) {
+                        // HACK²: For some inscrutable reason, holding a Handler reference into the
+                        // OnAction lambda makes the `defaultFocus` Modifier act up,
+                        // while creating it on demand works fine? Yeah, I don't get it either...
+                        Handler(context.mainLooper).postDelayed(delayInMillis = 1) {
                             inputConnection.performContextMenuAction(android.R.id.copy)
                         }
                     } else {
