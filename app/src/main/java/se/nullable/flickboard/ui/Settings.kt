@@ -1285,18 +1285,28 @@ class AppSettings(val ctx: SettingsContext) {
         ctx = ctx,
     )
 
-    val longHoldOnClockwiseCircle = Setting.Bool(
+    val digitOnClockwiseCircle = Setting.Bool(
         key = "digitOnClockwiseCircle",
         label = "Type digit on clockwise circle",
         defaultValue = false,
         ctx = ctx,
     )
 
-    val longHoldOnCounterClockwiseCircle = Setting.Bool(
+    val digitOnCounterClockwiseCircle = Setting.Bool(
         key = "digitOnCounterClockwiseCircle",
         label = "Type digit on counter-clockwise circle",
         defaultValue = false,
         ctx = ctx,
+    )
+
+    val longHoldBehaviour = Setting.Enum(
+        key = "longHoldBehaviour",
+        label = "Long hold behaviour",
+        defaultValue = ModifierBehaviourOption.Digit,
+        options = ModifierBehaviourOption.entries,
+        tryEnumValueOfT = { tryEnumValueOf<ModifierBehaviourOption>(it) },
+        ctx = ctx,
+        previewOverride = {},
     )
 
     val disabledDeadkeys = Setting.Text(
@@ -1573,8 +1583,9 @@ class AppSettings(val ctx: SettingsContext) {
                     enableAdvancedModifiers,
                     stickyModifiers,
                     periodOnDoubleSpace,
-                    longHoldOnClockwiseCircle,
-                    longHoldOnCounterClockwiseCircle,
+                    digitOnClockwiseCircle,
+                    digitOnCounterClockwiseCircle,
+                    longHoldBehaviour,
                     disabledDeadkeys,
                     swipeThreshold,
                     fastSwipeThreshold,
@@ -1737,6 +1748,11 @@ enum class ControlSectionOption(override val label: String) : Labeled {
     Single("Single"),
     DoubleInside("Double (inside)"),
     DoubleOutside("Double (outside)"),
+}
+
+enum class ModifierBehaviourOption(override val label: String) : Labeled {
+    Digit("Type digit"),
+    Shift("Use shifted action")
 }
 
 class SettingsContext(

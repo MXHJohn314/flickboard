@@ -6,6 +6,7 @@ import androidx.compose.ui.unit.Dp
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.layouts.MESSAGEASE_SYMBOLS_LAYER
 import se.nullable.flickboard.model.layouts.MINI_NUMBERS_SYMBOLS_LAYER
+import se.nullable.flickboard.ui.ModifierBehaviourOption
 import se.nullable.flickboard.util.HardLineBreakIterator
 import se.nullable.flickboard.util.flipIfBracket
 import java.text.BreakIterator
@@ -865,10 +866,18 @@ interface Gesture {
         val shift: Boolean
     ) :
         Gesture {
-        override fun toFlick(
+        override fun normalizeToFlick(
             longHoldOnClockwiseCircle: Boolean,
-            longHoldOnCounterClockwiseCircle: Boolean
-        ): Flick = this
+            longHoldOnCounterClockwiseCircle: Boolean,
+            longHoldBehaviour: ModifierBehaviourOption
+        ): Flick = when {
+            longHold -> when (longHoldBehaviour) {
+                ModifierBehaviourOption.Digit -> this
+                ModifierBehaviourOption.Shift -> copy(longHold = false, shift = true)
+            }
+
+            else -> this
+        }
 
         fun resolveAction(key: KeyM): Action? = when {
             longHold -> key.holdAction
@@ -885,9 +894,10 @@ interface Gesture {
     }
 
     data class Circle(val direction: CircleDirection) : Gesture {
-        override fun toFlick(
+        override fun normalizeToFlick(
             longHoldOnClockwiseCircle: Boolean,
-            longHoldOnCounterClockwiseCircle: Boolean
+            longHoldOnCounterClockwiseCircle: Boolean,
+            longHoldBehaviour: ModifierBehaviourOption
         ): Flick {
             return when {
                 direction == CircleDirection.Clockwise && longHoldOnClockwiseCircle ->
@@ -901,9 +911,10 @@ interface Gesture {
         }
     }
 
-    fun toFlick(
+    fun normalizeToFlick(
         longHoldOnClockwiseCircle: Boolean,
-        longHoldOnCounterClockwiseCircle: Boolean
+        longHoldOnCounterClockwiseCircle: Boolean,
+        longHoldBehaviour: ModifierBehaviourOption,
     ): Flick
 
     companion object {

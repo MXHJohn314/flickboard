@@ -49,6 +49,7 @@ import se.nullable.flickboard.model.TextDirection
 import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.MenuPageLink
+import se.nullable.flickboard.ui.ModifierBehaviourOption
 import se.nullable.flickboard.ui.RenderActionVisual
 import se.nullable.flickboard.ui.theme.BodyPlaceholder
 import se.nullable.flickboard.ui.theme.SubTitle
@@ -181,9 +182,10 @@ fun ActionDescription(
             }
             Text(action.description)
             if (gesture != null) {
-                val flick = gesture.toFlick(
+                val flick = gesture.normalizeToFlick(
                     longHoldOnClockwiseCircle = false,
                     longHoldOnCounterClockwiseCircle = false,
+                    longHoldBehaviour = ModifierBehaviourOption.Digit,
                 )
                 val fastAction = key?.fastActions?.get(flick.direction)
                 val relatedActions = mutableListOf<RelatedAction>()
