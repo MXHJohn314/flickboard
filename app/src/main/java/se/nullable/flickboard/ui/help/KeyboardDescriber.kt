@@ -183,8 +183,8 @@ fun ActionDescription(
             Text(action.description)
             if (gesture != null) {
                 val flick = gesture.normalizeToFlick(
-                    longHoldOnClockwiseCircle = false,
-                    longHoldOnCounterClockwiseCircle = false,
+                    clockwiseCircleBehaviour = ModifierBehaviourOption.Shift,
+                    counterClockwiseCircleBehaviour = ModifierBehaviourOption.Shift,
                     longHoldBehaviour = ModifierBehaviourOption.Digit,
                 )
                 val fastAction = key?.fastActions?.get(flick.direction)

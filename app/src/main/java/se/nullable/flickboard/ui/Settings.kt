@@ -1285,18 +1285,46 @@ class AppSettings(val ctx: SettingsContext) {
         ctx = ctx,
     )
 
-    val digitOnClockwiseCircle = Setting.Bool(
+    // Deprecated options only used to migrate values to {counterC,c}lockwiseCircleBehaviour
+    private val digitOnClockwiseCircle = Setting.Bool(
         key = "digitOnClockwiseCircle",
         label = "Type digit on clockwise circle",
         defaultValue = false,
         ctx = ctx,
     )
-
-    val digitOnCounterClockwiseCircle = Setting.Bool(
+    private val digitOnCounterClockwiseCircle = Setting.Bool(
         key = "digitOnCounterClockwiseCircle",
         label = "Type digit on counter-clockwise circle",
         defaultValue = false,
         ctx = ctx,
+    )
+
+    val clockwiseCircleBehaviour = Setting.Enum(
+        key = "clockwiseCircleBehaviour",
+        label = "Clockwise circle behaviour",
+        defaultValue = when {
+            // Migration from the old format, okay since nobody should be writing to it anymore
+            digitOnClockwiseCircle.currentValue -> ModifierBehaviourOption.Digit
+            else -> ModifierBehaviourOption.Shift
+        },
+        options = ModifierBehaviourOption.entries,
+        tryEnumValueOfT = { tryEnumValueOf<ModifierBehaviourOption>(it) },
+        ctx = ctx,
+        previewOverride = {},
+    )
+
+    val counterClockwiseCircleBehaviour = Setting.Enum(
+        key = "counterClockwiseCircleBehaviour",
+        label = "Counter-clockwise circle behaviour",
+        defaultValue = when {
+            // Migration from the old format, okay since nobody should be writing to it anymore
+            digitOnCounterClockwiseCircle.currentValue -> ModifierBehaviourOption.Digit
+            else -> ModifierBehaviourOption.Shift
+        },
+        options = ModifierBehaviourOption.entries,
+        tryEnumValueOfT = { tryEnumValueOf<ModifierBehaviourOption>(it) },
+        ctx = ctx,
+        previewOverride = {},
     )
 
     val longHoldBehaviour = Setting.Enum(
@@ -1583,8 +1611,8 @@ class AppSettings(val ctx: SettingsContext) {
                     enableAdvancedModifiers,
                     stickyModifiers,
                     periodOnDoubleSpace,
-                    digitOnClockwiseCircle,
-                    digitOnCounterClockwiseCircle,
+                    clockwiseCircleBehaviour,
+                    counterClockwiseCircleBehaviour,
                     longHoldBehaviour,
                     disabledDeadkeys,
                     swipeThreshold,

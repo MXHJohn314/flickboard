@@ -112,8 +112,8 @@ fun Key(
     val keyOutline = settings.keyOutline.state
     val keyOpacity = settings.keyOpacity.state
     val enableFastActions = settings.enableFastActions.state
-    val longHoldOnClockwiseCircle = settings.digitOnClockwiseCircle.state
-    val longHoldOnCounterClockwiseCircle = settings.digitOnCounterClockwiseCircle.state
+    val clockwiseCircleBehaviour = settings.clockwiseCircleBehaviour.state
+    val counterClockwiseCircleBehaviour = settings.counterClockwiseCircleBehaviour.state
     val longHoldBehaviour = settings.longHoldBehaviour.state
     val swipeThreshold = settings.swipeThreshold.state
     val fastSwipeThreshold = settings.fastSwipeThreshold.state
@@ -198,8 +198,8 @@ fun Key(
                 )?.let { gesture ->
                     val flick =
                         gesture.normalizeToFlick(
-                            longHoldOnClockwiseCircle = key.holdAction != null && longHoldOnClockwiseCircle.value,
-                            longHoldOnCounterClockwiseCircle = key.holdAction != null && longHoldOnCounterClockwiseCircle.value,
+                            clockwiseCircleBehaviour = clockwiseCircleBehaviour.value,
+                            counterClockwiseCircleBehaviour = counterClockwiseCircleBehaviour.value,
                             longHoldBehaviour = longHoldBehaviour.value,
                         )
                     flick.resolveAction(key)?.let { handleAction(it, gesture, isFast = false) }

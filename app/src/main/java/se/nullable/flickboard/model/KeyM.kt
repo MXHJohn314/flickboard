@@ -867,9 +867,9 @@ interface Gesture {
     ) :
         Gesture {
         override fun normalizeToFlick(
-            longHoldOnClockwiseCircle: Boolean,
-            longHoldOnCounterClockwiseCircle: Boolean,
-            longHoldBehaviour: ModifierBehaviourOption
+            clockwiseCircleBehaviour: ModifierBehaviourOption,
+            counterClockwiseCircleBehaviour: ModifierBehaviourOption,
+            longHoldBehaviour: ModifierBehaviourOption,
         ): Flick = when {
             longHold -> when (longHoldBehaviour) {
                 ModifierBehaviourOption.Digit -> this
@@ -895,25 +895,27 @@ interface Gesture {
 
     data class Circle(val direction: CircleDirection) : Gesture {
         override fun normalizeToFlick(
-            longHoldOnClockwiseCircle: Boolean,
-            longHoldOnCounterClockwiseCircle: Boolean,
-            longHoldBehaviour: ModifierBehaviourOption
+            clockwiseCircleBehaviour: ModifierBehaviourOption,
+            counterClockwiseCircleBehaviour: ModifierBehaviourOption,
+            longHoldBehaviour: ModifierBehaviourOption,
         ): Flick {
-            return when {
-                direction == CircleDirection.Clockwise && longHoldOnClockwiseCircle ->
+            val circleBehaviour = when (direction) {
+                CircleDirection.Clockwise -> clockwiseCircleBehaviour
+                CircleDirection.CounterClockwise -> counterClockwiseCircleBehaviour
+            }
+            return when (circleBehaviour) {
+                ModifierBehaviourOption.Digit ->
                     Flick(Direction.CENTER, longHold = true, longSwipe = false, shift = false)
 
-                direction == CircleDirection.CounterClockwise && longHoldOnCounterClockwiseCircle ->
-                    Flick(Direction.CENTER, longHold = true, longSwipe = false, shift = false)
-
-                else -> Flick(Direction.CENTER, longHold = false, longSwipe = false, shift = true)
+                ModifierBehaviourOption.Shift ->
+                    Flick(Direction.CENTER, longHold = false, longSwipe = false, shift = true)
             }
         }
     }
 
     fun normalizeToFlick(
-        longHoldOnClockwiseCircle: Boolean,
-        longHoldOnCounterClockwiseCircle: Boolean,
+        clockwiseCircleBehaviour: ModifierBehaviourOption,
+        counterClockwiseCircleBehaviour: ModifierBehaviourOption,
         longHoldBehaviour: ModifierBehaviourOption,
     ): Flick
 
