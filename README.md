@@ -28,7 +28,7 @@ You can also build it yourself, by running the following on a computer that is c
 phone:
 
 ```bash
-$ ./gradlew installPlainDebug
+$ ./gradlew :app:installPlainDebug
 ```
 
 This requires the phone to have USB debugging enabled, and your computer to have the [Android SDK]
