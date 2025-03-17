@@ -1,4 +1,4 @@
-# ![Logo](app/logo.png) FlickBoard - The Dumber Keyboard
+# ![Logo](app/logo.png) FlickBoard - The Predictable Keyboard
 
 (Logo by @MisterE123)
 
@@ -9,7 +9,8 @@ It doesn't have an opinion on the correct spelling or tone. It certainly doesn't
 Because it trusts you to write what you meant to write.
 
 Instead, FlickBoard uses swipes to get away with using vastly fewer (and larger!) buttons than
-a traditional QWERTY keyboard, minimizing typos and helping you type faster.
+a traditional QWERTY keyboard, helping you build muscle memory, minimize typos, and touch type
+faster.
 
 Type the letters in the center of a key by tapping it. Type the keys in the corners by swiping in
 that direction. It's that simple!
