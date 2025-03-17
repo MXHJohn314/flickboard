@@ -72,6 +72,7 @@ import se.nullable.flickboard.ui.clipboard.ClipboardHistoryViewer
 import se.nullable.flickboard.ui.emoji.EmojiKeyboard
 import se.nullable.flickboard.ui.emoji.EmojiTab
 import se.nullable.flickboard.ui.layout.BottomUpColumn
+import se.nullable.flickboard.ui.layout.constrainSizeToView
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.sharePointerInput
 import se.nullable.flickboard.util.onBackPressedDispatcherWrapperCallback
@@ -177,9 +178,11 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                             .height(maxHeight),
                     )
                     Box(
-                        Modifier.onSizeChanged { size ->
-                            keyboardHeight = size.height
-                        },
+                        Modifier
+                            .constrainSizeToView(view)
+                            .onSizeChanged { size ->
+                                keyboardHeight = size.height
+                            },
                     ) {
                         FlickBoardParent(appDatabase = appDatabase) {
                             ProvideDisplayLimits {
