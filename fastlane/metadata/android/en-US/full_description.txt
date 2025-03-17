@@ -1,1 +1,4 @@
-<p><i>FlickBoard</i> is a flicking-style keyboard, in the style of <a href='https://www.exideas.com/ME/index.php' target='_blank'>MessagEase</a> and <a href='https://github.com/dessalines/thumb-key'>Thumb-Key</a>.</p><p>Type the letters in the center of a key by tapping it. Type the keys in the corners by swiping in that direction.</p>
+<p>FlickBoard is a keyboard for Android that doesn’t try to correct or predict you. It doesn’t have an opinion on the correct spelling or tone. It certainly doesn’t use any AI. Because it trusts you to write what you meant to write.</p>
+<p>Instead, FlickBoard uses swipes to get away with using vastly fewer (and larger!) buttons than a traditional QWERTY keyboard, helping you build muscle memory, minimize typos, and touch type faster.</p>
+<p>Type the letters in the center of a key by tapping it. Type the keys in the corners by swiping in that direction. It’s that simple!</p>
+<p>FlickBoard is inspired by <a href="https://www.exideas.com/ME/index.php">MessagEase</a> and <a href="https://github.com/dessalines/thumb-key">Thumb-Key</a>.</p>
