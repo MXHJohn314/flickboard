@@ -52,6 +52,7 @@ import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.ShiftState
 import se.nullable.flickboard.model.TextDirection
 import se.nullable.flickboard.model.layouts.EN_MESSAGEASE
+import se.nullable.flickboard.model.layouts.CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
 import se.nullable.flickboard.model.layouts.OVERLAY_ADVANCED_MODIFIERS_MESSAGEASE_LAYER
 import se.nullable.flickboard.model.layouts.OVERLAY_LONG_SWIPE_LAYER
 import se.nullable.flickboard.model.layouts.OVERLAY_TOGGLE_SYMBOLS_MESSAGEASE_LAYER
@@ -194,7 +195,10 @@ fun Keyboard(
     val controlLayer = remember {
         derivedStateOf {
             layoutState.value.controlLayer
-                ?.let { it.setShift(it.autoShift(layoutState.value.locale)) }
+                ?.let {
+                    it.setShift(it.autoShift(layoutState.value.locale))
+                    CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY.mergeFallback(it)
+                }
         }
     }
     val isLandscape = rememberUpdatedState(LocalDisplayLimits.current?.isLandscape ?: false)

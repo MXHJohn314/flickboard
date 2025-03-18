@@ -793,13 +793,7 @@ enum class SearchDirection(
     val nextOrPrevInSentence: String
 ) {
     Backwards(factor = -1, nextOrPrevInTitle = "Previous", nextOrPrevInSentence = "previous"),
-    Forwards(factor = 1, nextOrPrevInTitle = "Next", nextOrPrevInSentence = "next");
-
-    operator fun not() =
-        when (this) {
-            SearchDirection.Forwards -> SearchDirection.Backwards
-            SearchDirection.Backwards -> SearchDirection.Forwards
-        }
+    Forwards(factor = 1, nextOrPrevInTitle = "Next", nextOrPrevInSentence = "next"),
 }
 
 enum class CaseChangeDirection(val nameInTitle: String) {

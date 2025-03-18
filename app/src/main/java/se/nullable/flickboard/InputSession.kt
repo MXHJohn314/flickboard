@@ -26,8 +26,6 @@ import se.nullable.flickboard.model.FastActionType
 import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.SearchDirection
 import se.nullable.flickboard.model.TextBoundary
-import se.nullable.flickboard.ui.Handedness
-import se.nullable.flickboard.ui.InvertDelete
 import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.LocalDisplayLimits
 import se.nullable.flickboard.ui.LocalZalgoDatabase
@@ -347,24 +345,9 @@ class InputSession(
                 }
 
                 is Action.FastDelete -> {
-                    // The direction may be inverted based on a setting
-                    val possiblyInvertedDirection = let {
-                        val invertDelete = appSettings.invertDelete.currentValue
-                        val handedness = appSettings.handedness.currentValue
-
-                        if (
-                            invertDelete == InvertDelete.Always
-                                || invertDelete == InvertDelete.RightOnly && handedness == Handedness.LeftHanded
-                                || invertDelete == InvertDelete.LeftOnly && handedness == Handedness.RightHanded
-                        )
-                            !action.direction
-                        else
-                            action.direction
-                    }
-
                     // Let user select text, which is then deleted when FastActionDone is fired
                     actionSuccessful =
-                        moveSelection(possiblyInvertedDirection, action.boundary)
+                        moveSelection(action.direction, action.boundary)
                 }
 
                 is Action.Delete -> {
