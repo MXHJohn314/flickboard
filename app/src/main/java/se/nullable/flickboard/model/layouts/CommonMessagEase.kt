@@ -122,41 +122,6 @@ val OVERLAY_TOGGLE_SYMBOLS_MESSAGEASE_LAYER =
         ),
     )
 
-val CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY =
-    Layer(
-        keyRows = listOf(
-            // pointer
-            listOf(
-                KeyM(actions = emptyMap()),
-                KeyM(actions = emptyMap()),
-                KeyM(actions = emptyMap()),
-            ),
-            // clipboard
-            listOf(
-                KeyM(actions = emptyMap()),
-                KeyM(actions = emptyMap()),
-                KeyM(actions = emptyMap()),
-            ),
-            // backspace
-            listOf(
-                KeyM(
-                    actions = mapOf(),
-                    fastActions = mapOf(
-                        Direction.LEFT to Action.FastDelete(direction = SearchDirection.Forwards),
-                        Direction.RIGHT to Action.FastDelete(direction = SearchDirection.Backwards),
-                    ),
-                ),
-            ),
-            // enter
-            listOf(
-                KeyM(actions = emptyMap()),
-                KeyM(actions = emptyMap()),
-                KeyM(actions = emptyMap()),
-            ),
-        ),
-    )
-
-
 val CONTROL_MESSAGEASE_LAYER =
     Layer(
         keyRows = listOf(
@@ -240,6 +205,40 @@ val CONTROL_MESSAGEASE_LAYER =
                         Direction.BOTTOM to Action.ToggleZalgo,
                     ),
                 ),
+            ),
+        ),
+    )
+
+val CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY =
+    Layer(
+        keyRows = listOf(
+            // pointer
+            listOf(
+                KeyM(actions = emptyMap()),
+                KeyM(actions = emptyMap()),
+                KeyM(actions = emptyMap()),
+            ),
+            // clipboard
+            listOf(
+                KeyM(actions = emptyMap()),
+                KeyM(actions = emptyMap()),
+                KeyM(actions = emptyMap()),
+            ),
+            // backspace
+            listOf(
+                KeyM(
+                    actions = mapOf(),
+                    fastActions = mapOf(
+                        Direction.LEFT to Action.FastDelete(direction = SearchDirection.Forwards),
+                        Direction.RIGHT to Action.FastDelete(direction = SearchDirection.Backwards),
+                    ),
+                ),
+            ),
+            // enter
+            listOf(
+                KeyM(actions = emptyMap()),
+                KeyM(actions = emptyMap()),
+                KeyM(actions = emptyMap()),
             ),
         ),
     )
