@@ -58,6 +58,7 @@ import se.nullable.flickboard.model.layouts.OVERLAY_LONG_SWIPE_LAYER
 import se.nullable.flickboard.model.layouts.OVERLAY_TOGGLE_SYMBOLS_MESSAGEASE_LAYER
 import se.nullable.flickboard.model.layouts.overlayMessageaseLayer
 import se.nullable.flickboard.model.layouts.spacer
+import se.nullable.flickboard.ui.InvertDelete
 import se.nullable.flickboard.ui.layout.Grid
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import java.io.IOException
@@ -197,7 +198,17 @@ fun Keyboard(
             layoutState.value.controlLayer
                 ?.let {
                     it.setShift(it.autoShift(layoutState.value.locale))
-                    CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY.mergeFallback(it)
+
+                    val invertDelete = appSettings.invertDelete.currentValue
+                    if (
+                        invertDelete == InvertDelete.Always
+                            || invertDelete == InvertDelete.RightOnly && handedness.value == Handedness.LeftHanded
+                            || invertDelete == InvertDelete.LeftOnly && handedness.value == Handedness.RightHanded
+                    )
+                        CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
+                            .mergeFallback(it)
+                    else
+                        it
                 }
         }
     }
