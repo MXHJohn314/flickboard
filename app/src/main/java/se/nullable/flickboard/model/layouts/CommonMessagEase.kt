@@ -213,17 +213,9 @@ val CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY =
     Layer(
         keyRows = listOf(
             // pointer
-            listOf(
-                KeyM(actions = emptyMap()),
-                KeyM(actions = emptyMap()),
-                KeyM(actions = emptyMap()),
-            ),
+            listOf(KeyM(actions = emptyMap())),
             // clipboard
-            listOf(
-                KeyM(actions = emptyMap()),
-                KeyM(actions = emptyMap()),
-                KeyM(actions = emptyMap()),
-            ),
+            listOf(KeyM(actions = emptyMap())),
             // backspace
             listOf(
                 KeyM(
@@ -235,11 +227,7 @@ val CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY =
                 ),
             ),
             // enter
-            listOf(
-                KeyM(actions = emptyMap()),
-                KeyM(actions = emptyMap()),
-                KeyM(actions = emptyMap()),
-            ),
+            listOf(KeyM(actions = emptyMap())),
         ),
     )
 
