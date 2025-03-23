@@ -70,12 +70,12 @@ fun OnboardingPrompt() {
 
     val inputMethodEnabled =
         inputManager.enabledInputMethodList.any { it.component == keyboardServiceId }
-    val inputMethodSelected = ComponentName.unflattenFromString(
-        Settings.Secure.getString(
-            context.contentResolver,
-            Settings.Secure.DEFAULT_INPUT_METHOD,
-        ),
-    ) == keyboardServiceId
+    val inputMethodSelected = keyboardServiceId ==
+            Settings.Secure.getString(
+                context.contentResolver,
+                Settings.Secure.DEFAULT_INPUT_METHOD,
+                // Default IME is unset in, for example, the Compose preview
+            )?.let(ComponentName::unflattenFromString)
 
     AnimatedVisibility(
         !inputMethodEnabled,
