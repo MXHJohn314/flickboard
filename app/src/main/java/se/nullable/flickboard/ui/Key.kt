@@ -72,6 +72,8 @@ import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.TextDirection
 import se.nullable.flickboard.ui.layout.KeyLabelGrid
+import se.nullable.flickboard.ui.settings.GestureRecognizer
+import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.util.angle
 import se.nullable.flickboard.util.averageOf

@@ -61,10 +61,10 @@ import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.emoji.EmojiCategory
 import se.nullable.flickboard.model.emoji.EmojiGroup
 import se.nullable.flickboard.model.emoji.EmojiList
-import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.LocalEmojiDb
 import se.nullable.flickboard.ui.LocalEmojiTrie
 import se.nullable.flickboard.ui.OnAction
+import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.util.defaultFocus
 import se.nullable.flickboard.util.unique
 import androidx.emoji2.emojipicker.R as Emoji2R

@@ -18,6 +18,7 @@ import se.nullable.flickboard.model.AppDatabase
 import se.nullable.flickboard.model.credits.DependencyInfo
 import se.nullable.flickboard.model.emoji.EmojiDb
 import se.nullable.flickboard.model.emoji.EmojiTrie
+import se.nullable.flickboard.ui.settings.AppSettingsProvider
 import se.nullable.flickboard.ui.theme.FlickBoardTheme
 import se.nullable.flickboard.util.Boxed
 import se.nullable.flickboard.util.ZalgoDatabase

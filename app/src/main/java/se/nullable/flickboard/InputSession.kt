@@ -26,10 +26,10 @@ import se.nullable.flickboard.model.FastActionType
 import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.SearchDirection
 import se.nullable.flickboard.model.TextBoundary
-import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.LocalDisplayLimits
 import se.nullable.flickboard.ui.LocalZalgoDatabase
 import se.nullable.flickboard.ui.OnAction
+import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.voice.getVoiceInputId
 import se.nullable.flickboard.util.AndroidKeycodeMapper
 import se.nullable.flickboard.util.Boxed

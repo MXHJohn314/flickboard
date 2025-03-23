@@ -49,8 +49,8 @@ import se.nullable.flickboard.model.TextDirection
 import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.MenuPageLink
-import se.nullable.flickboard.ui.ModifierBehaviourOption
 import se.nullable.flickboard.ui.RenderActionVisual
+import se.nullable.flickboard.ui.settings.ModifierBehaviourOption
 import se.nullable.flickboard.ui.theme.BodyPlaceholder
 import se.nullable.flickboard.ui.theme.SubTitle
 import se.nullable.flickboard.ui.theme.Transition

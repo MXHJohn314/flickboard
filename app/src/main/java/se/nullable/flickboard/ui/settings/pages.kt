@@ -1,0 +1,376 @@
+package se.nullable.flickboard.ui.settings
+
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import se.nullable.flickboard.BuildConfig
+import se.nullable.flickboard.MainActivitySharedElement
+import se.nullable.flickboard.R
+import se.nullable.flickboard.ui.ConfiguredKeyboard
+import se.nullable.flickboard.ui.FlickBoardParent
+import se.nullable.flickboard.ui.MenuPageLink
+import se.nullable.flickboard.ui.MenuPageUriLink
+import se.nullable.flickboard.ui.ProvideDisplayLimits
+import se.nullable.flickboard.ui.excludeFromBottomInset
+import se.nullable.flickboard.ui.help.OnboardingPrompt
+import se.nullable.flickboard.ui.theme.Title
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+fun SettingsHomePage(
+    onNavigateToSection: (SettingsSection) -> Unit,
+    onNavigateToTutorial: () -> Unit,
+    onNavigateToBetaMenu: () -> Unit,
+    onNavigateToCredits: () -> Unit,
+    onNavigateToDescriber: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    modifier: Modifier = Modifier
+) {
+    val appSettings = LocalAppSettings.current
+    val tryText = remember {
+        mutableStateOf("")
+    }
+    val context = LocalContext.current
+    Column {
+        LazyColumn(modifier.weight(1F)) {
+            item {
+                OnboardingPrompt()
+            }
+            item {
+                MenuPageLink(
+                    onClick = onNavigateToTutorial,
+                    icon = painterResource(R.drawable.baseline_checklist_24),
+                    label = "Tutorial",
+                )
+            }
+            item {
+                MenuPageLink(
+                    onClick = onNavigateToDescriber,
+                    icon = painterResource(R.drawable.baseline_help_24),
+                    label = "What Does This Do?",
+                )
+            }
+            item {
+                Title("Settings")
+            }
+            items(appSettings.all, key = { it.key }) { section ->
+                MenuPageLink(
+                    onClick = { onNavigateToSection(section) },
+                    icon = painterResource(section.icon),
+                    label = section.label,
+                )
+            }
+            item {
+                TextField(
+                    value = tryText.value,
+                    onValueChange = { tryText.value = it },
+                    label = { Text("Type here to try FlickBoard") },
+                    textStyle = TextStyle(textDirection = TextDirection.Content),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                )
+            }
+            item {
+                Title("About")
+                // These constants will depend on the build config
+                @Suppress("KotlinConstantConditions")
+                val variant = when {
+                    BuildConfig.BUILD_TYPE == "release" && (BuildConfig.FLAVOR == "plain" || BuildConfig.FLAVOR == "screengrab") -> ""
+                    else -> " (${BuildConfig.BUILD_TYPE})"
+                }
+                val hiddenBetaTaps = remember { mutableIntStateOf(0) }
+                val betaMenuHintToast = remember { Toast.makeText(context, "", Toast.LENGTH_SHORT) }
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            val tapsToOpenBetaMenu = 7
+                            when (val taps = ++hiddenBetaTaps.intValue) {
+                                tapsToOpenBetaMenu -> {
+                                    hiddenBetaTaps.intValue = 0
+                                    betaMenuHintToast.cancel()
+                                    onNavigateToBetaMenu()
+                                }
+
+                                in 4..tapsToOpenBetaMenu -> {
+                                    betaMenuHintToast.cancel()
+                                    betaMenuHintToast.setText("${tapsToOpenBetaMenu - taps} more taps to open the seeeecret beta menu")
+                                    betaMenuHintToast.show()
+                                }
+                            }
+                        },
+                ) {
+                    Text(
+                        "FlickBoard v${BuildConfig.VERSION_NAME}$variant",
+                        modifier = Modifier.padding(8.dp),
+                    )
+                }
+                // These constants will depend on the build config
+                @Suppress("KotlinConstantConditions")
+                if (BuildConfig.FLAVOR == "beta") {
+                    MenuPageLink(
+                        onClick = { onNavigateToBetaMenu() },
+                        icon = painterResource(R.drawable.baseline_bug_report_24),
+                        label = "Beta Options",
+                    )
+                }
+                MenuPageLink(
+                    onClick = { onNavigateToCredits() },
+                    icon = painterResource(R.drawable.baseline_people_24),
+                    label = "Credits",
+                )
+                MenuPageUriLink(
+                    uri = "https://discord.gg/tVp8MGaeUr",
+                    icon = painterResource(R.drawable.baseline_chat_24),
+                    label = "Discuss on Discord",
+                )
+                MenuPageUriLink(
+                    uri = "https://codeberg.org/natkr/flickboard",
+                    icon = painterResource(id = R.drawable.baseline_code_24),
+                    label = "View Source on Codeberg",
+                )
+                MenuPageUriLink(
+                    uri = "https://codeberg.org/natkr/flickboard/issues",
+                    icon = painterResource(id = R.drawable.baseline_bug_report_24),
+                    label = "Report Bugs on Codeberg",
+                )
+            }
+        }
+        SettingsKeyboardPreview(sharedTransitionScope, animatedVisibilityScope)
+    }
+
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+fun SettingsSectionPage(
+    section: SettingsSection,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    modifier: Modifier = Modifier
+) {
+    Column {
+        Column(
+            modifier
+                .verticalScroll(rememberScrollState())
+                .weight(1F),
+        ) {
+            section.settings.forEach { setting ->
+                when (setting) {
+                    is Setting.Bool -> BoolSetting(setting)
+                    is Setting.Integer -> {} // Not rendered right now, implement if used anywhere
+                    is Setting.Text -> TextSetting(setting)
+                    is Setting.FloatSlider -> FloatSliderSetting(setting)
+                    is Setting.EnumList<*> -> EnumListSetting(setting)
+                    is Setting.Enum -> EnumSetting(setting)
+                    is Setting.Image -> ImageSetting(setting)
+                    is Setting.Colour -> ColourSetting(setting)
+                }
+            }
+        }
+        SettingsKeyboardPreview(sharedTransitionScope, animatedVisibilityScope)
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
+@Composable
+fun SettingsKeyboardPreview(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
+) {
+    val enable = LocalAppSettings.current.enableKeyboardPreview
+    val enableState = enable.state
+    with(sharedTransitionScope) {
+        Box {
+            Column {
+                val realKeyboardVisible = WindowInsets.isImeVisible
+                val softwareKeyboardController = LocalSoftwareKeyboardController.current
+                Surface(
+                    Modifier
+                        .clickable {
+                            when {
+                                realKeyboardVisible -> softwareKeyboardController?.hide()
+                                else -> enable.currentValue = !enable.currentValue
+                            }
+                        }
+                        .sharedElement(
+                            rememberSharedContentState(MainActivitySharedElement.SettingsKeyboardPreviewHeader.toString()),
+                            animatedVisibilityScope,
+                        ),
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        when {
+                            realKeyboardVisible -> {
+                                Text(
+                                    text = "Keyboard active",
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.padding(8.dp),
+                                )
+                                Icon(
+                                    painterResource(R.drawable.baseline_keyboard_hide_24),
+                                    "close",
+                                    Modifier
+                                        .padding(8.dp),
+                                )
+                            }
+
+                            else -> {
+                                Text(
+                                    text = "Preview keyboard",
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.padding(8.dp),
+                                )
+                                val hideIconAngle = animateFloatAsState(
+                                    when {
+                                        enableState.value -> 0F
+                                        else -> 180F
+                                    },
+                                    label = "hideIconAngle",
+                                )
+                                Icon(
+                                    painterResource(R.drawable.baseline_arrow_drop_down_24),
+                                    when {
+                                        enableState.value -> "hide"
+                                        else -> "show"
+                                    },
+                                    Modifier
+                                        .padding(8.dp)
+                                        .rotate(hideIconAngle.value),
+                                )
+                            }
+                        }
+                    }
+                }
+                AnimatedVisibility(
+                    enableState.value,
+                    enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                    exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+                ) {
+                    ProvideDisplayLimits {
+                        Box {
+                            ConfiguredKeyboard(
+                                onAction = { _, _, _ -> true }, // Keyboard provides internal visual feedback if enabled
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .excludeFromBottomInset()
+                                    // sharedElement can't encompass AnimatedVisibility, or the size animation breaks
+                                    .sharedElement(
+                                        rememberSharedContentState(MainActivitySharedElement.SettingsKeyboardPreview.toString()),
+                                        animatedVisibilityScope,
+                                    ),
+                            )
+                            androidx.compose.animation.AnimatedVisibility(
+                                realKeyboardVisible,
+                                Modifier.matchParentSize(),
+                                enter = fadeIn(),
+                                exit = fadeOut(),
+                            ) {
+                                Box(
+                                    Modifier
+                                        .background(MaterialTheme.colorScheme.surfaceDim.copy(alpha = 0.9F))
+                                        // Block tap input for convered nodes
+                                        .pointerInput(Unit) {},
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+@Preview
+private fun SettingsHomePreview() {
+    FlickBoardParent {
+        Surface {
+            SharedTransitionLayout {
+                AnimatedVisibility(true) {
+                    SettingsHomePage(
+                        onNavigateToSection = {},
+                        onNavigateToTutorial = {},
+                        onNavigateToBetaMenu = {},
+                        onNavigateToCredits = {},
+                        onNavigateToDescriber = {},
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedVisibilityScope = this@AnimatedVisibility,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+@Preview
+private fun SettingsSectionPagePreview() {
+    FlickBoardParent {
+        Surface {
+            SharedTransitionLayout {
+                AnimatedVisibility(true) {
+                    SettingsSectionPage(
+                        LocalAppSettings.current.all[0],
+                        this@SharedTransitionLayout,
+                        this@AnimatedVisibility,
+                        Modifier.width(1000.dp),
+                    )
+                }
+            }
+        }
+    }
+}
+

@@ -4,7 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import se.nullable.flickboard.ui.Labeled
+import se.nullable.flickboard.ui.settings.Labeled
 import se.nullable.flickboard.util.hct.Hct
 import se.nullable.flickboard.util.hct.HctSolver
 

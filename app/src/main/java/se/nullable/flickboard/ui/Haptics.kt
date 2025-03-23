@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.content.getSystemService
+import se.nullable.flickboard.ui.settings.LocalAppSettings
 
 interface Haptics {
     fun vibrate(reason: HapticFeedbackReason)

@@ -8,7 +8,7 @@ import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import se.nullable.flickboard.model.Direction
-import se.nullable.flickboard.ui.LocalAppSettings
+import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.util.times
 import kotlin.math.sqrt
 

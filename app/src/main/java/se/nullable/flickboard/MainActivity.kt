@@ -40,12 +40,12 @@ import kotlinx.serialization.Serializable
 import se.nullable.flickboard.ui.BetaMenu
 import se.nullable.flickboard.ui.Credits
 import se.nullable.flickboard.ui.FlickBoardParent
-import se.nullable.flickboard.ui.LocalAppSettings
-import se.nullable.flickboard.ui.SettingsHomePage
-import se.nullable.flickboard.ui.SettingsSectionPage
-import se.nullable.flickboard.ui.TutorialPage
 import se.nullable.flickboard.ui.consumeExcludedInsets
 import se.nullable.flickboard.ui.help.KeyboardDescriber
+import se.nullable.flickboard.ui.help.TutorialPage
+import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.SettingsHomePage
+import se.nullable.flickboard.ui.settings.SettingsSectionPage
 import se.nullable.flickboard.ui.theme.Transition
 
 class MainActivity : ComponentActivity() {

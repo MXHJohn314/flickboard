@@ -6,7 +6,7 @@ import androidx.compose.ui.unit.Dp
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.layouts.MESSAGEASE_SYMBOLS_LAYER
 import se.nullable.flickboard.model.layouts.MINI_NUMBERS_SYMBOLS_LAYER
-import se.nullable.flickboard.ui.ModifierBehaviourOption
+import se.nullable.flickboard.ui.settings.ModifierBehaviourOption
 import se.nullable.flickboard.util.HardLineBreakIterator
 import se.nullable.flickboard.util.flipIfBracket
 import java.text.BreakIterator
