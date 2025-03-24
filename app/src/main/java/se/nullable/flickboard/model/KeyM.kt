@@ -158,6 +158,7 @@ sealed class Action {
         val forceRawKeyEvent: Boolean = false,
         val visualOverride: ActionVisual? = null,
         val hidden: Boolean = false,
+        val actionClassOverride: ActionClass? = null,
     ) : Action() {
         override fun visual(
             modifier: ModifierState?,
@@ -180,7 +181,7 @@ sealed class Action {
         override val description: String =
             "Types the character $characterName into the active text field."
 
-        override val actionClass: ActionClass = when {
+        override val actionClass: ActionClass = actionClassOverride ?: when {
             character.isBlank() -> ActionClass.Other
             character.all { it.isDigit() } -> ActionClass.Number
             character.all { it.isLetter() } -> ActionClass.Letter

@@ -3,6 +3,7 @@ package se.nullable.flickboard.model.layouts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import se.nullable.flickboard.model.Action
+import se.nullable.flickboard.model.ActionClass
 import se.nullable.flickboard.model.Direction
 import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.Layer
@@ -112,7 +113,11 @@ val MESSAGEASE_SYMBOLS_LAYER = Layer(
                     Direction.TOP_LEFT to Action.Text("~"),
                     Direction.TOP to Action.Text("¨"),
                     Direction.LEFT to Action.Text("<"),
-                    Direction.BOTTOM_LEFT to Action.Text("ˇ"),
+                    Direction.BOTTOM_LEFT to Action.Text(
+                        "ˇ",
+                        // For some reason, this is misclassed as a letter by Java
+                        actionClassOverride = ActionClass.Symbol,
+                    ),
                     Direction.RIGHT to Action.Text("*"),
                     Direction.BOTTOM_RIGHT to Action.Tab(),
                 ),
