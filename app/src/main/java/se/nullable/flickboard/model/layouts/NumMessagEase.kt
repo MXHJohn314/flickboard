@@ -9,6 +9,7 @@ import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.Layer
 import se.nullable.flickboard.model.Layout
 import se.nullable.flickboard.ui.KeyboardLayoutPreview
+import java.util.Locale
 
 val MESSAGEASE_SYMBOLS_LAYER = Layer(
     keyRows = listOf(
@@ -71,6 +72,7 @@ val MESSAGEASE_SYMBOLS_LAYER = Layer(
                     Direction.TOP_RIGHT to Action.Text("%"),
                     Direction.LEFT to Action.Text("("),
                     Direction.BOTTOM_LEFT to Action.Text("["),
+                    Direction.BOTTOM to Action.Text("˛"),
                     Direction.BOTTOM_RIGHT to Action.Text("_"),
                 ),
                 shift = KeyM(
@@ -212,5 +214,6 @@ fun reorderDigitsForCalculatorLayout(digits: String) =
 @Composable
 @Preview
 fun NumericKeyboardPreview() {
-    KeyboardLayoutPreview(layout = Layout(Layer.empty))
+    // Show both unshifted and shifted
+    KeyboardLayoutPreview(layout = Layout(MESSAGEASE_SYMBOLS_LAYER.autoShift(Locale.US)))
 }
