@@ -534,7 +534,7 @@ class AppSettings(val ctx: SettingsContext) {
         key = "keyHeight",
         label = "Key height",
         defaultValue = 72F,
-        range = 48F..128F,
+        range = 48F..512F,
         ctx = ctx,
     )
 
