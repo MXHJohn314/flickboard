@@ -10,7 +10,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.model.clipboard.ClipboardEntry
-import se.nullable.flickboard.ui.AppSettings
+import se.nullable.flickboard.ui.settings.AppSettings
 import java.time.Instant
 
 suspend fun clipboardTracker(appSettings: AppSettings, context: Context) {

@@ -1,4 +1,4 @@
-package se.nullable.flickboard.ui
+package se.nullable.flickboard.ui.help
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
@@ -45,6 +45,11 @@ import se.nullable.flickboard.model.Direction
 import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.TextDirection
+import se.nullable.flickboard.ui.FlickBoardParent
+import se.nullable.flickboard.ui.Key
+import se.nullable.flickboard.ui.OnAction
+import se.nullable.flickboard.ui.settings.Handedness
+import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.theme.Typography
 import java.util.Locale
 

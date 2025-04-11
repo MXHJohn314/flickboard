@@ -50,6 +50,7 @@ import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.MenuPageLink
 import se.nullable.flickboard.ui.RenderActionVisual
+import se.nullable.flickboard.ui.settings.ModifierBehaviourOption
 import se.nullable.flickboard.ui.theme.BodyPlaceholder
 import se.nullable.flickboard.ui.theme.SubTitle
 import se.nullable.flickboard.ui.theme.Transition
@@ -181,9 +182,10 @@ fun ActionDescription(
             }
             Text(action.description)
             if (gesture != null) {
-                val flick = gesture.toFlick(
-                    longHoldOnClockwiseCircle = false,
-                    longHoldOnCounterClockwiseCircle = false,
+                val flick = gesture.normalizeToFlick(
+                    clockwiseCircleBehaviour = ModifierBehaviourOption.Shift,
+                    counterClockwiseCircleBehaviour = ModifierBehaviourOption.Shift,
+                    longHoldBehaviour = ModifierBehaviourOption.Digit,
                 )
                 val fastAction = key?.fastActions?.get(flick.direction)
                 val relatedActions = mutableListOf<RelatedAction>()

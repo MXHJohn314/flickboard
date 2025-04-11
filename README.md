@@ -1,13 +1,21 @@
-# ![Logo](app/logo.png) FlickBoard
+# ![Logo](app/logo.png) FlickBoard - The Predictable Keyboard
 
 (Logo by @MisterE123)
 
 [![Discord](https://img.shields.io/discord/1207841722327896104?logo=discord&logoColor=white&label=chat%20on%20discord)](https://discord.gg/tVp8MGaeUr)
 
-FlickBoard is a flicking-style keyboard, in the style of [MessagEase] and [Thumb-Key].
+FlickBoard is a keyboard for Android that doesn't try to correct or predict you.
+It doesn't have an opinion on the correct spelling or tone. It certainly doesn't use any AI.
+Because it trusts you to write what you meant to write.
+
+Instead, FlickBoard uses swipes to get away with using vastly fewer (and larger!) buttons than
+a traditional QWERTY keyboard, helping you build muscle memory, minimize typos, and touch type
+faster.
 
 Type the letters in the center of a key by tapping it. Type the keys in the corners by swiping in
-that direction. That's it!
+that direction. It's that simple!
+
+FlickBoard is inspired by [MessagEase] and [Thumb-Key].
 
 ## How do I install it?
 
@@ -18,11 +26,17 @@ The latest release builds are also available
 from [Codeberg Releases](https://codeberg.org/natkr/flickboard/releases), but I recommend
 downloading from one of the above instead to get automatic updates.
 
+If downloading from a source other than Google Play, you can verify using `apksigner verify` that
+the
+certificate matches the following SHA-256 digest:
+`51612a908aaf90aff66d1260a01992b3dde73a3ee3a94069412be2012272020f`.
+This should also match the digest listed at [natkr.com](https://natkr.com/flickboard/certificate/).
+
 You can also build it yourself, by running the following on a computer that is connected to your
 phone:
 
 ```bash
-$ ./gradlew installPlainDebug
+$ ./gradlew :app:installPlainDebug
 ```
 
 This requires the phone to have USB debugging enabled, and your computer to have the [Android SDK]

@@ -68,12 +68,12 @@ import se.nullable.flickboard.model.clipboard.ClipboardEntry
 import se.nullable.flickboard.model.clipboard.ClipboardEntryDao
 import se.nullable.flickboard.model.clipboard.clipboardHistorySize
 import se.nullable.flickboard.ui.LocalAppDatabase
-import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.layout.SwipeToOptionsBox
 import se.nullable.flickboard.ui.layout.centerVerticallyInVisibleBounds
 import se.nullable.flickboard.ui.layout.rememberSwipeToOptionsBoxState
 import se.nullable.flickboard.ui.layout.reverse
+import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.theme.PageTitle
 import se.nullable.flickboard.ui.util.defaultFocus
 import se.nullable.flickboard.ui.util.items
@@ -178,7 +178,7 @@ fun ClipboardHistoryViewer(
 
             LazyColumn(
                 Modifier
-                    .height(300.dp)
+                    .height(200.dp)
                     .fillMaxWidth()
                     // Elements outside of the list's bounds end up causing flashing forward
                     // briefly before animating out when removed from the view.
@@ -520,7 +520,7 @@ private fun ClipboardEntryCard(
                         Modifier
                             .weight(1F)
                             .defaultFocus(),
-                        maxLines = 6,
+                        maxLines = 4,
                         keyboardActions = KeyboardActions(
                             onDone = {
                                 onEditDone(

@@ -1,9 +1,12 @@
 package se.nullable.flickboard.model
 
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.Dp
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.layouts.MESSAGEASE_SYMBOLS_LAYER
 import se.nullable.flickboard.model.layouts.MINI_NUMBERS_SYMBOLS_LAYER
+import se.nullable.flickboard.ui.settings.ModifierBehaviourOption
 import se.nullable.flickboard.util.HardLineBreakIterator
 import se.nullable.flickboard.util.flipIfBracket
 import java.text.BreakIterator
@@ -155,6 +158,7 @@ sealed class Action {
         val forceRawKeyEvent: Boolean = false,
         val visualOverride: ActionVisual? = null,
         val hidden: Boolean = false,
+        val actionClassOverride: ActionClass? = null,
     ) : Action() {
         override fun visual(
             modifier: ModifierState?,
@@ -177,7 +181,7 @@ sealed class Action {
         override val description: String =
             "Types the character $characterName into the active text field."
 
-        override val actionClass: ActionClass = when {
+        override val actionClass: ActionClass = actionClassOverride ?: when {
             character.isBlank() -> ActionClass.Other
             character.all { it.isDigit() } -> ActionClass.Number
             character.all { it.isLetter() } -> ActionClass.Letter
@@ -263,6 +267,30 @@ sealed class Action {
         override val title: String = "Fast Action Done"
         override val description: String =
             "Fake event that marks that a gesture containing fast actions is done, and that any previewed actions should be executed. This should not be visible."
+    }
+
+    data class Tab(val shift: Boolean = false) : Action() {
+        override fun visual(
+            modifier: ModifierState?,
+            modifierSettings: ModifierSettings?
+        ): ActionVisual = ActionVisual.Icon(
+            R.drawable.baseline_keyboard_tab_24,
+            when {
+                shift -> Modifier.rotate(degrees = 180F)
+                else -> Modifier
+            },
+        )
+
+        override val title: String = when {
+            shift -> "Backtab"
+            else -> "Tab"
+        }
+        override val description: String = when {
+            shift -> "Sends a shift+tab keypress, either shifting to the previous field or inserting a tab symbol."
+            else -> "Sends a tab keypress, either shifting to the next field or inserting a tab symbol."
+        }
+
+        override fun shift(locale: Locale): Action = copy(shift = true)
     }
 
     data class Enter(val shift: Boolean = false) : Action() {
@@ -725,11 +753,6 @@ sealed class Action {
     }
 
     companion object {
-        val Tab = Text(
-            "\t",
-            forceRawKeyEvent = true,
-            visualOverride = ActionVisual.Icon(R.drawable.baseline_keyboard_tab_24),
-        )
         val Space = Text(
             " ",
             visualOverride = ActionVisual.Icon(R.drawable.baseline_space_bar_24),
@@ -747,7 +770,7 @@ enum class ActionClass {
 }
 
 sealed class ActionVisual {
-    data class Icon(val resource: Int) : ActionVisual()
+    data class Icon(val resource: Int, val modifier: Modifier = Modifier) : ActionVisual()
     data class Label(
         val label: String,
         val directionOverride: TextDirection? = null
@@ -844,10 +867,18 @@ interface Gesture {
         val shift: Boolean
     ) :
         Gesture {
-        override fun toFlick(
-            longHoldOnClockwiseCircle: Boolean,
-            longHoldOnCounterClockwiseCircle: Boolean
-        ): Flick = this
+        override fun normalizeToFlick(
+            clockwiseCircleBehaviour: ModifierBehaviourOption,
+            counterClockwiseCircleBehaviour: ModifierBehaviourOption,
+            longHoldBehaviour: ModifierBehaviourOption,
+        ): Flick = when {
+            longHold -> when (longHoldBehaviour) {
+                ModifierBehaviourOption.Digit -> this
+                ModifierBehaviourOption.Shift -> copy(longHold = false, shift = true)
+            }
+
+            else -> this
+        }
 
         fun resolveAction(key: KeyM): Action? = when {
             longHold -> key.holdAction
@@ -864,25 +895,29 @@ interface Gesture {
     }
 
     data class Circle(val direction: CircleDirection) : Gesture {
-        override fun toFlick(
-            longHoldOnClockwiseCircle: Boolean,
-            longHoldOnCounterClockwiseCircle: Boolean
+        override fun normalizeToFlick(
+            clockwiseCircleBehaviour: ModifierBehaviourOption,
+            counterClockwiseCircleBehaviour: ModifierBehaviourOption,
+            longHoldBehaviour: ModifierBehaviourOption,
         ): Flick {
-            return when {
-                direction == CircleDirection.Clockwise && longHoldOnClockwiseCircle ->
+            val circleBehaviour = when (direction) {
+                CircleDirection.Clockwise -> clockwiseCircleBehaviour
+                CircleDirection.CounterClockwise -> counterClockwiseCircleBehaviour
+            }
+            return when (circleBehaviour) {
+                ModifierBehaviourOption.Digit ->
                     Flick(Direction.CENTER, longHold = true, longSwipe = false, shift = false)
 
-                direction == CircleDirection.CounterClockwise && longHoldOnCounterClockwiseCircle ->
-                    Flick(Direction.CENTER, longHold = true, longSwipe = false, shift = false)
-
-                else -> Flick(Direction.CENTER, longHold = false, longSwipe = false, shift = true)
+                ModifierBehaviourOption.Shift ->
+                    Flick(Direction.CENTER, longHold = false, longSwipe = false, shift = true)
             }
         }
     }
 
-    fun toFlick(
-        longHoldOnClockwiseCircle: Boolean,
-        longHoldOnCounterClockwiseCircle: Boolean
+    fun normalizeToFlick(
+        clockwiseCircleBehaviour: ModifierBehaviourOption,
+        counterClockwiseCircleBehaviour: ModifierBehaviourOption,
+        longHoldBehaviour: ModifierBehaviourOption,
     ): Flick
 
     companion object {

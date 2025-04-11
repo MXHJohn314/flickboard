@@ -26,10 +26,10 @@ import se.nullable.flickboard.model.FastActionType
 import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.SearchDirection
 import se.nullable.flickboard.model.TextBoundary
-import se.nullable.flickboard.ui.LocalAppSettings
 import se.nullable.flickboard.ui.LocalDisplayLimits
 import se.nullable.flickboard.ui.LocalZalgoDatabase
 import se.nullable.flickboard.ui.OnAction
+import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.voice.getVoiceInputId
 import se.nullable.flickboard.util.AndroidKeycodeMapper
 import se.nullable.flickboard.util.Boxed
@@ -200,7 +200,6 @@ class InputSession(
         navController: NavController,
     ): OnAction {
         val context = LocalContext.current
-        val handler = Handler(context.mainLooper)
         val appSettings = LocalAppSettings.current
         val periodOnDoubleSpace = appSettings.periodOnDoubleSpace.state
         val disabledDeadkeys = appSettings.disabledDeadkeys.state
@@ -404,6 +403,16 @@ class InputSession(
                             }
                         }
                     }
+                }
+
+                is Action.Tab -> {
+                    sendKeyPressEvents(
+                        KeyEvent.KEYCODE_TAB,
+                        extraModifiers = when {
+                            action.shift -> KeyEvent.normalizeMetaState(KeyEvent.META_SHIFT_LEFT_ON)
+                            else -> 0
+                        },
+                    )
                 }
 
                 is Action.Enter -> {
@@ -624,7 +633,10 @@ class InputSession(
                         // asynchronous and doesn't actually select immediately, so the copy
                         // ends up copying nothing.
                         // Delaying slightly seems to make it more reliable.
-                        handler.postDelayed(delayInMillis = 1) {
+                        // HACK²: For some inscrutable reason, holding a Handler reference into the
+                        // OnAction lambda makes the `defaultFocus` Modifier act up,
+                        // while creating it on demand works fine? Yeah, I don't get it either...
+                        Handler(context.mainLooper).postDelayed(delayInMillis = 1) {
                             inputConnection.performContextMenuAction(android.R.id.copy)
                         }
                     } else {

@@ -4,7 +4,7 @@ import org.junit.Assert
 import org.junit.Test
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.KeyM
-import se.nullable.flickboard.ui.LetterLayerOption
+import se.nullable.flickboard.ui.settings.LetterLayerOption
 
 class SymbolLayerTest {
     @Test

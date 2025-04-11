@@ -46,7 +46,24 @@ val OVERLAY_LONG_SWIPE_LAYER = run {
             (Direction.RIGHT to Action.Space),
             (Direction.LEFT to Action.Delete()),
             (Direction.BOTTOM to Action.Enter()),
-            (Direction.TOP to Action.Tab),
+            (Direction.TOP to Action.Escape),
+            (Direction.TOP_RIGHT to Action.ToggleShift(state = ShiftState.Shift)),
+            (Direction.BOTTOM_LEFT to Action.ToggleShift(state = ShiftState.Normal)),
+            (Direction.BOTTOM_RIGHT to Action.Tab()),
+            (Direction.TOP_LEFT to Action.Tab(shift = true)),
+        ),
+        shift = KeyM(
+            actions = emptyMap(),
+            longActions = mapOf(
+                (Direction.RIGHT to Action.Space),
+                (Direction.LEFT to Action.Delete()),
+                (Direction.BOTTOM to Action.Enter()),
+                (Direction.TOP to Action.Escape),
+                (Direction.TOP_RIGHT to Action.ToggleShift(state = ShiftState.CapsLock)),
+                (Direction.BOTTOM_LEFT to Action.ToggleShift(state = ShiftState.Normal)),
+                (Direction.BOTTOM_RIGHT to Action.Tab(shift = true)),
+                (Direction.TOP_LEFT to Action.Tab(shift = true)),
+            ),
         ),
     )
     val row = listOf(key, key, key)

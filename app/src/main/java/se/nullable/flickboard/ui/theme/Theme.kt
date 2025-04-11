@@ -13,7 +13,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import se.nullable.flickboard.ui.LocalAppSettings
+import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.util.MaterialToneMode
 import se.nullable.flickboard.util.hct.Hct
 import se.nullable.flickboard.util.toAccent

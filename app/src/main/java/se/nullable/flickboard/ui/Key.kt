@@ -72,6 +72,8 @@ import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.TextDirection
 import se.nullable.flickboard.ui.layout.KeyLabelGrid
+import se.nullable.flickboard.ui.settings.GestureRecognizer
+import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.util.angle
 import se.nullable.flickboard.util.averageOf
@@ -112,8 +114,9 @@ fun Key(
     val keyOutline = settings.keyOutline.state
     val keyOpacity = settings.keyOpacity.state
     val enableFastActions = settings.enableFastActions.state
-    val longHoldOnClockwiseCircle = settings.longHoldOnClockwiseCircle.state
-    val longHoldOnCounterClockwiseCircle = settings.longHoldOnCounterClockwiseCircle.state
+    val clockwiseCircleBehaviour = settings.clockwiseCircleBehaviour.state
+    val counterClockwiseCircleBehaviour = settings.counterClockwiseCircleBehaviour.state
+    val longHoldBehaviour = settings.longHoldBehaviour.state
     val swipeThreshold = settings.swipeThreshold.state
     val fastSwipeThreshold = settings.fastSwipeThreshold.state
     val enableLongSwipes = settings.enableLongSwipes.state
@@ -196,9 +199,10 @@ fun Key(
                     flicksMustBeLongerThanSeconds = { flicksMustBeLongerThanSeconds.value },
                 )?.let { gesture ->
                     val flick =
-                        gesture.toFlick(
-                            longHoldOnClockwiseCircle = key.holdAction != null && longHoldOnClockwiseCircle.value,
-                            longHoldOnCounterClockwiseCircle = key.holdAction != null && longHoldOnCounterClockwiseCircle.value,
+                        gesture.normalizeToFlick(
+                            clockwiseCircleBehaviour = clockwiseCircleBehaviour.value,
+                            counterClockwiseCircleBehaviour = counterClockwiseCircleBehaviour.value,
+                            longHoldBehaviour = longHoldBehaviour.value,
                         )
                     flick.resolveAction(key)?.let { handleAction(it, gesture, isFast = false) }
                 }
@@ -392,7 +396,7 @@ fun RenderActionVisual(
             painter = painterResource(id = actionVisual.resource),
             contentDescription = null,
             tint = usedColour.value,
-            modifier = modifier,
+            modifier = modifier then actionVisual.modifier,
         )
 
         ActionVisual.None -> {}

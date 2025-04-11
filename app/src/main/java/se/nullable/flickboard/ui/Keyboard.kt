@@ -58,8 +58,14 @@ import se.nullable.flickboard.model.layouts.OVERLAY_LONG_SWIPE_LAYER
 import se.nullable.flickboard.model.layouts.OVERLAY_TOGGLE_SYMBOLS_MESSAGEASE_LAYER
 import se.nullable.flickboard.model.layouts.overlayMessageaseLayer
 import se.nullable.flickboard.model.layouts.spacer
-import se.nullable.flickboard.ui.InvertDelete
 import se.nullable.flickboard.ui.layout.Grid
+import se.nullable.flickboard.ui.settings.AppSettingsProvider
+import se.nullable.flickboard.ui.settings.ControlSectionOption
+import se.nullable.flickboard.ui.settings.EnabledLayers
+import se.nullable.flickboard.ui.settings.Handedness
+import se.nullable.flickboard.ui.settings.InvertDelete
+import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.MockedSharedPreferences
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import java.io.IOException
 
