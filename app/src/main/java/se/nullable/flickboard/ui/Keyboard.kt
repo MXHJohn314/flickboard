@@ -202,8 +202,8 @@ fun Keyboard(
                     val invertDelete = appSettings.invertDelete.currentValue
                     if (
                         invertDelete == InvertDelete.Always
-                            || invertDelete == InvertDelete.RightOnly && handedness.value == Handedness.LeftHanded
-                            || invertDelete == InvertDelete.LeftOnly && handedness.value == Handedness.RightHanded
+                            || invertDelete == InvertDelete.LeftHanded && handedness.value == Handedness.LeftHanded
+                            || invertDelete == InvertDelete.RightHanded && handedness.value == Handedness.RightHanded
                     )
                         CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
                             .mergeFallback(it)

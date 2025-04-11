@@ -1695,8 +1695,8 @@ enum class Handedness(override val label: String) : Labeled {
 enum class InvertDelete(override val label: String, val description: String) : Labeled {
     Never("Never", "Never invert fast delete direction."),
     Always("Always", "Always invert fast delete direction."),
-    LeftOnly("Left only", "Only invert fast delete direction when the delete key is on the left edge of the screen."),
-    RightOnly("Right only", "Only invert fast delete direction when the delete key is on the right edge of the screen."),
+    RightHanded("Righthanded", "Only invert fast delete direction when in righthanded mode where the delete key will usually be on the left edge of the screen."),
+    LeftHanded("Lefthanded", "Only invert fast delete direction when in lefthanded mode where the delete key will usually be on the right edge of the screen."),
 }
 
 enum class LetterLayerOption(override val label: String, val layout: Layout) : Labeled {
