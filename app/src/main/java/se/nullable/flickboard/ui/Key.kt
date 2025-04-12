@@ -120,6 +120,7 @@ fun Key(
     val swipeThreshold = settings.swipeThreshold.state
     val fastSwipeThreshold = settings.fastSwipeThreshold.state
     val enableLongSwipes = settings.enableLongSwipes.state
+    val longHoldThresholdMillis = settings.longHoldThresholdMillis.state
     val longSwipeThreshold = settings.longSwipeThreshold.state
     val gestureRecognizer = settings.gestureRecognizer.state
     val circleJaggednessThreshold = settings.circleJaggednessThreshold.state
@@ -178,6 +179,7 @@ fun Key(
                             else -> Float.POSITIVE_INFINITY
                         }
                     },
+                    longHoldThresholdMillis = { longHoldThresholdMillis.value },
                     circleJaggednessThreshold = { circleJaggednessThreshold.value },
                     circleDiscontinuityThreshold = { circleDiscontinuityThreshold.value },
                     circleAngleThreshold = { circleAngleThreshold.value },
@@ -416,6 +418,7 @@ private suspend inline fun AwaitPointerEventScope.awaitGesture(
     swipeThreshold: () -> Dp,
     fastSwipeThreshold: () -> Dp,
     longSwipeThreshold: () -> Float,
+    longHoldThresholdMillis: () -> Float,
     circleJaggednessThreshold: () -> Float,
     circleDiscontinuityThreshold: () -> Float,
     circleAngleThreshold: () -> Float,
@@ -457,7 +460,7 @@ private suspend inline fun AwaitPointerEventScope.awaitGesture(
                 else -> {
                     // initial check: wait for touch slop (indicating a drag),
                     // release (indicating a tap), or timeout (indicating a long hold)
-                    val event = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+                    val event = withTimeoutOrNull(longHoldThresholdMillis().toLong()) {
                         while (true) {
                             val event = awaitPointerEvent()
                             for (change in event.changes) {

@@ -1,6 +1,7 @@
 package se.nullable.flickboard.ui.settings
 
 import android.content.SharedPreferences
+import android.view.ViewConfiguration
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -511,6 +512,17 @@ class AppSettings(val ctx: SettingsContext) {
         previewOverride = {},
     )
 
+    val longHoldThresholdMillis = Setting.FloatSlider(
+        key = "longHoldThresholdMillis",
+        label = "Long hold duration threshold",
+        // This is theoretically possible to modify with the `settings`
+        // but there's no good event to read for updating this anyway.
+        defaultValue = ViewConfiguration.getLongPressTimeout().toFloat(),
+        range = 20F..1000F,
+        ctx = ctx,
+        render = { "${it.roundToInt()}ms" },
+    )
+
     val longHoldBehaviour = Setting.Enum(
         key = "longHoldBehaviour",
         label = "Long hold behaviour",
@@ -797,6 +809,7 @@ class AppSettings(val ctx: SettingsContext) {
                     periodOnDoubleSpace,
                     clockwiseCircleBehaviour,
                     counterClockwiseCircleBehaviour,
+                    longHoldThresholdMillis,
                     longHoldBehaviour,
                     disabledDeadkeys,
                     swipeThreshold,
