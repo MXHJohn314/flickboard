@@ -21,15 +21,14 @@ Pull requests for features and bugfixes depend on the complexity of the issue, a
 be discussed in their corresponding issue. While I'd like to support (almost) every feature, I have
 to prioritize ensuring that the codebase stays maintainable (to me).
 
-After you have opened a PR, please try to avoid force-pushes whenever possible:
+Please try to avoid force-pushes or other history rewrites whenever possible:
 
 - Prefer merging upstream into your branch to rebasing atop of upstream
-- Revert your commits rather than resetting or rebasing them away
+- Revert your commits rather than rebasing them away
 - Do not "clean up" or otherwise modify the history
 - Do not squash your commits
 
 Other guidelines:
 
-- Commit frequently; tiny steps rather than larger steps; even if they are one logical step. Each time you compile, you should probably commit.
 - Prefer code comments to explaining changes in commit messages
 - Do not use "conventional commit messages"; just describe your changes
