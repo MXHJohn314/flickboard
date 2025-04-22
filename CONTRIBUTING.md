@@ -21,4 +21,14 @@ Pull requests for features and bugfixes depend on the complexity of the issue, a
 be discussed in their corresponding issue. While I'd like to support (almost) every feature, I have
 to prioritize ensuring that the codebase stays maintainable (to me).
 
-Please do *not* rebase or squash your pull request branches.
+Please try to avoid force-pushes or other history rewrites whenever possible:
+
+- Prefer merging upstream into your branch to rebasing atop of upstream
+- Revert your commits rather than rebasing them away
+- Do not "clean up" or otherwise modify the history
+- Do not squash your commits
+
+Other guidelines:
+
+- Prefer code comments to explaining changes in commit messages
+- Do not use "conventional commit messages"; just describe your changes
