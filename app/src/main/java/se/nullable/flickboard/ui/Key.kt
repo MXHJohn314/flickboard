@@ -153,7 +153,6 @@ fun Key(
         val haptics = rememberUpdatedState(Haptics.get)
 
         fun onGestureStart() {
-            println(haptics.value)
             if (enableHapticFeedbackOnGestureStart.value) {
                 haptics.value.vibrate(HapticFeedbackReason.GestureStart)
             }
