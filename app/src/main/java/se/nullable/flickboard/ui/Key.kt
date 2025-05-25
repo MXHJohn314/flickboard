@@ -34,6 +34,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -149,17 +150,18 @@ fun Key(
     }
     val gestureLibrary = LocalDollar1GestureLibrary.current
     val onActionModifier = if (onAction != null) {
-        val haptics = Haptics.get
+        val haptics = rememberUpdatedState(Haptics.get)
 
         fun onGestureStart() {
+            println(haptics.value)
             if (enableHapticFeedbackOnGestureStart.value) {
-                haptics.vibrate(HapticFeedbackReason.GestureStart)
+                haptics.value.vibrate(HapticFeedbackReason.GestureStart)
             }
         }
 
         fun handleAction(action: Action, gesture: Gesture?, isFast: Boolean): Boolean {
             if (enableHapticFeedbackOnGestureSuccess.value || (isFast && enableHapticFeedbackOnGestureStart.value)) {
-                haptics.vibrate(HapticFeedbackReason.GestureSuccess)
+                haptics.value.vibrate(HapticFeedbackReason.GestureSuccess)
             }
             if (enableVisualFeedback.value) {
                 if (!action.isHiddenAction) {
