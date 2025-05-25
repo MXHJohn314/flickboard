@@ -236,7 +236,10 @@ val CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY =
             // backspace
             listOf(
                 KeyM(
-                    actions = mapOf(),
+                    actions = mapOf(
+                        Direction.LEFT to Action.FastDelete(direction = SearchDirection.Forwards),
+                        Direction.RIGHT to Action.FastDelete(direction = SearchDirection.Backwards),
+                    ),
                     fastActions = mapOf(
                         Direction.LEFT to Action.FastDelete(direction = SearchDirection.Forwards),
                         Direction.RIGHT to Action.FastDelete(direction = SearchDirection.Backwards),
