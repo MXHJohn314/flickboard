@@ -29,6 +29,7 @@ import se.nullable.flickboard.model.TextBoundary
 import se.nullable.flickboard.ui.LocalDisplayLimits
 import se.nullable.flickboard.ui.LocalZalgoDatabase
 import se.nullable.flickboard.ui.OnAction
+import se.nullable.flickboard.ui.settings.EnabledLayers
 import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.voice.getVoiceInputId
 import se.nullable.flickboard.util.AndroidKeycodeMapper
@@ -679,9 +680,9 @@ class InputSession(
                 Action.ToggleActiveLayer -> {
                     var hasToggled = false
 
-                    appSettings.enabledLayersProjectionForOrientation(
-                        displayLimits,
-                    ).tryModify { old ->
+                    val enabledLayers =
+                        appSettings.enabledLayersProjectionForOrientation(displayLimits)
+                    enabledLayers.tryModify { old ->
                         if (old?.isSingleSided == true) {
                             old.toggleNumbers?.let {
                                 hasToggled = true
@@ -695,6 +696,19 @@ class InputSession(
                     if (!hasToggled) {
                         appSettings.handedness.currentValue =
                             !appSettings.handedness.currentValue
+
+                        // Toggling *appears* to do nothing if using doubleletters and both sides are the same,
+                        // see https://codeberg.org/natkr/flickboard/issues/318
+                        // We can't really *fix* it due to https://codeberg.org/natkr/flickboard/issues/318#issuecomment-2932842,
+                        // but we can at least tell the user what went wrong and how to fix it.
+                        if (enabledLayers.currentValue == EnabledLayers.DoubleLetters &&
+                            appSettings.letterLayers.currentValue.getOrNull(appSettings.activeLetterLayerIndex.currentValue)
+                            == appSettings.secondaryLetterLayer.currentValue
+                        ) {
+                            warningMessageScope.launch {
+                                warningSnackbarHostState.showSnackbar("Toggling when using the double-letters layout flips the sides, which does nothing if both sides are already the same.\nTo switch to a numbers layout, hold the key instead.")
+                            }
+                        }
                     }
                 }
 
