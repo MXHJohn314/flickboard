@@ -91,6 +91,31 @@ enum class Handedness(override val label: String) : Labeled {
     }
 }
 
+enum class InvertSwipeDelete(
+    override val label: String,
+    val description: String,
+    val forHandedness: (Handedness) -> Boolean
+) : Labeled {
+    Never(
+        "Never", description = "Never invert the delete direction.",
+        forHandedness = { false },
+    ),
+    Always(
+        "Always", description = "Always invert the swipe-to-delete direction.",
+        forHandedness = { true },
+    ),
+    RightHanded(
+        "Righthanded",
+        description = "Only invert the swipe-to-delete direction when in right-handed mode (where the delete key will usually be on the left edge of the screen).",
+        forHandedness = { it == Handedness.RightHanded },
+    ),
+    LeftHanded(
+        "Lefthanded",
+        "Only invert the swipe-to-delete direction when in left-handed mode (where the delete key will usually be on the right edge of the screen).",
+        forHandedness = { it == Handedness.LeftHanded },
+    ),
+}
+
 enum class LetterLayerOption(override val label: String, val layout: Layout) : Labeled {
     Arabic("Arabic (MessagEase)", AR_MESSAGEASE),
     Danish("Danish (MessagEase)", DA_MESSAGEASE),

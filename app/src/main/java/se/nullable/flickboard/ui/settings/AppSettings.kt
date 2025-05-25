@@ -182,6 +182,17 @@ class AppSettings(val ctx: SettingsContext) {
         ctx = ctx,
     )
 
+    val invertSwipeDelete = Setting.Enum(
+        key = "invertSwipeDelete",
+        label = "Invert delete-swipe direction",
+        defaultValue = InvertSwipeDelete.Never,
+        options = InvertSwipeDelete.entries,
+        tryEnumValueOfT = ::tryEnumValueOf,
+        ctx = ctx,
+        previewOverride = { Text(it.description) },
+    )
+
+
     val landscapeLocation = Setting.FloatSlider(
         key = "landscapeLocation",
         label = "Landscape location",
@@ -764,6 +775,7 @@ class AppSettings(val ctx: SettingsContext) {
                     enabledLayers,
                     enabledLayersLandscape,
                     handedness,
+                    invertSwipeDelete,
                     keyHeight,
                     keyboardMargin,
                     landscapeLocation,

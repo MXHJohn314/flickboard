@@ -51,6 +51,7 @@ import se.nullable.flickboard.model.Layout
 import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.ShiftState
 import se.nullable.flickboard.model.TextDirection
+import se.nullable.flickboard.model.layouts.CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
 import se.nullable.flickboard.model.layouts.EN_MESSAGEASE
 import se.nullable.flickboard.model.layouts.OVERLAY_ADVANCED_MODIFIERS_MESSAGEASE_LAYER
 import se.nullable.flickboard.model.layouts.OVERLAY_LONG_SWIPE_LAYER
@@ -200,6 +201,15 @@ fun Keyboard(
     val controlLayer = remember {
         derivedStateOf {
             layoutState.value.controlLayer
+                ?.let {
+                    when {
+                        appSettings.invertSwipeDelete.currentValue.forHandedness(handedness.value) ->
+                            CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
+                                .mergeFallback(it)
+
+                        else -> it
+                    }
+                }
                 ?.let { it.setShift(it.autoShift(layoutState.value.locale)) }
         }
     }

@@ -226,6 +226,31 @@ val CONTROL_MESSAGEASE_LAYER =
         ),
     )
 
+val CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY =
+    Layer(
+        keyRows = listOf(
+            // pointer
+            listOf(KeyM(actions = emptyMap())),
+            // clipboard
+            listOf(KeyM(actions = emptyMap())),
+            // backspace
+            listOf(
+                KeyM(
+                    actions = mapOf(
+                        Direction.LEFT to Action.FastDelete(direction = SearchDirection.Forwards),
+                        Direction.RIGHT to Action.FastDelete(direction = SearchDirection.Backwards),
+                    ),
+                    fastActions = mapOf(
+                        Direction.LEFT to Action.FastDelete(direction = SearchDirection.Forwards),
+                        Direction.RIGHT to Action.FastDelete(direction = SearchDirection.Backwards),
+                    ),
+                ),
+            ),
+            // enter
+            listOf(KeyM(actions = emptyMap())),
+        ),
+    )
+
 fun overlayMessageaseLayer(locale: Locale) = Layer(
     keyRows = listOf(
         listOf(
