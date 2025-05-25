@@ -51,8 +51,8 @@ import se.nullable.flickboard.model.Layout
 import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.ShiftState
 import se.nullable.flickboard.model.TextDirection
-import se.nullable.flickboard.model.layouts.EN_MESSAGEASE
 import se.nullable.flickboard.model.layouts.CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
+import se.nullable.flickboard.model.layouts.EN_MESSAGEASE
 import se.nullable.flickboard.model.layouts.OVERLAY_ADVANCED_MODIFIERS_MESSAGEASE_LAYER
 import se.nullable.flickboard.model.layouts.OVERLAY_LONG_SWIPE_LAYER
 import se.nullable.flickboard.model.layouts.OVERLAY_TOGGLE_SYMBOLS_MESSAGEASE_LAYER
@@ -63,7 +63,6 @@ import se.nullable.flickboard.ui.settings.AppSettingsProvider
 import se.nullable.flickboard.ui.settings.ControlSectionOption
 import se.nullable.flickboard.ui.settings.EnabledLayers
 import se.nullable.flickboard.ui.settings.Handedness
-import se.nullable.flickboard.ui.settings.InvertDelete
 import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.settings.MockedSharedPreferences
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
@@ -203,19 +202,15 @@ fun Keyboard(
         derivedStateOf {
             layoutState.value.controlLayer
                 ?.let {
-                    it.setShift(it.autoShift(layoutState.value.locale))
+                    when {
+                        appSettings.invertSwipeDelete.currentValue.forHandedness(handedness.value) ->
+                            CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
+                                .mergeFallback(it)
 
-                    val invertDelete = appSettings.invertDelete.currentValue
-                    if (
-                        invertDelete == InvertDelete.Always
-                            || invertDelete == InvertDelete.LeftHanded && handedness.value == Handedness.LeftHanded
-                            || invertDelete == InvertDelete.RightHanded && handedness.value == Handedness.RightHanded
-                    )
-                        CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
-                            .mergeFallback(it)
-                    else
-                        it
+                        else -> it
+                    }
                 }
+                ?.let { it.setShift(it.autoShift(layoutState.value.locale)) }
         }
     }
     val isLandscape = rememberUpdatedState(LocalDisplayLimits.current?.isLandscape ?: false)

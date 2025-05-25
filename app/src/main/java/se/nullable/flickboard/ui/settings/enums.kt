@@ -91,16 +91,28 @@ enum class Handedness(override val label: String) : Labeled {
     }
 }
 
-enum class InvertDelete(override val label: String, val description: String) : Labeled {
-    Never("Never", "Never invert fast delete direction."),
-    Always("Always", "Always invert fast delete direction."),
+enum class InvertSwipeDelete(
+    override val label: String,
+    val description: String,
+    val forHandedness: (Handedness) -> Boolean
+) : Labeled {
+    Never(
+        "Never", description = "Never invert the delete direction.",
+        forHandedness = { false },
+    ),
+    Always(
+        "Always", description = "Always invert the swipe-to-delete direction.",
+        forHandedness = { true },
+    ),
     RightHanded(
-            "Righthanded",
-            "Only invert fast delete direction when in righthanded mode where the delete key will usually be on the left edge of the screen."
+        "Righthanded",
+        description = "Only invert the swipe-to-delete direction when in right-handed mode (where the delete key will usually be on the left edge of the screen).",
+        forHandedness = { it == Handedness.RightHanded },
     ),
     LeftHanded(
-            "Lefthanded",
-            "Only invert fast delete direction when in lefthanded mode where the delete key will usually be on the right edge of the screen."
+        "Lefthanded",
+        "Only invert the swipe-to-delete direction when in left-handed mode (where the delete key will usually be on the right edge of the screen).",
+        forHandedness = { it == Handedness.LeftHanded },
     ),
 }
 
