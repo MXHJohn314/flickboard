@@ -237,8 +237,15 @@ val CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY =
             listOf(
                 KeyM(
                     actions = mapOf(
-                        Direction.LEFT to Action.FastDelete(direction = SearchDirection.Forwards),
-                        Direction.RIGHT to Action.FastDelete(direction = SearchDirection.Backwards),
+                        // Hidden since the directional variants are also hidden without the overlay
+                        Direction.LEFT to Action.Delete(
+                            direction = SearchDirection.Forwards,
+                            hidden = true,
+                        ),
+                        Direction.RIGHT to Action.Delete(
+                            direction = SearchDirection.Backwards,
+                            hidden = true,
+                        ),
                     ),
                     fastActions = mapOf(
                         Direction.LEFT to Action.FastDelete(direction = SearchDirection.Forwards),
