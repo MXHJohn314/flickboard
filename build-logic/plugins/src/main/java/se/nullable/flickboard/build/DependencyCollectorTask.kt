@@ -3,6 +3,7 @@ package se.nullable.flickboard.build
 import com.android.build.api.variant.AndroidComponentsExtension
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import org.gradle.api.DefaultTask
@@ -64,6 +65,8 @@ abstract class DependencyCollectorTask : DefaultTask() {
                                 }
                             },
                         group = group,
+                        artifact = xpath.evaluate("/project/artifactId", pom)
+                            .takeIf(String::isNotEmpty),
                         url = xpath.evaluate("/project/url", pom)
                             .takeIf(String::isNotEmpty),
                         license = xpath.evaluate("/project/licenses/license/name", pom)
@@ -76,7 +79,22 @@ abstract class DependencyCollectorTask : DefaultTask() {
                     )
                 }
                 // Group related dependencies as one entry
-                .groupBy { it.group }.map { group -> group.value.minBy { it.name.length } }
+                .groupBy { it.group }.map { group ->
+                    group.value.minWith(
+                        compareBy(
+                            // Room doesn't really *have* a main library, so
+                            // explicitly pick room-common as the winner.
+                            // These conditions have to be inverted,
+                            // since we're picking the *minimum*,
+                            // and false < true.
+                            { it.artifact != "room-common" },
+                            // *Typically*, the artifact with the shortest name in the group is the primary one
+                            { it.artifact!!.length },
+                            // If there's a tie, at least pick a consistent winner
+                            { it.artifact },
+                        ),
+                    )
+                }
                 .sortedBy { it.name }.toList()
         }
 
@@ -103,6 +121,8 @@ abstract class DependencyCollectorTask : DefaultTask() {
 data class DependencyInfo(
     val name: String,
     val group: String,
+    @Transient
+    val artifact: String? = null,
     val url: String?,
     val license: String?,
 ) : java.io.Serializable
