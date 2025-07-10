@@ -35,12 +35,12 @@ android {
         }
     }
     namespace = "se.nullable.flickboard"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "se.nullable.flickboard"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 91
         versionName = "0.2.6.1"
         // This is actually a global, but set here since it depends on the versionName
