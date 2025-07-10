@@ -3,6 +3,7 @@ package se.nullable.flickboard
 import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.text.InputType
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
@@ -74,6 +75,7 @@ import se.nullable.flickboard.ui.settings.AppSettings
 import se.nullable.flickboard.ui.settings.EnabledLayers
 import se.nullable.flickboard.ui.settings.SettingsContext
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
+import se.nullable.flickboard.ui.util.isEmulator
 import se.nullable.flickboard.ui.util.sharePointerInput
 import se.nullable.flickboard.util.onBackPressedDispatcherWrapperCallback
 
@@ -117,6 +119,25 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private val currentInputSessions = mutableStateListOf<InputSession>()
     private val baseInputSession: InputSession?
         get() = currentInputSessions.getOrNull(0)
+
+    override fun onEvaluateInputViewShown(): Boolean = when {
+        super.onEvaluateInputViewShown() -> true
+        // HACK: Android 16 (API 36) hides the option to enable soft IMEs when a physical
+        // keyboard is connected. It can be enabled using ADB
+        // (`adb shell settings put secure show_ime_with_hard_keyboard 1`), but the most
+        // common case for this (emulators) would only have the app installed when
+        // explicitly trying to use it, and would always have a "keyboard" connected
+        // (forwarding events from the host OS).
+        isEmulator -> {
+            Log.d(
+                LOG_TAG,
+                "onEvaluateInputViewShown() would be false, but forcing enabled on emulator",
+            )
+            true
+        }
+
+        else -> false
+    }
 
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
@@ -519,6 +540,10 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         viewModelStore.clear()
         super.onDestroy()
+    }
+
+    companion object {
+        private const val LOG_TAG = "fb.KeyboardService"
     }
 }
 
