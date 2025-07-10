@@ -39,7 +39,7 @@ android {
 
     defaultConfig {
         applicationId = "se.nullable.flickboard"
-        minSdk = 28
+        minSdk = 26
         targetSdk = 35
         versionCode = 91
         versionName = "0.2.6.1"
