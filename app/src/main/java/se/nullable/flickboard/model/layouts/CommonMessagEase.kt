@@ -217,7 +217,7 @@ val CONTROL_MESSAGEASE_LAYER =
                         Direction.TOP to Action.Text(
                             "\n",
                             visualOverride = Action.Enter().visual(KeyboardState.ShowAll),
-                            hidden = true,
+                            hidden = { state -> !state.hasEnterOverride },
                         ),
                         Direction.TOP_RIGHT to Action.OpenEmojiKeyboard(),
                         Direction.BOTTOM to Action.ToggleZalgo,

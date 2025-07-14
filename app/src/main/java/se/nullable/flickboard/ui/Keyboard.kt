@@ -128,6 +128,7 @@ fun Keyboard(
     val keyboardState = KeyboardState(
         modifiers = modifierState.takeUnless { showAllModifiers },
         modifierSettings = appSettings.modifierSettings,
+        hasEnterOverride = enterVisualOverride != null,
     )
     val layoutState = rememberUpdatedState(layout)
     val mergedFullSizedNumericLayer =

@@ -472,7 +472,7 @@ private fun LazyItemScope.ClipboardEntryItem(
             onClick = {
                 if (entry != null) {
                     onAction.onAction(
-                        Action.Text(entry.clipData, hidden = true),
+                        Action.Text(entry.clipData, hidden = { true }),
                         key = null,
                         gesture = null,
                     )

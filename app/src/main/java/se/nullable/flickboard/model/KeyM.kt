@@ -157,15 +157,15 @@ sealed class Action {
         val character: String,
         val forceRawKeyEvent: Boolean = false,
         val visualOverride: ActionVisual? = null,
-        val hidden: Boolean = false,
+        val hidden: (KeyboardState) -> Boolean = { false },
         val actionClassOverride: ActionClass? = null,
     ) : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual = when {
-            hidden -> ActionVisual.None
+            hidden(keyboardState) -> ActionVisual.None
             else -> visualOverride ?: ActionVisual.Label(character)
         }
 
-        override fun withHidden(hidden: Boolean): Action = copy(hidden = hidden)
+        override fun withHidden(hidden: Boolean): Action = copy(hidden = { hidden })
 
         private val characterName = when (character) {
             " " -> "space"
@@ -654,7 +654,7 @@ sealed class Action {
         val Space = Text(
             " ",
             visualOverride = ActionVisual.Icon(R.drawable.baseline_space_bar_24),
-            hidden = true,
+            hidden = { true },
         )
     }
 }

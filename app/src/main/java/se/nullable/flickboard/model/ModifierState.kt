@@ -52,15 +52,18 @@ data class ModifierSettings(val stickyModifiers: State<Boolean>)
 data class KeyboardState(
     val modifiers: ModifierState?,
     val modifierSettings: ModifierSettings?,
+    val hasEnterOverride: Boolean,
 ) {
     companion object {
         val Default = KeyboardState(
             modifiers = ModifierState(),
             modifierSettings = null,
+            hasEnterOverride = false,
         )
         val ShowAll = KeyboardState(
             modifiers = null,
             modifierSettings = null,
+            hasEnterOverride = false,
         )
     }
 }
