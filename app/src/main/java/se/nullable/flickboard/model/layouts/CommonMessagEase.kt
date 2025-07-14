@@ -156,6 +156,7 @@ val CONTROL_MESSAGEASE_LAYER =
                     ),
                     shift = KeyM(
                         actions = mapOf(
+                            Direction.CENTER to Action.ToggleHandedness,
                             Direction.BOTTOM_LEFT to Action.SwitchSystemKeyboard,
                             Direction.BOTTOM_RIGHT to Action.SwitchSystemKeyboard,
                         ),
