@@ -46,6 +46,12 @@ data class Layer(val keyRows: List<List<KeyM>>) {
             this
         }
 
+    /**
+     * Inverse of [mergeFallback], where [overlay] takes priority over self.
+     */
+    fun mergeOverlay(overlay: Layer?): Layer =
+        overlay?.mergeFallback(this) ?: this
+
     fun setShift(shift: Layer): Layer =
         zipKeys(shift) { thisKey, shiftKey -> thisKey.copy(shift = shiftKey) }
 

@@ -136,7 +136,7 @@ fun Keyboard(
             derivedStateOf {
                 numericLayer.value.fullSizedLayer(layoutState.value)
                     .mergeFallback(layoutState.value.symbolLayer)
-                    .mergeFallback(OVERLAY_LONG_SWIPE_LAYER)
+                    .mergeOverlay(OVERLAY_LONG_SWIPE_LAYER)
             }
         }
     val mergedMiniNumericLayer =
@@ -149,13 +149,15 @@ fun Keyboard(
         }
 
     fun letterLayerByShiftState(layout: Layout): Map<ShiftState, Layer> {
-        var overlay = overlayMessageaseLayer(layout.locale)
-        if (enableAdvancedModifiers.value) {
-            overlay = overlay.mergeFallback(OVERLAY_ADVANCED_MODIFIERS_MESSAGEASE_LAYER)
-        }
-        if (enableToggleShowSymbols.value) {
-            overlay = overlay.mergeFallback(OVERLAY_TOGGLE_SYMBOLS_MESSAGEASE_LAYER)
-        }
+        val overlay = overlayMessageaseLayer(layout.locale)
+            .mergeOverlay(
+                OVERLAY_ADVANCED_MODIFIERS_MESSAGEASE_LAYER
+                    .takeIf { enableAdvancedModifiers.value },
+            )
+            .mergeOverlay(
+                OVERLAY_TOGGLE_SYMBOLS_MESSAGEASE_LAYER
+                    .takeIf { enableToggleShowSymbols.value },
+            )
         val shift = layout.shiftLayer
             .mergeFallback(
                 overlay.mergeFallback(
@@ -207,15 +209,15 @@ fun Keyboard(
     val controlLayer = remember {
         derivedStateOf {
             layoutState.value.controlLayer
-                ?.let {
-                    when {
-                        appSettings.invertSwipeDelete.currentValue.forHandedness(handedness.value) ->
-                            CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
-                                .mergeFallback(it)
-
-                        else -> it
-                    }
-                }
+                ?.mergeOverlay(
+                    CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
+                        // FIXME: currentValue means we lose state tracking
+                        .takeIf {
+                            appSettings.invertSwipeDelete.currentValue.forHandedness(
+                                handedness.value,
+                            )
+                        },
+                )
                 ?.let { it.setShift(it.autoShift(layoutState.value.locale)) }
         }
     }
