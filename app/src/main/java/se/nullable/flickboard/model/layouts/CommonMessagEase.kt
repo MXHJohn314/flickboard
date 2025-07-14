@@ -234,6 +234,7 @@ val CONTROL_MESSAGEASE_LAYER_DUAL_SIDED_OVERLAY =
                 KeyM(
                     actions = mapOf(
                         Direction.CENTER to Action.ToggleActiveLayer,
+                        Direction.LEFT to Action.ToggleNumbersLayer,
                     ),
                     holdAction = Action.ToggleNumbersLayer,
                 ),
