@@ -41,16 +41,22 @@ import se.nullable.flickboard.model.layouts.miniNumbersPhoneLayer
 
 enum class EnabledLayers(
     override val label: String,
+    val type: LayoutType,
     val hasNumbers: Boolean = false,
-    val isSingleSided: Boolean = false,
 ) : Labeled {
-    All("All", hasNumbers = true),
-    Letters("Letters only", hasNumbers = false, isSingleSided = true),
-    Numbers("Numbers only", hasNumbers = true, isSingleSided = true),
-    DoubleLetters("Double letters", hasNumbers = false),
-    AllMiniNumbers("All (mini numbers)", hasNumbers = true),
-    AllMiniNumbersMiddle("All (mini numbers in middle)", hasNumbers = true),
-    AllMiniNumbersOpposite("All (mini numbers on opposite side)", hasNumbers = true);
+    All("All", LayoutType.Dual, hasNumbers = true),
+    Letters("Letters only", LayoutType.Single, hasNumbers = false),
+    Numbers("Numbers only", LayoutType.Single, hasNumbers = true),
+    DoubleLetters("Double letters", LayoutType.Dual, hasNumbers = false),
+    AllMiniNumbers("All (mini numbers)", LayoutType.MiniNumbers, hasNumbers = true),
+    AllMiniNumbersMiddle(
+        "All (mini numbers in middle)", LayoutType.MiniNumbers,
+        hasNumbers = true,
+    ),
+    AllMiniNumbersOpposite(
+        "All (mini numbers on opposite side)", LayoutType.MiniNumbers,
+        hasNumbers = true,
+    );
 
     val toggleNumbers: EnabledLayers?
         get() = when (this) {
@@ -60,6 +66,12 @@ enum class EnabledLayers(
             All -> DoubleLetters
             else -> null
         }
+}
+
+enum class LayoutType {
+    Single,
+    Dual,
+    MiniNumbers,
 }
 
 sealed interface EnabledLayersLandscape : Labeled {

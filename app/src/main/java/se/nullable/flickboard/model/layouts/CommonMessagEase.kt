@@ -249,6 +249,27 @@ val CONTROL_MESSAGEASE_LAYER_DUAL_SIDED_OVERLAY =
         ),
     )
 
+// Mininumbers doesn't have a useful "toggle numbers" action
+val CONTROL_MESSAGEASE_LAYER_MINI_NUMBERS_OVERLAY =
+    Layer(
+        keyRows = listOf(
+            // pointer
+            listOf(
+                KeyM(
+                    actions = mapOf(
+                        Direction.CENTER to Action.ToggleActiveLayer,
+                    ),
+                ),
+            ),
+            // clipboard
+            listOf(KeyM(actions = emptyMap())),
+            // backspace
+            listOf(KeyM(actions = emptyMap())),
+            // enter
+            listOf(KeyM(actions = emptyMap())),
+        ),
+    )
+
 val CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY =
     Layer(
         keyRows = listOf(

@@ -51,6 +51,7 @@ import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.ShiftState
 import se.nullable.flickboard.model.TextDirection
 import se.nullable.flickboard.model.layouts.CONTROL_MESSAGEASE_LAYER_DUAL_SIDED_OVERLAY
+import se.nullable.flickboard.model.layouts.CONTROL_MESSAGEASE_LAYER_MINI_NUMBERS_OVERLAY
 import se.nullable.flickboard.model.layouts.CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
 import se.nullable.flickboard.model.layouts.EN_MESSAGEASE
 import se.nullable.flickboard.model.layouts.OVERLAY_ADVANCED_MODIFIERS_MESSAGEASE_LAYER
@@ -63,6 +64,7 @@ import se.nullable.flickboard.ui.settings.AppSettingsProvider
 import se.nullable.flickboard.ui.settings.ControlSectionOption
 import se.nullable.flickboard.ui.settings.EnabledLayers
 import se.nullable.flickboard.ui.settings.Handedness
+import se.nullable.flickboard.ui.settings.LayoutType
 import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.settings.MockedSharedPreferences
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
@@ -218,8 +220,11 @@ fun Keyboard(
                         },
                 )
                 ?.mergeOverlay(
-                    CONTROL_MESSAGEASE_LAYER_DUAL_SIDED_OVERLAY
-                        .takeIf { !enabledLayers.value.isSingleSided },
+                    when (enabledLayers.value.type) {
+                        LayoutType.Single -> null
+                        LayoutType.Dual -> CONTROL_MESSAGEASE_LAYER_DUAL_SIDED_OVERLAY
+                        LayoutType.MiniNumbers -> CONTROL_MESSAGEASE_LAYER_MINI_NUMBERS_OVERLAY
+                    },
                 )
                 ?.let { it.setShift(it.autoShift(layoutState.value.locale)) }
         }
