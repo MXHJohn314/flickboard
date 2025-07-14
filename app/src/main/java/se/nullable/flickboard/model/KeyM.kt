@@ -97,18 +97,21 @@ data class KeyM(
 ) {
     fun mergeFallback(fallback: KeyM, holdForFallback: Boolean): KeyM = copy(
         actions = fallback.actions + actions,
-        shift = when {
-            shift == null -> fallback.shift
-            fallback.shift == null -> shift
-            else -> shift.mergeFallback(fallback.shift, holdForFallback = holdForFallback)
-        },
+        fastActions = fallback.fastActions + fastActions,
         longActions = fallback.longActions + longActions,
         holdAction = this.holdAction ?: fallback.holdAction ?: when {
             holdForFallback -> fallback.actions[Direction.CENTER]
             else -> null
         },
-        transientShift = this.transientShift ?: fallback.transientShift,
         colspan = max(colspan, fallback.colspan),
+        fixedWidth = fixedWidth ?: fallback.fixedWidth,
+        rendered = rendered && fallback.rendered,
+        shift = when {
+            shift == null -> fallback.shift
+            fallback.shift == null -> shift
+            else -> shift.mergeFallback(fallback.shift, holdForFallback = holdForFallback)
+        },
+        transientShift = this.transientShift ?: fallback.transientShift,
     )
 
     fun autoShift(locale: Locale): KeyM = (shift ?: this).copy(
