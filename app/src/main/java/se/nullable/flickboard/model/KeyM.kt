@@ -541,9 +541,7 @@ sealed class Action {
 
         override val title: String = "Toggle Layers"
         override val description: String =
-            "Toggles between the letter and number modes. Numbers can also be typed by holding the matching letter.\n" +
-                    "When using a single-sided layout, it toggles between the letter and number layers.\n" +
-                    "When using a double-sided layout, it flips the sides."
+            "Swaps the letter and number sides. Numbers can also be typed by holding the matching letter."
 
         override fun shift(locale: Locale): Action = ToggleHandedness
     }
@@ -565,8 +563,6 @@ sealed class Action {
      * Toggles whether a numbers layer is "active"
      *
      * Intent: "I want easy access to the numbers layer"
-     *
-     * [ToggleActiveLayer] will also do this, if there is only one active layer.
      */
     data object ToggleNumbersLayer : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
@@ -578,7 +574,8 @@ sealed class Action {
             }
 
         override val title: String = "Toggle Numbers Layer"
-        override val description: String = "Toggles between showing and hiding the numbers layer."
+        override val description: String =
+            "Toggles between showing and hiding the numbers layer. Numbers can also be typed by holding the matching letter."
     }
 
     data class AdjustCellHeight(val amount: Float) : Action() {

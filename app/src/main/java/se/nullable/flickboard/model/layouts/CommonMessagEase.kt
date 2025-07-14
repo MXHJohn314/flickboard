@@ -147,7 +147,7 @@ val CONTROL_MESSAGEASE_LAYER =
             listOf(
                 KeyM(
                     actions = mapOf(
-                        Direction.CENTER to Action.ToggleActiveLayer,
+                        Direction.CENTER to Action.ToggleNumbersLayer,
                         Direction.TOP to Action.AdjustCellHeight(amount = 1F),
                         Direction.RIGHT to Action.Settings,
                         Direction.BOTTOM_LEFT to Action.SwitchLetterLayer(SearchDirection.Backwards),
@@ -160,7 +160,6 @@ val CONTROL_MESSAGEASE_LAYER =
                             Direction.BOTTOM_RIGHT to Action.SwitchSystemKeyboard,
                         ),
                     ),
-                    holdAction = Action.ToggleNumbersLayer,
                 ),
             ),
             // clipboard
@@ -224,6 +223,27 @@ val CONTROL_MESSAGEASE_LAYER =
                     ),
                 ),
             ),
+        ),
+    )
+
+val CONTROL_MESSAGEASE_LAYER_DUAL_SIDED_OVERLAY =
+    Layer(
+        keyRows = listOf(
+            // pointer
+            listOf(
+                KeyM(
+                    actions = mapOf(
+                        Direction.CENTER to Action.ToggleActiveLayer,
+                    ),
+                    holdAction = Action.ToggleNumbersLayer,
+                ),
+            ),
+            // clipboard
+            listOf(KeyM(actions = emptyMap())),
+            // backspace
+            listOf(KeyM(actions = emptyMap())),
+            // enter
+            listOf(KeyM(actions = emptyMap())),
         ),
     )
 

@@ -50,6 +50,7 @@ import se.nullable.flickboard.model.Layout
 import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.ShiftState
 import se.nullable.flickboard.model.TextDirection
+import se.nullable.flickboard.model.layouts.CONTROL_MESSAGEASE_LAYER_DUAL_SIDED_OVERLAY
 import se.nullable.flickboard.model.layouts.CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
 import se.nullable.flickboard.model.layouts.EN_MESSAGEASE
 import se.nullable.flickboard.model.layouts.OVERLAY_ADVANCED_MODIFIERS_MESSAGEASE_LAYER
@@ -215,6 +216,10 @@ fun Keyboard(
                         .takeIf {
                             invertSwipeDelete.value.forHandedness(handedness.value)
                         },
+                )
+                ?.mergeOverlay(
+                    CONTROL_MESSAGEASE_LAYER_DUAL_SIDED_OVERLAY
+                        .takeIf { !enabledLayers.value.isSingleSided },
                 )
                 ?.let { it.setShift(it.autoShift(layoutState.value.locale)) }
         }
