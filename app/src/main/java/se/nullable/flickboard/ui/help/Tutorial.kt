@@ -44,6 +44,7 @@ import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.Direction
 import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
+import se.nullable.flickboard.model.KeyboardState
 import se.nullable.flickboard.model.TextDirection
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.Key
@@ -327,7 +328,7 @@ fun TutorialKey(key: KeyM, onAction: OnAction?) {
     Key(
         key,
         onAction = onAction,
-        modifierState = null,
+        keyboardState = KeyboardState.ShowAll,
         modifier = Modifier
             .size(96.dp)
             .padding(8.dp)

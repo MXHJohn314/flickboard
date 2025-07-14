@@ -48,3 +48,19 @@ enum class ShiftState {
 }
 
 data class ModifierSettings(val stickyModifiers: State<Boolean>)
+
+data class KeyboardState(
+    val modifiers: ModifierState?,
+    val modifierSettings: ModifierSettings?,
+) {
+    companion object {
+        val Default = KeyboardState(
+            modifiers = ModifierState(),
+            modifierSettings = null,
+        )
+        val ShowAll = KeyboardState(
+            modifiers = null,
+            modifierSettings = null,
+        )
+    }
+}

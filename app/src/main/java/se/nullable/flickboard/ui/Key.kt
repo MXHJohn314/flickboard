@@ -70,7 +70,7 @@ import se.nullable.flickboard.model.Direction
 import se.nullable.flickboard.model.FastActionType
 import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
-import se.nullable.flickboard.model.ModifierState
+import se.nullable.flickboard.model.KeyboardState
 import se.nullable.flickboard.model.TextDirection
 import se.nullable.flickboard.ui.layout.KeyLabelGrid
 import se.nullable.flickboard.ui.settings.GestureRecognizer
@@ -94,7 +94,7 @@ import kotlin.time.Duration.Companion.milliseconds
 fun Key(
     key: KeyM,
     onAction: OnAction?,
-    modifierState: ModifierState?,
+    keyboardState: KeyboardState,
     modifier: Modifier = Modifier,
     enterVisualOverride: ActionVisual? = null,
     keyPointerTrailListener: State<KeyPointerTrailListener?> = remember { mutableStateOf(null) },
@@ -253,14 +253,14 @@ fun Key(
                     RenderActionVisual(
                         action,
                         enterVisualOverride = enterVisualOverride,
-                        modifiers = modifierState,
+                        keyboardState = keyboardState,
                         colour = keyboardTheme.keyIndicatorColour,
                         activeColour = keyboardTheme.activeKeyIndicatorColour,
                         tint = when {
                             action == highlightedAction -> ActionTint.Normal
                             // Dim all non-highlighted actions if one is active
                             highlightedAction != null -> ActionTint.Dim
-                            else -> action.tint(modifierState)
+                            else -> action.tint(keyboardState.modifiers)
                         },
                         layoutTextDirection = layoutTextDirection,
                         modifier = actionModifier,
@@ -300,7 +300,7 @@ fun KeyActionTakenIndicator(
             RenderActionVisual(
                 action = action.withHidden(false),
                 enterVisualOverride = enterVisualOverride,
-                modifiers = null,
+                keyboardState = KeyboardState.ShowAll,
                 modifier = Modifier.align(Alignment.Center),
                 colour = colour,
                 activeColour = colour,
@@ -315,12 +315,12 @@ fun KeyActionTakenIndicator(
 fun RenderActionVisual(
     action: Action,
     enterVisualOverride: ActionVisual?,
-    modifiers: ModifierState?,
+    keyboardState: KeyboardState,
     colour: Color,
     activeColour: Color,
     layoutTextDirection: TextDirection,
     modifier: Modifier = Modifier,
-    tint: ActionTint = action.tint(modifiers),
+    tint: ActionTint = action.tint(keyboardState.modifiers),
 ) {
     val actionVisualOverride = when (action) {
         is Action.Enter -> enterVisualOverride
@@ -334,10 +334,7 @@ fun RenderActionVisual(
         },
         label = "key colour",
     )
-    when (val actionVisual = actionVisualOverride ?: action.visual(
-        modifiers,
-        LocalAppSettings.current.modifierSettings,
-    )) {
+    when (val actionVisual = actionVisualOverride ?: action.visual(keyboardState)) {
         is ActionVisual.Label -> {
             BoxWithConstraints(modifier.padding(horizontal = 2.dp)) {
                 val density = LocalDensity.current
@@ -705,7 +702,7 @@ fun KeyPreview() {
                     },
                     layoutTextDirection = TextDirection.LeftToRight,
                     modifier = Modifier.aspectRatio(1F),
-                    modifierState = ModifierState(),
+                    keyboardState = KeyboardState.ShowAll,
                 )
             }
         }

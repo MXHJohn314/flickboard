@@ -11,6 +11,7 @@ import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.CaseChangeDirection
 import se.nullable.flickboard.model.Direction
 import se.nullable.flickboard.model.KeyM
+import se.nullable.flickboard.model.KeyboardState
 import se.nullable.flickboard.model.Layer
 import se.nullable.flickboard.model.Layout
 import se.nullable.flickboard.model.SearchDirection
@@ -215,7 +216,7 @@ val CONTROL_MESSAGEASE_LAYER =
                         // Always enters a new line, rather than triggering special actions
                         Direction.TOP to Action.Text(
                             "\n",
-                            visualOverride = Action.Enter().visual(null, null),
+                            visualOverride = Action.Enter().visual(KeyboardState.ShowAll),
                             hidden = true,
                         ),
                         Direction.TOP_RIGHT to Action.OpenEmojiKeyboard(),

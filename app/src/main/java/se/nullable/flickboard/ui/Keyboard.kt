@@ -46,6 +46,7 @@ import se.nullable.flickboard.model.ActionClass
 import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
+import se.nullable.flickboard.model.KeyboardState
 import se.nullable.flickboard.model.Layer
 import se.nullable.flickboard.model.Layout
 import se.nullable.flickboard.model.ModifierState
@@ -124,6 +125,10 @@ fun Keyboard(
     LaunchedEffect(modifierState) {
         onModifierStateUpdated(modifierState)
     }
+    val keyboardState = KeyboardState(
+        modifiers = modifierState.takeUnless { showAllModifiers },
+        modifierSettings = appSettings.modifierSettings,
+    )
     val layoutState = rememberUpdatedState(layout)
     val mergedFullSizedNumericLayer =
         remember {
@@ -419,7 +424,7 @@ fun Keyboard(
                                         wrappedOnAction.onAction(action, key, gesture)
                                     }
                                 },
-                                modifierState = modifierState.takeUnless { showAllModifiers },
+                                keyboardState = keyboardState,
                                 modifier = when {
                                     key.fixedWidth != null -> Modifier.fixedWidth(key.fixedWidth)
                                     else -> Modifier.colspan(key.colspan)

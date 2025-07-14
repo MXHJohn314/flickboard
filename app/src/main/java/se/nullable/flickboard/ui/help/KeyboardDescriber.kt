@@ -41,7 +41,7 @@ import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.model.Direction
 import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
-import se.nullable.flickboard.model.ModifierState
+import se.nullable.flickboard.model.KeyboardState
 import se.nullable.flickboard.model.SearchDirection
 import se.nullable.flickboard.model.ShiftState
 import se.nullable.flickboard.model.TextBoundary
@@ -169,7 +169,7 @@ fun ActionDescription(
                 RenderActionVisual(
                     action.withHidden(false),
                     enterVisualOverride = null,
-                    modifiers = null,
+                    keyboardState = KeyboardState.ShowAll,
                     modifier = Modifier
                         .height(48.dp)
                         .padding(8.dp),
@@ -280,7 +280,7 @@ fun ActionDescription(
                         if (
                             direction != Direction.CENTER &&
                             // Only show otherwise hidden icons
-                            swipeAction.visual(ModifierState(), null) == ActionVisual.None
+                            swipeAction.visual(KeyboardState.Default) == ActionVisual.None
                         ) {
                             relatedActions.add(
                                 RelatedAction(
