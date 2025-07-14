@@ -1,7 +1,6 @@
 package se.nullable.flickboard.ui
 
 import android.content.res.Configuration
-import android.graphics.ImageDecoder
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -26,7 +25,6 @@ import androidx.compose.ui.BiasAbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.ColorPainter
@@ -67,6 +65,7 @@ import se.nullable.flickboard.ui.settings.Handedness
 import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.settings.MockedSharedPreferences
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
+import se.nullable.flickboard.ui.util.loadImageBitmap
 import java.io.IOException
 
 // Returns false if action could not be processed
@@ -342,11 +341,7 @@ fun Keyboard(
             derivedStateOf {
                 try {
                     backgroundImage.value?.let {
-                        BitmapPainter(
-                            ImageDecoder.decodeBitmap(
-                                ImageDecoder.createSource(context.contentResolver, it),
-                            ).asImageBitmap(),
-                        )
+                        BitmapPainter(loadImageBitmap(context.contentResolver, it))
                     }
                 } catch (e: IOException) {
                     Log.w("Keyboard", "Failed to load background image", e)
