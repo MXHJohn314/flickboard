@@ -105,6 +105,7 @@ fun Keyboard(
     val numericLayer = appSettings.numericLayer.state
     val secondaryLetterLayer = appSettings.secondaryLetterLayer.state
     val handedness = appSettings.handedness.state
+    val invertSwipeDelete = appSettings.invertSwipeDelete.state
     val backgroundOpacity = appSettings.backgroundOpacity.state
     val enablePointerTrail = appSettings.enablePointerTrail.state
     val shownActionClasses = when {
@@ -211,11 +212,8 @@ fun Keyboard(
             layoutState.value.controlLayer
                 ?.mergeOverlay(
                     CONTROL_MESSAGEASE_LAYER_REVERSE_BACKWARDS_OVERLAY
-                        // FIXME: currentValue means we lose state tracking
                         .takeIf {
-                            appSettings.invertSwipeDelete.currentValue.forHandedness(
-                                handedness.value,
-                            )
+                            invertSwipeDelete.value.forHandedness(handedness.value)
                         },
                 )
                 ?.let { it.setShift(it.autoShift(layoutState.value.locale)) }
