@@ -2,6 +2,7 @@ package se.nullable.flickboard.model
 
 import android.view.KeyEvent
 import androidx.compose.runtime.State
+import se.nullable.flickboard.ui.settings.EnabledLayers
 import se.nullable.flickboard.util.times
 
 data class ModifierState(
@@ -53,17 +54,20 @@ data class KeyboardState(
     val modifiers: ModifierState?,
     val modifierSettings: ModifierSettings?,
     val hasEnterOverride: Boolean,
+    val enabledLayers: EnabledLayers,
 ) {
     companion object {
         val Default = KeyboardState(
             modifiers = ModifierState(),
             modifierSettings = null,
             hasEnterOverride = false,
+            enabledLayers = EnabledLayers.Letters,
         )
         val ShowAll = KeyboardState(
             modifiers = null,
             modifierSettings = null,
             hasEnterOverride = false,
+            enabledLayers = EnabledLayers.Letters,
         )
     }
 }

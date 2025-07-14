@@ -564,7 +564,12 @@ sealed class Action {
      */
     data object ToggleNumbersLayer : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
-            ActionVisual.Icon(R.drawable.baseline_flip_camera_android_24)
+            when {
+                keyboardState.enabledLayers.toggleNumbers?.hasNumbers == false ->
+                    ActionVisual.Icon(R.drawable.baseline_abc_24)
+
+                else -> ActionVisual.Icon(R.drawable.baseline_123_24)
+            }
 
         override val title: String = "Toggle Numbers Layer"
         override val description: String = "Toggles between showing and hiding the numbers layer."

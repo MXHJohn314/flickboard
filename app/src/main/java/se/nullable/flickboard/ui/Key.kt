@@ -134,6 +134,7 @@ fun Key(
     val ignoreJumpsLongerThanPx = settings.ignoreJumpsLongerThanPx.state
     val flicksMustBeLongerThanSeconds = settings.flicksMustBeLongerThanSeconds.state
     val keyboardTheme = LocalKeyboardTheme.current
+    val currentKeyboardState = rememberUpdatedState(keyboardState)
     var lastActionTaken: TakenAction? by remember { mutableStateOf(null, neverEqualPolicy()) }
     var lastActionIsVisible by remember { mutableStateOf(false) }
     val lastActionAlpha = animateFloatAsState(1F * lastActionIsVisible, label = "lastActionAlpha") {
@@ -164,7 +165,7 @@ fun Key(
             }
             if (enableVisualFeedback.value) {
                 if (!action.isHiddenAction) {
-                    lastActionTaken = TakenAction(action)
+                    lastActionTaken = TakenAction(action, currentKeyboardState.value)
                 }
             }
             return onAction.onAction(action, key, gesture)
@@ -272,6 +273,7 @@ fun Key(
             KeyActionTakenIndicator(
                 action = it.action,
                 enterVisualOverride = enterVisualOverride,
+                keyboardState = it.keyboardState,
                 shape = shape,
                 colour = keyboardTheme.lastActionColour,
                 surfaceColour = keyboardTheme.lastActionSurfaceColour,
@@ -283,12 +285,13 @@ fun Key(
 }
 
 // NOT a data class, so that we get a new identity every time
-class TakenAction(val action: Action)
+class TakenAction(val action: Action, val keyboardState: KeyboardState)
 
 @Composable
 fun KeyActionTakenIndicator(
     action: Action,
     enterVisualOverride: ActionVisual?,
+    keyboardState: KeyboardState,
     shape: Shape,
     colour: Color,
     surfaceColour: Color,
@@ -300,7 +303,7 @@ fun KeyActionTakenIndicator(
             RenderActionVisual(
                 action = action.withHidden(false),
                 enterVisualOverride = enterVisualOverride,
-                keyboardState = KeyboardState.ShowAll,
+                keyboardState = keyboardState,
                 modifier = Modifier.align(Alignment.Center),
                 colour = colour,
                 activeColour = colour,
@@ -718,6 +721,7 @@ fun KeyActionTakenPreview() {
                 KeyActionTakenIndicator(
                     action = Action.Text("A"),
                     enterVisualOverride = null,
+                    keyboardState = KeyboardState.ShowAll,
                     colour = MaterialTheme.colorScheme.onTertiary,
                     surfaceColour = MaterialTheme.colorScheme.tertiary,
                     shape = RectangleShape,
@@ -729,6 +733,7 @@ fun KeyActionTakenPreview() {
                 KeyActionTakenIndicator(
                     action = Action.Text("{"),
                     enterVisualOverride = null,
+                    keyboardState = KeyboardState.ShowAll,
                     colour = MaterialTheme.colorScheme.onTertiary,
                     surfaceColour = MaterialTheme.colorScheme.tertiary,
                     shape = RectangleShape,

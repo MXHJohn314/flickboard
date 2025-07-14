@@ -41,15 +41,16 @@ import se.nullable.flickboard.model.layouts.miniNumbersPhoneLayer
 
 enum class EnabledLayers(
     override val label: String,
+    val hasNumbers: Boolean = false,
     val isSingleSided: Boolean = false,
 ) : Labeled {
-    All("All"),
-    Letters("Letters only", isSingleSided = true),
-    Numbers("Numbers only", isSingleSided = true),
-    DoubleLetters("Double letters"),
-    AllMiniNumbers("All (mini numbers)"),
-    AllMiniNumbersMiddle("All (mini numbers in middle)"),
-    AllMiniNumbersOpposite("All (mini numbers on opposite side)");
+    All("All", hasNumbers = true),
+    Letters("Letters only", hasNumbers = false, isSingleSided = true),
+    Numbers("Numbers only", hasNumbers = true, isSingleSided = true),
+    DoubleLetters("Double letters", hasNumbers = false),
+    AllMiniNumbers("All (mini numbers)", hasNumbers = true),
+    AllMiniNumbersMiddle("All (mini numbers in middle)", hasNumbers = true),
+    AllMiniNumbersOpposite("All (mini numbers on opposite side)", hasNumbers = true);
 
     val toggleNumbers: EnabledLayers?
         get() = when (this) {
