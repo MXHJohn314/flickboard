@@ -11,6 +11,7 @@ import se.nullable.flickboard.util.HardLineBreakIterator
 import se.nullable.flickboard.util.flipIfBracket
 import java.text.BreakIterator
 import java.util.Locale
+import kotlin.math.max
 
 data class Layout(
     val mainLayer: Layer,
@@ -107,6 +108,7 @@ data class KeyM(
             else -> null
         },
         transientShift = this.transientShift ?: fallback.transientShift,
+        colspan = max(colspan, fallback.colspan),
     )
 
     fun autoShift(locale: Locale): KeyM = (shift ?: this).copy(
