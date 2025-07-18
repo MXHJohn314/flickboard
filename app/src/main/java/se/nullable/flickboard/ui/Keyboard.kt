@@ -32,6 +32,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import kotlinx.coroutines.delay
+import se.nullable.flickboard.R
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.ActionClass
 import se.nullable.flickboard.model.ActionVisual
@@ -68,6 +70,7 @@ import se.nullable.flickboard.ui.settings.LayoutType
 import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.settings.MockedSharedPreferences
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
+import se.nullable.flickboard.ui.util.FailsafePainter
 import se.nullable.flickboard.ui.util.loadImageBitmap
 import java.io.IOException
 
@@ -348,11 +351,16 @@ fun Keyboard(
         }
 
         val backgroundColor = LocalKeyboardTheme.current.surfaceColour
+        val brokenImage = painterResource(R.drawable.outline_broken_image_24)
         val backgroundImagePainter = remember {
             derivedStateOf {
                 try {
                     backgroundImage.value?.let {
-                        BitmapPainter(loadImageBitmap(context.contentResolver, it))
+                        FailsafePainter(
+                            "background image",
+                            BitmapPainter(loadImageBitmap(context.contentResolver, it)),
+                            fallbackPainter = brokenImage,
+                        )
                     }
                 } catch (e: IOException) {
                     Log.w("Keyboard", "Failed to load background image", e)
