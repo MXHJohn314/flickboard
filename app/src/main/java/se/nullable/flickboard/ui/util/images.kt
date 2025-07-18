@@ -5,67 +5,56 @@ import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
-import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import se.nullable.flickboard.R
+import kotlin.math.roundToInt
 
 /**
  * If rendering the image, you probably want to wrap it in a [FailsafePainter].
  */
-fun loadImageBitmap(contentResolver: ContentResolver, uri: Uri): ImageBitmap = when {
-    Build.VERSION.SDK_INT >= 28 -> ImageDecoder.decodeBitmap(
-        ImageDecoder.createSource(contentResolver, uri),
-    )
+fun loadImageBitmap(contentResolver: ContentResolver, uri: Uri, targetSize: Size): ImageBitmap =
+    when {
+        Build.VERSION.SDK_INT >= 28 -> ImageDecoder.decodeBitmap(
+            ImageDecoder.createSource(contentResolver, uri),
+            { dec, _, _ ->
+                dec.setTargetSize(
+                    targetSize.height.roundToInt(),
+                    targetSize.width.roundToInt(),
+                )
+            },
+        )
 
-    else -> contentResolver.openInputStream(uri)
-        .use { BitmapFactory.decodeStream(it) }
-}.asImageBitmap()
+        else -> contentResolver.openInputStream(uri)
+            .use { BitmapFactory.decodeStream(it) }
+    }.asImageBitmap()
 
 /**
- * A [Painter] wrapper that tries to render [inner], but falls back to [fallbackPainter] if it fails.
+ * Loads a Painter for an image provided by the user.
  *
- * This is a fail-safe to avoid crashing when rendering user-supplied images.
- * It'll be ugly, but at least it gives the user a chance to replace the image...
+ * Automatically handles scaling it to the target canvas size,
+ * and handling errors loading or rendering the image.
  */
-class FailsafePainter(
-    private val what: String,
-    private val inner: Painter,
-    private val fallbackPainter: Painter? = null,
-) : Painter() {
-    override val intrinsicSize: Size
-        get() = inner.intrinsicSize
-
-    private var alpha: Float = DefaultAlpha
-    override fun applyAlpha(alpha: Float): Boolean = true.also {
-        this.alpha = alpha
-    }
-
-    private var colorFilter: ColorFilter? = null
-    override fun applyColorFilter(colorFilter: ColorFilter?): Boolean = true.also {
-        this.colorFilter = colorFilter
-    }
-
-    override fun DrawScope.onDraw() {
-        try {
-            with(inner) {
-                draw(size, alpha = alpha, colorFilter = colorFilter)
-            }
-        } catch (e: Exception) {
-            Log.e(LOG_TAG, "Failed to render $what, ignoring...", e)
-            if (fallbackPainter != null) {
-                with(fallbackPainter) {
-                    draw(size, alpha = alpha, colorFilter = colorFilter)
-                }
-            }
-        }
-    }
-
-    companion object {
-        const val LOG_TAG = "FailsafePainter"
+@Composable
+fun userImagePainter(uri: Uri): Painter = run {
+    val contentResolver = LocalContext.current.contentResolver
+    val brokenImage = painterResource(R.drawable.outline_broken_image_24)
+    remember(uri, contentResolver, brokenImage) {
+        FailsafePainter(
+            "background image",
+            SizeDependentPainter { size ->
+                // No specific error handling required; makeInner is covered by FailsafePainter's
+                // error handling logic.
+                BitmapPainter(loadImageBitmap(contentResolver, uri, size))
+            },
+            fallbackPainter = brokenImage,
+        )
     }
 }

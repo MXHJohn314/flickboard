@@ -1,7 +1,6 @@
 package se.nullable.flickboard.ui
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -26,13 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,7 +36,6 @@ import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import kotlinx.coroutines.delay
-import se.nullable.flickboard.R
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.ActionClass
 import se.nullable.flickboard.model.ActionVisual
@@ -70,9 +65,7 @@ import se.nullable.flickboard.ui.settings.LayoutType
 import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.settings.MockedSharedPreferences
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
-import se.nullable.flickboard.ui.util.FailsafePainter
-import se.nullable.flickboard.ui.util.loadImageBitmap
-import java.io.IOException
+import se.nullable.flickboard.ui.util.userImagePainter
 
 // Returns false if action could not be processed
 //typealias OnAction = (Action, KeyM?, Gesture?) -> Boolean
@@ -94,7 +87,6 @@ fun Keyboard(
     allowHideSettings: Boolean = true,
     highlightedAction: Action? = null,
 ) {
-    val context = LocalContext.current
     val appSettings = LocalAppSettings.current
     val enabledLayersForCurrentOrientation = appSettings.enabledLayersForCurrentOrientation
     val overrideEnabledLayersState = rememberUpdatedState(overrideEnabledLayers)
@@ -351,24 +343,8 @@ fun Keyboard(
         }
 
         val backgroundColor = LocalKeyboardTheme.current.surfaceColour
-        val brokenImage = painterResource(R.drawable.outline_broken_image_24)
-        val backgroundImagePainter = remember {
-            derivedStateOf {
-                try {
-                    backgroundImage.value?.let {
-                        FailsafePainter(
-                            "background image",
-                            BitmapPainter(loadImageBitmap(context.contentResolver, it)),
-                            fallbackPainter = brokenImage,
-                        )
-                    }
-                } catch (e: IOException) {
-                    Log.w("Keyboard", "Failed to load background image", e)
-                    null
-                }
-            }
-        }
-        val backgroundPainter = backgroundImagePainter.value ?: ColorPainter(backgroundColor)
+        val backgroundImagePainter = backgroundImage.value?.let { userImagePainter(it) }
+        val backgroundPainter = backgroundImagePainter ?: ColorPainter(backgroundColor)
         Image(
             backgroundPainter,
             null,
