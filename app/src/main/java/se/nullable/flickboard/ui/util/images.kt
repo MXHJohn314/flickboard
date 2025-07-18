@@ -1,6 +1,7 @@
 package se.nullable.flickboard.ui.util
 
 import android.content.ContentResolver
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -20,37 +21,44 @@ import kotlin.math.roundToInt
 
 /**
  * If rendering the image, you probably want to wrap it in a [FailsafePainter].
+ *
+ * [targetSizeHint] is a _hint_ for how the image should be scaled, there is no guarantee that it will
+ * actually fit that size without further scaling.
  */
-fun loadImageBitmap(contentResolver: ContentResolver, uri: Uri, targetSize: Size): ImageBitmap =
+fun loadImageBitmap(contentResolver: ContentResolver, uri: Uri, targetSizeHint: Size): ImageBitmap =
     when {
         Build.VERSION.SDK_INT >= 28 -> ImageDecoder.decodeBitmap(
             ImageDecoder.createSource(contentResolver, uri),
             { dec, _, _ ->
                 dec.setTargetSize(
-                    targetSize.height.roundToInt(),
-                    targetSize.width.roundToInt(),
+                    targetSizeHint.height.roundToInt(),
+                    targetSizeHint.width.roundToInt(),
                 )
             },
         )
 
-        // TODO: handle resources?
-        else -> contentResolver.openFileDescriptor(uri, "r")!!
-            .use { file ->
-                val opts = BitmapFactory.Options().also {
-                    // BitmapFactory doesn't support configuring the target size directly,
-                    // so instead we have to inspect the bounds ourselves, and adjust
-                    // the scaling factor.
-                    it.inJustDecodeBounds = true
-                    BitmapFactory.decodeFileDescriptor(file.fileDescriptor, null, it)
-                    it.inJustDecodeBounds = false
-                    it.inSampleSize =
-                        min(
-                            it.outWidth / targetSize.width,
-                            it.outHeight / targetSize.height,
-                        ).toInt().coerceAtLeast(1)
-                }
-                BitmapFactory.decodeFileDescriptor(file.fileDescriptor, null, opts)!!
-            }
+        else -> {
+            val opts = BitmapFactory.Options()
+            fun decode(): Bitmap? =
+                contentResolver.openInputStream(uri)!!
+                    .use { BitmapFactory.decodeStream(it, null, opts) }
+
+            // BitmapFactory doesn't support configuring the target size directly,
+            // so instead we have to inspect the bounds ourselves, and adjust
+            // the scaling factor.
+            opts.inJustDecodeBounds = true
+            decode()
+            opts.inJustDecodeBounds = false
+            // Sample-size only gives us an integer-power-of-2 approximation,
+            // the user (like BitmapPainter) is still responsible for scaling to the exact size.
+            opts.inSampleSize =
+                min(
+                    opts.outWidth / targetSizeHint.width,
+                    opts.outHeight / targetSizeHint.height,
+                ).toInt().coerceAtLeast(1)
+
+            decode()!!
+        }
     }.asImageBitmap()
 
 /**
