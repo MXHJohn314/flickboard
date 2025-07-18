@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import se.nullable.flickboard.R
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
@@ -32,8 +33,24 @@ fun loadImageBitmap(contentResolver: ContentResolver, uri: Uri, targetSize: Size
             },
         )
 
-        else -> contentResolver.openInputStream(uri)
-            .use { BitmapFactory.decodeStream(it) }
+        // TODO: handle resources?
+        else -> contentResolver.openFileDescriptor(uri, "r")!!
+            .use { file ->
+                val opts = BitmapFactory.Options().also {
+                    // BitmapFactory doesn't support configuring the target size directly,
+                    // so instead we have to inspect the bounds ourselves, and adjust
+                    // the scaling factor.
+                    it.inJustDecodeBounds = true
+                    BitmapFactory.decodeFileDescriptor(file.fileDescriptor, null, it)
+                    it.inJustDecodeBounds = false
+                    it.inSampleSize =
+                        min(
+                            it.outWidth / targetSize.width,
+                            it.outHeight / targetSize.height,
+                        ).toInt().coerceAtLeast(1)
+                }
+                BitmapFactory.decodeFileDescriptor(file.fileDescriptor, null, opts)!!
+            }
     }.asImageBitmap()
 
 /**
