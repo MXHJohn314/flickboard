@@ -21,18 +21,37 @@ import kotlin.math.roundToInt
 /**
  * If rendering the image, you probably want to wrap it in a [FailsafePainter].
  *
- * [targetSizeHint] is a _hint_ for how the image should be scaled, there is no guarantee that it will
+ * [targetSize] is a _hint_ for how the image should be scaled, there is no guarantee that it will
  * actually fit that size without further scaling.
  */
-fun loadBitmap(contentResolver: ContentResolver, uri: Uri, targetSizeHint: Size): Bitmap =
+fun loadBitmap(
+    contentResolver: ContentResolver,
+    uri: Uri,
+    targetSize: Size,
+    scalingMode: ScalingMode,
+): Bitmap = run {
+    // Sample-size only gives us an integer-power-of-2 approximation,
+    // the user (like BitmapPainter) is still responsible for scaling to the exact size.
+    fun targetSampleSize(sourceWidth: Int, sourceHeight: Int): Int =
+        min(
+            sourceWidth / targetSize.width,
+            sourceHeight / targetSize.height,
+        ).toInt().coerceAtLeast(1)
+
     when {
         Build.VERSION.SDK_INT >= 28 -> ImageDecoder.decodeBitmap(
             ImageDecoder.createSource(contentResolver, uri),
-            { dec, _, _ ->
-                dec.setTargetSize(
-                    targetSizeHint.height.roundToInt(),
-                    targetSizeHint.width.roundToInt(),
-                )
+            { dec, info, _ ->
+                when (scalingMode) {
+                    ScalingMode.TryPrecise ->
+                        dec.setTargetSize(
+                            targetSize.height.roundToInt(),
+                            targetSize.width.roundToInt(),
+                        )
+
+                    ScalingMode.Conservative ->
+                        dec.setTargetSampleSize(targetSampleSize(info.size.width, info.size.height))
+                }
             },
         )
 
@@ -48,17 +67,28 @@ fun loadBitmap(contentResolver: ContentResolver, uri: Uri, targetSizeHint: Size)
             opts.inJustDecodeBounds = true
             decode()
             opts.inJustDecodeBounds = false
-            // Sample-size only gives us an integer-power-of-2 approximation,
-            // the user (like BitmapPainter) is still responsible for scaling to the exact size.
-            opts.inSampleSize =
-                min(
-                    opts.outWidth / targetSizeHint.width,
-                    opts.outHeight / targetSizeHint.height,
-                ).toInt().coerceAtLeast(1)
+            when (scalingMode) {
+                ScalingMode.Conservative,
+                    // TryPrecise isn't available before API28, so fall back to Approximate
+                ScalingMode.TryPrecise ->
+                    opts.inSampleSize = targetSampleSize(opts.outWidth, opts.outHeight)
+            }
 
             decode()!!
         }
     }
+}
+
+enum class ScalingMode {
+    /**
+     * Try to preserve characteristics of the original image, such as the aspect ratio.
+     * Will only loosely approximate the requested target size.
+     */
+    Conservative,
+
+    /** Try to scale to the precise requested size. May still fall back to [Conservative]. */
+    TryPrecise,
+}
 
 /**
  * Loads a Painter for an image provided by the user.
@@ -76,7 +106,13 @@ fun userImagePainter(uri: Uri): Painter = run {
             SizeDependentPainter { size ->
                 // No specific error handling required; makeInner is covered by FailsafePainter's
                 // error handling logic.
-                BitmapPainter(loadBitmap(contentResolver, uri, size).asImageBitmap())
+                BitmapPainter(
+                    loadBitmap(
+                        contentResolver, uri,
+                        targetSize = size,
+                        scalingMode = ScalingMode.TryPrecise,
+                    ).asImageBitmap(),
+                )
             },
             fallbackPainter = brokenImage,
         )

@@ -66,6 +66,7 @@ import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.DisplayLimits
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.LocalDisplayLimits
+import se.nullable.flickboard.ui.util.ScalingMode
 import se.nullable.flickboard.ui.util.loadBitmap
 import java.io.FileOutputStream
 import kotlin.random.Random
@@ -229,8 +230,9 @@ fun ImageSetting(setting: Setting.Image) {
                                 uri,
                                 // Scale to a square, since we don't know the final orientation that
                                 // the keyboard will be rendered in.
-                                targetSizeHint = displayLimits.largestDimensionPixels.toFloat()
+                                targetSize = displayLimits.largestDimensionPixels.toFloat()
                                     .let { px -> Size(px, px) },
+                                scalingMode = ScalingMode.Conservative,
                             )
                             FileOutputStream(cachedFile).use { output ->
                                 image.compress(Bitmap.CompressFormat.JPEG, 80, output)
