@@ -56,6 +56,7 @@ val LocalDollar1GestureLibrary = staticCompositionLocalOf<Lazy<Boxed<GestureLibr
 fun FlickBoardParent(
     prefs: SharedPreferences? = null,
     appDatabase: Lazy<AppDatabase>? = null,
+    displayLimits: DisplayLimits = DisplayLimits.calculateCurrent(),
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -114,6 +115,7 @@ fun FlickBoardParent(
         LocalZalgoDatabase provides zalgoDatabase,
         LocalAppDatabase provides providedAppDatabase,
         LocalDollar1GestureLibrary provides dollar1GestureLibrary,
+        LocalDisplayLimits provides displayLimits,
     ) {
         AppSettingsProvider(prefs) {
             FlickBoardTheme(content = content)

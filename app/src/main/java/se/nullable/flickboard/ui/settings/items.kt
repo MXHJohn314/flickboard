@@ -1,7 +1,9 @@
 package se.nullable.flickboard.ui.settings
 
 import android.content.SharedPreferences
+import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -49,6 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -62,9 +65,12 @@ import se.nullable.flickboard.ui.ColourPicker
 import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.DisplayLimits
 import se.nullable.flickboard.ui.FlickBoardParent
-import se.nullable.flickboard.ui.ProvideDisplayLimits
+import se.nullable.flickboard.ui.LocalDisplayLimits
+import se.nullable.flickboard.ui.util.loadBitmap
 import java.io.FileOutputStream
 import kotlin.random.Random
+
+private const val LOG_TAG = "settings.items"
 
 @Composable
 fun BoolSetting(setting: Setting.Bool) {
@@ -199,17 +205,52 @@ fun <T : Labeled> EnumSetting(setting: Setting.Enum<T>) {
 @Composable
 fun ImageSetting(setting: Setting.Image) {
     val context = LocalContext.current
+    val displayLimits = LocalDisplayLimits.current
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
         var uri = it
         if (uri != null) {
-            val cachedFile = context.filesDir.resolve("background-image")
+            val cachedFile = context.filesDir.resolve(setting.cacheFileName)
             // Copy image to ensure that that it'll stay present,
             // and that we will keep permission to access it.
             // takePersistableUriPermission is not always granted
             // by all implementations.
-            context.contentResolver.openInputStream(uri).use { input ->
-                FileOutputStream(cachedFile).use { output ->
-                    input?.copyTo(output)
+            // This also lets us pre-scale the image to something that makes sense for the device.
+            val successfullyCompressed = when {
+                else -> when (setting.scalingTarget) {
+                    ImageScalingTarget.Original -> false
+
+                    ImageScalingTarget.DeviceDisplay -> when {
+                        displayLimits == null ->
+                            throw RuntimeException("Can't scale file to display without knowing its bounds")
+
+                        else -> {
+                            val image = loadBitmap(
+                                context.contentResolver,
+                                uri,
+                                // Scale to a square, since we don't know the final orientation that
+                                // the keyboard will be rendered in.
+                                targetSizeHint = displayLimits.largestDimensionPixels.toFloat()
+                                    .let { px -> Size(px, px) },
+                            )
+                            FileOutputStream(cachedFile).use { output ->
+                                image.compress(Bitmap.CompressFormat.JPEG, 80, output)
+                            }.also { success ->
+                                if (!success) {
+                                    Log.e(
+                                        LOG_TAG,
+                                        "Failed to compress selected image, saving original image instead",
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (!successfullyCompressed) {
+                context.contentResolver.openInputStream(uri).use { input ->
+                    FileOutputStream(cachedFile).use { output ->
+                        input?.copyTo(output)
+                    }
                 }
             }
             uri = Uri.fromFile(cachedFile).buildUpon()
@@ -380,19 +421,19 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
                                     MockedSharedPreferences(appSettings.ctx.prefs)
                                         .also { it.edit { writePreviewSettings(it, this, option) } }
                                 }
-                                FlickBoardParent(prefs) {
-                                    ProvideDisplayLimits(
+                                FlickBoardParent(
+                                    prefs = prefs,
+                                    displayLimits =
                                         DisplayLimits.calculateCurrent().let {
                                             it.copy(isLandscape = previewForceLandscape || it.isLandscape)
                                         },
-                                    ) {
-                                        when {
-                                            previewOverride != null -> previewOverride(option)
-                                            else -> ConfiguredKeyboard(
-                                                onAction = null,
-                                                modifier = Modifier.fillMaxWidth(),
-                                            )
-                                        }
+                                ) {
+                                    when {
+                                        previewOverride != null -> previewOverride(option)
+                                        else -> ConfiguredKeyboard(
+                                            onAction = null,
+                                            modifier = Modifier.fillMaxWidth(),
+                                        )
                                     }
                                 }
                             }

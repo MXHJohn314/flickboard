@@ -298,6 +298,8 @@ sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>
         override val key: String,
         override val label: String,
         ctx: SettingsContext,
+        val cacheFileName: String,
+        val scalingTarget: ImageScalingTarget,
         override val description: String? = null,
     ) : Setting<Uri?>(ctx) {
         override fun readFrom(prefs: SharedPreferences): Uri? =
@@ -339,4 +341,12 @@ sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>
 
 interface Labeled {
     val label: String
+}
+
+enum class ImageScalingTarget {
+    /** Do not pre-scale the image. */
+    Original,
+
+    /** Pre-scale the image to fit the phone's display. */
+    DeviceDisplay,
 }

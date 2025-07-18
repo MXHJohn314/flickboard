@@ -64,7 +64,6 @@ import kotlinx.coroutines.launch
 import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.FlickBoardParent
-import se.nullable.flickboard.ui.ProvideDisplayLimits
 import se.nullable.flickboard.ui.appDatabaseForContext
 import se.nullable.flickboard.ui.clipboard.ClipboardHistoryViewer
 import se.nullable.flickboard.ui.emoji.EmojiKeyboard
@@ -206,234 +205,232 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                             },
                     ) {
                         FlickBoardParent(appDatabase = appDatabase) {
-                            ProvideDisplayLimits {
-                                val snackbarHostState = remember { SnackbarHostState() }
-                                val keyboardTheme = LocalKeyboardTheme.current
+                            val snackbarHostState = remember { SnackbarHostState() }
+                            val keyboardTheme = LocalKeyboardTheme.current
 
-                                SideEffect {
-                                    window.window?.let { window ->
-                                        val insets = WindowCompat.getInsetsController(
-                                            window,
-                                            window.decorView,
-                                        )
-                                        // This is deprecated in API35 because it's the app's
-                                        // responsibility to handle there, but we also need to
-                                        // handle older versions.
-                                        @Suppress("DEPRECATION")
-                                        window.navigationBarColor =
-                                            keyboardTheme.surfaceColour.toArgb()
-                                        insets.isAppearanceLightNavigationBars =
-                                            !keyboardTheme.isDark
-                                    }
+                            SideEffect {
+                                window.window?.let { window ->
+                                    val insets = WindowCompat.getInsetsController(
+                                        window,
+                                        window.decorView,
+                                    )
+                                    // This is deprecated in API35 because it's the app's
+                                    // responsibility to handle there, but we also need to
+                                    // handle older versions.
+                                    @Suppress("DEPRECATION")
+                                    window.navigationBarColor =
+                                        keyboardTheme.surfaceColour.toArgb()
+                                    insets.isAppearanceLightNavigationBars =
+                                        !keyboardTheme.isDark
                                 }
+                            }
 
-                                BottomUpColumn {
-                                    // Input methods aren't allowed to request input themselves, so
-                                    // instead we capture all nested input requests, and stack them.
-                                    InterceptPlatformTextInput(
-                                        { request, /*nextHandler*/ _ ->
-                                            val editorInfo = EditorInfo()
-                                            val newInputConnection =
-                                                request.createInputConnection(editorInfo)
-                                            val newInputSession =
-                                                InputSession(newInputConnection, editorInfo)
-                                            currentInputSessions.add(newInputSession)
-                                            try {
-                                                // Not calling into the nextHandler, since we
-                                                // effectively take over keyboard rendering
-                                                awaitCancellation()
-                                            } finally {
-                                                newInputConnection.closeConnection()
-                                                currentInputSessions.remove(newInputSession)
-                                            }
-                                        },
-                                    ) {
-                                        LaunchedEffect(currentInputSessions.size) {
-                                            window.window?.setFlags(
-                                                when {
-                                                    // When there are nested inputs:
-                                                    // - We need to clear FLAG_NOT_FOCUSABLE so we can grab raw (keypress) input
-                                                    //     (this is required for hardware keyboard input, but also raw keycodes sent by
-                                                    //     IME itself, as well as some editor actions like copy/pasting).
-                                                    // - We need to set FLAG_ALT_FOCUSABLE_IM or we get stuck in an infinite
-                                                    //     loop of Android setting our IME as the current IME target, and immediately
-                                                    //     closing the old IME because it no longer has focus.
-                                                    currentInputSessions.size > 1 ->
-                                                        WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
-
-                                                    // When there are no nested inputs:
-                                                    // - We need to set FLAG_NOT_FOCUSABLE so the backing app regains focus.
-                                                    // - We need to clear FLAG_ALT_FOCUSABLE_IM since we don't want to invert
-                                                    //     the behaviour of FLAG_NOT_FOCUSABLE.
-                                                    else -> WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                                                },
-                                                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
-                                                        or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                                            )
+                            BottomUpColumn {
+                                // Input methods aren't allowed to request input themselves, so
+                                // instead we capture all nested input requests, and stack them.
+                                InterceptPlatformTextInput(
+                                    { request, /*nextHandler*/ _ ->
+                                        val editorInfo = EditorInfo()
+                                        val newInputConnection =
+                                            request.createInputConnection(editorInfo)
+                                        val newInputSession =
+                                            InputSession(newInputConnection, editorInfo)
+                                        currentInputSessions.add(newInputSession)
+                                        try {
+                                            // Not calling into the nextHandler, since we
+                                            // effectively take over keyboard rendering
+                                            awaitCancellation()
+                                        } finally {
+                                            newInputConnection.closeConnection()
+                                            currentInputSessions.remove(newInputSession)
                                         }
-                                        currentInputSessions.forEachIndexed { inputSessionIdx, inputSession ->
-                                            // A lot of state (including forwarded closures) depends on
-                                            // the inputSession - safer to just throw it all away if it changes
-                                            // than to try to track it precisely.
-                                            key(inputSession) {
-                                                SideEffect {
-                                                    inputSession.updateIsShadowed(
-                                                        inputSessionIdx != currentInputSessions.lastIndex,
-                                                    )
-                                                }
-                                                val nestedKeyboardController: SoftwareKeyboardController =
-                                                    remember(inputSessionIdx) {
-                                                        val nestedInputSessionIdx =
-                                                            inputSessionIdx + 1
-                                                        object :
-                                                            SoftwareKeyboardController {
-                                                            var hiddenSession: InputSession? =
-                                                                null
+                                    },
+                                ) {
+                                    LaunchedEffect(currentInputSessions.size) {
+                                        window.window?.setFlags(
+                                            when {
+                                                // When there are nested inputs:
+                                                // - We need to clear FLAG_NOT_FOCUSABLE so we can grab raw (keypress) input
+                                                //     (this is required for hardware keyboard input, but also raw keycodes sent by
+                                                //     IME itself, as well as some editor actions like copy/pasting).
+                                                // - We need to set FLAG_ALT_FOCUSABLE_IM or we get stuck in an infinite
+                                                //     loop of Android setting our IME as the current IME target, and immediately
+                                                //     closing the old IME because it no longer has focus.
+                                                currentInputSessions.size > 1 ->
+                                                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
 
-                                                            override fun hide() {
-                                                                hiddenSession =
-                                                                    currentInputSessions.removeAt(
-                                                                        nestedInputSessionIdx,
-                                                                    )
-                                                            }
+                                                // When there are no nested inputs:
+                                                // - We need to set FLAG_NOT_FOCUSABLE so the backing app regains focus.
+                                                // - We need to clear FLAG_ALT_FOCUSABLE_IM since we don't want to invert
+                                                //     the behaviour of FLAG_NOT_FOCUSABLE.
+                                                else -> WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                                            },
+                                            WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+                                                    or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                                        )
+                                    }
+                                    currentInputSessions.forEachIndexed { inputSessionIdx, inputSession ->
+                                        // A lot of state (including forwarded closures) depends on
+                                        // the inputSession - safer to just throw it all away if it changes
+                                        // than to try to track it precisely.
+                                        key(inputSession) {
+                                            SideEffect {
+                                                inputSession.updateIsShadowed(
+                                                    inputSessionIdx != currentInputSessions.lastIndex,
+                                                )
+                                            }
+                                            val nestedKeyboardController: SoftwareKeyboardController =
+                                                remember(inputSessionIdx) {
+                                                    val nestedInputSessionIdx =
+                                                        inputSessionIdx + 1
+                                                    object :
+                                                        SoftwareKeyboardController {
+                                                        var hiddenSession: InputSession? =
+                                                            null
 
-                                                            override fun show() {
-                                                                hiddenSession?.let { session ->
-                                                                    currentInputSessions.add(
-                                                                        nestedInputSessionIdx,
-                                                                        session,
-                                                                    )
-                                                                }
-                                                                hiddenSession = null
+                                                        override fun hide() {
+                                                            hiddenSession =
+                                                                currentInputSessions.removeAt(
+                                                                    nestedInputSessionIdx,
+                                                                )
+                                                        }
+
+                                                        override fun show() {
+                                                            hiddenSession?.let { session ->
+                                                                currentInputSessions.add(
+                                                                    nestedInputSessionIdx,
+                                                                    session,
+                                                                )
                                                             }
+                                                            hiddenSession = null
                                                         }
                                                     }
-                                                CompositionLocalProvider(
-                                                    // Override LocalSoftwareKeyboardController to affect
-                                                    // the nested input instead.
-                                                    LocalSoftwareKeyboardController provides nestedKeyboardController,
-                                                    // Some UI components (like text selection handles)
-                                                    // only render for the focused window.
-                                                    // We're weird in that as an IME we're never considered
-                                                    // focused by the OS, but are always the user's
-                                                    // primary interaction target.
-                                                    // Hence, we lie and pretend that we're always focused.
-                                                    LocalWindowInfo provides FocusedWindowInfo,
-                                                ) {
-                                                    val navController = rememberNavController()
-                                                    val onAction = inputSession.actionHandler(
-                                                        warningSnackbarHostState = snackbarHostState,
-                                                        switchInputMethod = ::switchInputMethod,
-                                                        navController = navController,
-                                                    )
-                                                    val baseKeyboardHeightUpdaterModifier = when {
-                                                        inputSessionIdx == currentInputSessions.lastIndex ->
-                                                            Modifier.onSizeChanged { size ->
-                                                                baseKeyboardHeight = size.height
-                                                            }
+                                                }
+                                            CompositionLocalProvider(
+                                                // Override LocalSoftwareKeyboardController to affect
+                                                // the nested input instead.
+                                                LocalSoftwareKeyboardController provides nestedKeyboardController,
+                                                // Some UI components (like text selection handles)
+                                                // only render for the focused window.
+                                                // We're weird in that as an IME we're never considered
+                                                // focused by the OS, but are always the user's
+                                                // primary interaction target.
+                                                // Hence, we lie and pretend that we're always focused.
+                                                LocalWindowInfo provides FocusedWindowInfo,
+                                            ) {
+                                                val navController = rememberNavController()
+                                                val onAction = inputSession.actionHandler(
+                                                    warningSnackbarHostState = snackbarHostState,
+                                                    switchInputMethod = ::switchInputMethod,
+                                                    navController = navController,
+                                                )
+                                                val baseKeyboardHeightUpdaterModifier = when {
+                                                    inputSessionIdx == currentInputSessions.lastIndex ->
+                                                        Modifier.onSizeChanged { size ->
+                                                            baseKeyboardHeight = size.height
+                                                        }
 
-                                                        else -> Modifier
-                                                    }
-                                                    Box(baseKeyboardHeightUpdaterModifier) {
-                                                        NavHost(
-                                                            navController,
-                                                            startDestination = InputSession.ActiveView.Keyboard,
-                                                            contentAlignment = Alignment.BottomCenter,
-                                                            // The input connection stays open while the exit animation is running, so
-                                                            // disable animations for now to avoid having two visible "regular" keyboards
-                                                            // at the same time.
-                                                            enterTransition = { EnterTransition.None },
-                                                            exitTransition = { ExitTransition.None },
-                                                            popEnterTransition = { EnterTransition.None },
-                                                            popExitTransition = { ExitTransition.None },
+                                                    else -> Modifier
+                                                }
+                                                Box(baseKeyboardHeightUpdaterModifier) {
+                                                    NavHost(
+                                                        navController,
+                                                        startDestination = InputSession.ActiveView.Keyboard,
+                                                        contentAlignment = Alignment.BottomCenter,
+                                                        // The input connection stays open while the exit animation is running, so
+                                                        // disable animations for now to avoid having two visible "regular" keyboards
+                                                        // at the same time.
+                                                        enterTransition = { EnterTransition.None },
+                                                        exitTransition = { ExitTransition.None },
+                                                        popEnterTransition = { EnterTransition.None },
+                                                        popExitTransition = { ExitTransition.None },
 //                                                            enterTransition = { fadeIn() + slideInVertically { it } + expandVertically() },
 //                                                            exitTransition = { fadeOut() + slideOutVertically { it } + shrinkVertically() },
 //                                                            popEnterTransition = { fadeIn() + slideInVertically { it } + expandVertically() },
 //                                                            popExitTransition = { fadeOut() + slideOutVertically { it } + shrinkVertically() },
-                                                        ) {
-                                                            composable<InputSession.ActiveView.ClipboardHistory> {
-                                                                ClipboardHistoryViewer(
-                                                                    onAction = onAction,
-                                                                    snackbarHostState = snackbarHostState,
-                                                                    navigateUp = navController::navigateUp,
-                                                                )
-                                                            }
+                                                    ) {
+                                                        composable<InputSession.ActiveView.ClipboardHistory> {
+                                                            ClipboardHistoryViewer(
+                                                                onAction = onAction,
+                                                                snackbarHostState = snackbarHostState,
+                                                                navigateUp = navController::navigateUp,
+                                                            )
+                                                        }
 
-                                                            composable<InputSession.ActiveView.EmojiKeyboard> { backStackEntry ->
-                                                                val route =
-                                                                    backStackEntry.toRoute<InputSession.ActiveView.EmojiKeyboard>()
-                                                                EmojiKeyboard(
-                                                                    onAction = onAction,
-                                                                    navigateUp = navController::navigateUp,
-                                                                    defaultTab = when {
-                                                                        route.search -> EmojiTab.Search
-                                                                        else -> null
-                                                                    },
-                                                                )
-                                                            }
+                                                        composable<InputSession.ActiveView.EmojiKeyboard> { backStackEntry ->
+                                                            val route =
+                                                                backStackEntry.toRoute<InputSession.ActiveView.EmojiKeyboard>()
+                                                            EmojiKeyboard(
+                                                                onAction = onAction,
+                                                                navigateUp = navController::navigateUp,
+                                                                defaultTab = when {
+                                                                    route.search -> EmojiTab.Search
+                                                                    else -> null
+                                                                },
+                                                            )
+                                                        }
 
-                                                            composable<InputSession.ActiveView.Keyboard> {
-                                                                ConfiguredKeyboard(
-                                                                    modifier = Modifier.fillMaxWidth(),
-                                                                    onAction = onAction,
-                                                                    onModifierStateUpdated = inputSession::updateModifierState,
-                                                                    enterVisualOverride = inputSession.editorInfo?.let { editorInfo ->
-                                                                        editorInfo.actionLabel?.toString()
-                                                                            ?.let(ActionVisual::Label)
-                                                                            ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
-                                                                                EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
-                                                                                    "GO",
-                                                                                )
+                                                        composable<InputSession.ActiveView.Keyboard> {
+                                                            ConfiguredKeyboard(
+                                                                modifier = Modifier.fillMaxWidth(),
+                                                                onAction = onAction,
+                                                                onModifierStateUpdated = inputSession::updateModifierState,
+                                                                enterVisualOverride = inputSession.editorInfo?.let { editorInfo ->
+                                                                    editorInfo.actionLabel?.toString()
+                                                                        ?.let(ActionVisual::Label)
+                                                                        ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
+                                                                            EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
+                                                                                "GO",
+                                                                            )
 
-                                                                                EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
-                                                                                    R.drawable.baseline_search_24,
-                                                                                )
+                                                                            EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
+                                                                                R.drawable.baseline_search_24,
+                                                                            )
 
-                                                                                EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
-                                                                                    R.drawable.baseline_send_24,
-                                                                                )
+                                                                            EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
+                                                                                R.drawable.baseline_send_24,
+                                                                            )
 
-                                                                                EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
-                                                                                    R.drawable.baseline_done_24,
-                                                                                )
-                                                                                /* Not using the next/prev icons since they can be confused with the jump left/right icons */
-                                                                                EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
-                                                                                    "NEXT",
-                                                                                )
+                                                                            EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
+                                                                                R.drawable.baseline_done_24,
+                                                                            )
+                                                                            /* Not using the next/prev icons since they can be confused with the jump left/right icons */
+                                                                            EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
+                                                                                "NEXT",
+                                                                            )
 
-                                                                                EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
-                                                                                    "PREV",
-                                                                                )
+                                                                            EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
+                                                                                "PREV",
+                                                                            )
 
-                                                                                else -> null
-                                                                            }
-                                                                    },
-                                                                    overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
-                                                                        InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers
-                                                                        else -> null
-                                                                    },
-                                                                )
-                                                            }
+                                                                            else -> null
+                                                                        }
+                                                                },
+                                                                overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
+                                                                    InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers
+                                                                    else -> null
+                                                                },
+                                                            )
                                                         }
                                                     }
                                                 }
-                                                // If there is nested input, let back hide it
-                                                BackHandler(inputSessionIdx < currentInputSessions.lastIndex) {
-                                                    nestedKeyboardController.hide()
-                                                }
+                                            }
+                                            // If there is nested input, let back hide it
+                                            BackHandler(inputSessionIdx < currentInputSessions.lastIndex) {
+                                                nestedKeyboardController.hide()
                                             }
                                         }
                                     }
                                 }
-
-                                SnackbarHost(
-                                    snackbarHostState,
-                                    modifier = Modifier
-                                        .align(Alignment.BottomCenter)
-                                        .sharePointerInput()
-                                        .safeContentPadding(),
-                                )
                             }
+
+                            SnackbarHost(
+                                snackbarHostState,
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .sharePointerInput()
+                                    .safeContentPadding(),
+                            )
                         }
                     }
                 }

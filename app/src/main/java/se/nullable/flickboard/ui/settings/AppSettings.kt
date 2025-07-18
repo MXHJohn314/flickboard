@@ -419,6 +419,8 @@ class AppSettings(val ctx: SettingsContext) {
         key = "backgroundImage",
         label = "Background image",
         ctx = ctx,
+        cacheFileName = "background-image.jpeg",
+        scalingTarget = ImageScalingTarget.DeviceDisplay,
     )
 
     val enablePointerTrail = Setting.Bool(

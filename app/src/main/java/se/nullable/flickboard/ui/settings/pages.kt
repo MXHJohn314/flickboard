@@ -54,7 +54,6 @@ import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.MenuPageLink
 import se.nullable.flickboard.ui.MenuPageUriLink
-import se.nullable.flickboard.ui.ProvideDisplayLimits
 import se.nullable.flickboard.ui.excludeFromBottomInset
 import se.nullable.flickboard.ui.help.OnboardingPrompt
 import se.nullable.flickboard.ui.theme.Title
@@ -297,32 +296,30 @@ fun SettingsKeyboardPreview(
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                 ) {
-                    ProvideDisplayLimits {
-                        Box {
-                            ConfiguredKeyboard(
-                                onAction = { _, _, _ -> true }, // Keyboard provides internal visual feedback if enabled
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .excludeFromBottomInset()
-                                    // sharedElement can't encompass AnimatedVisibility, or the size animation breaks
-                                    .sharedElement(
-                                        rememberSharedContentState(MainActivitySharedElement.SettingsKeyboardPreview.toString()),
-                                        animatedVisibilityScope,
-                                    ),
+                    Box {
+                        ConfiguredKeyboard(
+                            onAction = { _, _, _ -> true }, // Keyboard provides internal visual feedback if enabled
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .excludeFromBottomInset()
+                                // sharedElement can't encompass AnimatedVisibility, or the size animation breaks
+                                .sharedElement(
+                                    rememberSharedContentState(MainActivitySharedElement.SettingsKeyboardPreview.toString()),
+                                    animatedVisibilityScope,
+                                ),
+                        )
+                        androidx.compose.animation.AnimatedVisibility(
+                            realKeyboardVisible,
+                            Modifier.matchParentSize(),
+                            enter = fadeIn(),
+                            exit = fadeOut(),
+                        ) {
+                            Box(
+                                Modifier
+                                    .background(MaterialTheme.colorScheme.surfaceDim.copy(alpha = 0.9F))
+                                    // Block tap input for convered nodes
+                                    .pointerInput(Unit) {},
                             )
-                            androidx.compose.animation.AnimatedVisibility(
-                                realKeyboardVisible,
-                                Modifier.matchParentSize(),
-                                enter = fadeIn(),
-                                exit = fadeOut(),
-                            ) {
-                                Box(
-                                    Modifier
-                                        .background(MaterialTheme.colorScheme.surfaceDim.copy(alpha = 0.9F))
-                                        // Block tap input for convered nodes
-                                        .pointerInput(Unit) {},
-                                )
-                            }
                         }
                     }
                 }

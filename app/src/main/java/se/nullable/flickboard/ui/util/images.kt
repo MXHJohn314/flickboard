@@ -9,7 +9,6 @@ import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
@@ -25,7 +24,7 @@ import kotlin.math.roundToInt
  * [targetSizeHint] is a _hint_ for how the image should be scaled, there is no guarantee that it will
  * actually fit that size without further scaling.
  */
-fun loadImageBitmap(contentResolver: ContentResolver, uri: Uri, targetSizeHint: Size): ImageBitmap =
+fun loadBitmap(contentResolver: ContentResolver, uri: Uri, targetSizeHint: Size): Bitmap =
     when {
         Build.VERSION.SDK_INT >= 28 -> ImageDecoder.decodeBitmap(
             ImageDecoder.createSource(contentResolver, uri),
@@ -59,7 +58,7 @@ fun loadImageBitmap(contentResolver: ContentResolver, uri: Uri, targetSizeHint: 
 
             decode()!!
         }
-    }.asImageBitmap()
+    }
 
 /**
  * Loads a Painter for an image provided by the user.
@@ -77,7 +76,7 @@ fun userImagePainter(uri: Uri): Painter = run {
             SizeDependentPainter { size ->
                 // No specific error handling required; makeInner is covered by FailsafePainter's
                 // error handling logic.
-                BitmapPainter(loadImageBitmap(contentResolver, uri, size))
+                BitmapPainter(loadBitmap(contentResolver, uri, size).asImageBitmap())
             },
             fallbackPainter = brokenImage,
         )
