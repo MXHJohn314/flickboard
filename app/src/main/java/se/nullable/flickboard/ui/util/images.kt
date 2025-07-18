@@ -7,6 +7,8 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -38,16 +40,26 @@ class FailsafePainter(
     override val intrinsicSize: Size
         get() = inner.intrinsicSize
 
+    private var alpha: Float = DefaultAlpha
+    override fun applyAlpha(alpha: Float): Boolean = true.also {
+        this.alpha = alpha
+    }
+
+    private var colorFilter: ColorFilter? = null
+    override fun applyColorFilter(colorFilter: ColorFilter?): Boolean = true.also {
+        this.colorFilter = colorFilter
+    }
+
     override fun DrawScope.onDraw() {
         try {
             with(inner) {
-                draw(size)
+                draw(size, alpha = alpha, colorFilter = colorFilter)
             }
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Failed to render $what, ignoring...", e)
             if (fallbackPainter != null) {
                 with(fallbackPainter) {
-                    draw(size)
+                    draw(size, alpha = alpha, colorFilter = colorFilter)
                 }
             }
         }
