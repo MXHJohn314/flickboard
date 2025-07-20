@@ -17,6 +17,7 @@ import se.nullable.flickboard.model.layouts.FA_THUMBKEY
 import se.nullable.flickboard.model.layouts.FR_EXT_MESSAGEASE
 import se.nullable.flickboard.model.layouts.FR_MESSAGEASE
 import se.nullable.flickboard.model.layouts.FR_PUNC_MESSAGEASE
+import se.nullable.flickboard.model.layouts.GE_MESSAGEASE
 import se.nullable.flickboard.model.layouts.HEB_MESSAGEASE
 import se.nullable.flickboard.model.layouts.HU_DT_MESSAGEASE
 import se.nullable.flickboard.model.layouts.HU_MESSAGEASE
@@ -145,6 +146,7 @@ enum class LetterLayerOption(override val label: String, val layout: Layout) : L
     HungarianDT("Hungarian (MessagEase-style, by Dániel Tenke)", HU_DT_MESSAGEASE),
     HungarianMF("Hungarian (MessagEase-style, by Máté Farkas)", HU_MF_MESSAGEASE),
     HungarianUUp("Hungarian (MessagEase-style, U always up)", HU_UUP_MESSAGEASE),
+    Georgian("Georgian (by Vladimir Solovev)", GE_MESSAGEASE),
     Italian("Italian (MessagEase)", IT_MESSAGEASE),
     NorwegianThumbKey("Norwegian (Thumb-Key)", NO_THUMBKEY),
     Persian("Persian (MessagEase)", FA_MESSAGEASE),
