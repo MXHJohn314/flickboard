@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -75,8 +76,8 @@ fun SettingsHomePage(
         mutableStateOf("")
     }
     val context = LocalContext.current
-    Column {
-        LazyColumn(modifier.weight(1F)) {
+    Column(modifier) {
+        LazyColumn(Modifier.weight(1F)) {
             item {
                 OnboardingPrompt()
             }
@@ -194,9 +195,9 @@ fun SettingsSectionPage(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier
 ) {
-    Column {
+    Column(modifier) {
         Column(
-            modifier
+            Modifier
                 .verticalScroll(rememberScrollState())
                 .weight(1F),
         ) {
@@ -301,6 +302,7 @@ fun SettingsKeyboardPreview(
                             onAction = { _, _, _ -> true }, // Keyboard provides internal visual feedback if enabled
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .clipToBounds()
                                 .excludeFromBottomInset()
                                 // sharedElement can't encompass AnimatedVisibility, or the size animation breaks
                                 .sharedElement(
