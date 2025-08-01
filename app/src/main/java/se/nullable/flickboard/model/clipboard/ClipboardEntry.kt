@@ -8,8 +8,8 @@ import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import androidx.room.withTransaction
+import se.nullable.flickboard.model.AppDatabase
 import java.time.Instant
 
 @Entity
@@ -26,9 +26,12 @@ data class ClipboardEntry(
 const val clipboardHistorySize = 100
 
 @Dao
-abstract class ClipboardEntryDao {
+abstract class ClipboardEntryDao(private val db: AppDatabase) {
     @Query("SELECT * FROM clipboardentry WHERE pinned = :pinned ORDER BY pinned DESC, lastAddedOn DESC")
     abstract fun getAll(pinned: Boolean): PagingSource<Int, ClipboardEntry>
+
+    @Query("SELECT * FROM clipboardentry WHERE pinned = :pinned ORDER BY pinned DESC, lastAddedOn DESC")
+    abstract suspend fun getAllUnpaged(pinned: Boolean): List<ClipboardEntry>
 
     @Query("UPDATE clipboardentry SET lastAddedOn = :lastAddedOn, pinned = (pinned OR :pinIfUnpinned) WHERE clipData = :clipData")
     protected abstract suspend fun touchByData(
@@ -41,8 +44,8 @@ abstract class ClipboardEntryDao {
     protected abstract suspend fun insertUnconditionally(vararg entries: ClipboardEntry)
 
     suspend fun insertOrTouch(entry: ClipboardEntry) {
-        // Lock to avoid letting multiple concurrent callers create duplicate entries
-        upsertMutex.withLock {
+        // Wrap in a transaction to avoid letting multiple concurrent callers create duplicate entries
+        db.withTransaction {
             if (touchByData(
                     entry.clipData,
                     lastAddedOn = entry.lastAddedOn,
@@ -64,6 +67,13 @@ abstract class ClipboardEntryDao {
     @Query("DELETE FROM clipboardentry WHERE pinned = 0")
     abstract suspend fun clearUnpinned()
 
+    suspend fun clearAndGetUnpinned(): List<ClipboardEntry> =
+        db.withTransaction {
+            val oldEntries = getAllUnpaged(false)
+            clearUnpinned()
+            oldEntries
+        }
+
     /**
      * Only keep the last [keep] unpinned rows, to avoid the db growing indefinitely.
      */
@@ -72,8 +82,4 @@ abstract class ClipboardEntryDao {
 
     @Delete
     abstract suspend fun delete(entry: ClipboardEntry)
-
-    companion object {
-        private val upsertMutex = Mutex()
-    }
 }

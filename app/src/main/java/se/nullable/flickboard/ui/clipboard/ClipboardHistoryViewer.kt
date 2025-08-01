@@ -77,6 +77,7 @@ import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.theme.PageTitle
 import se.nullable.flickboard.ui.util.defaultFocus
 import se.nullable.flickboard.ui.util.items
+import se.nullable.flickboard.ui.util.replaceWith
 import java.time.Instant
 
 @Composable
@@ -110,7 +111,7 @@ fun ClipboardHistoryViewer(
     val listState = rememberLazyListState()
 
     val undoableDeletedEntries = remember { mutableStateListOf<ClipboardEntry>() }
-    LaunchedEffect(undoableDeletedEntries.lastOrNull()) {
+    LaunchedEffect(undoableDeletedEntries.lastOrNull(), undoableDeletedEntries.size) {
         // Specifically not storing entry here, since we don't want to capture a specific value
         // until the user has responded.
         if (undoableDeletedEntries.isNotEmpty()) {
@@ -119,13 +120,12 @@ fun ClipboardHistoryViewer(
                 actionLabel = "Undo",
                 withDismissAction = true,
             )
-            val entry = undoableDeletedEntries.lastOrNull()
-            if (entry != null) {
-                if (snackbarResult == SnackbarResult.ActionPerformed) {
-                    entryDao.insertOrTouch(entry.copy(generation = entry.generation + 1))
+            if (snackbarResult == SnackbarResult.ActionPerformed) {
+                undoableDeletedEntries.forEach {
+                    entryDao.insertOrTouch(it.copy(generation = it.generation + 1))
                 }
-                undoableDeletedEntries.remove(entry)
             }
+            undoableDeletedEntries.clear()
         }
     }
 
@@ -146,6 +146,20 @@ fun ClipboardHistoryViewer(
                     }
 
                     PageTitle("Clipboard", Modifier.weight(1F))
+
+                    IconButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                undoableDeletedEntries.clear()
+                                undoableDeletedEntries.addAll(
+                                    entryDao.clearAndGetUnpinned(),
+                                )
+                            }
+                        },
+                        enabled = unpinnedEntries.itemCount > 0,
+                    ) {
+                        Icon(painterResource(R.drawable.outline_delete_sweep_24), "Delete all")
+                    }
 
                     IconButton(onClick = { addingNewEntry.value = true }) {
                         Icon(painterResource(R.drawable.baseline_add_24), "Add")
@@ -209,7 +223,7 @@ fun ClipboardHistoryViewer(
                             entry,
                             entryDao = entryDao,
                             onAction = onAction,
-                            onEntryDeleted = undoableDeletedEntries::add,
+                            onEntryDeleted = undoableDeletedEntries::replaceWith,
                             snackbarHostState = snackbarHostState,
                             // Don't allow unpinning when clipboard history is disabled,
                             // since it would introduce unpinned history items.
@@ -253,7 +267,7 @@ fun ClipboardHistoryViewer(
                             entry,
                             entryDao = entryDao,
                             onAction = onAction,
-                            onEntryDeleted = undoableDeletedEntries::add,
+                            onEntryDeleted = undoableDeletedEntries::replaceWith,
                             snackbarHostState = snackbarHostState,
                             allowPinToggle = true,
                         )
@@ -386,10 +400,6 @@ private fun LazyItemScope.ClipboardEntryItem(
                                         coroutineScope.launch {
                                             swipeState.animateReset()
                                         }
-                                        // TODO: does it still make sense to scroll here?
-//                                coroutineScope.launch {
-//                                    listState.animateScrollToItem(0)
-//                                }
                                         // API 33+ provides its own copy toast, so we don't need to provide one there
                                         // see https://developer.android.com/develop/ui/compose/touch-input/copy-and-paste#feedback_to_copying_content
                                         if (android.os.Build.VERSION.SDK_INT < 33) {
