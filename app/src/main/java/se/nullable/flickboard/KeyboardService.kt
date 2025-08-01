@@ -75,7 +75,6 @@ import se.nullable.flickboard.ui.settings.EnabledLayers
 import se.nullable.flickboard.ui.settings.SettingsContext
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.isEmulator
-import se.nullable.flickboard.ui.util.sharePointerInput
 import se.nullable.flickboard.util.onBackPressedDispatcherWrapperCallback
 
 class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner,
@@ -195,7 +194,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .height(maxHeight),
+                            .height(this.maxHeight),
                     )
                     Box(
                         Modifier
@@ -428,7 +427,6 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                 snackbarHostState,
                                 modifier = Modifier
                                     .align(Alignment.BottomCenter)
-                                    .sharePointerInput()
                                     .safeContentPadding(),
                             )
                         }
