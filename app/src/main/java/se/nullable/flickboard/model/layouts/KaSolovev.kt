@@ -9,7 +9,7 @@ import se.nullable.flickboard.model.Layer
 import se.nullable.flickboard.model.Layout
 import se.nullable.flickboard.ui.KeyboardLayoutPreview
 
-val GE_MESSAGEASE_MAIN_LAYER = Layer(
+val KA_SOLOVEV_MAIN_LAYER = Layer(
     keyRows = listOf(
         listOf(
             KeyM(
@@ -90,19 +90,20 @@ val GE_MESSAGEASE_MAIN_LAYER = Layer(
     ),
 )
 
-val GE_MESSAGEASE = Layout(
-    mainLayer = GE_MESSAGEASE_MAIN_LAYER,
+/** Georgian */
+val KA_SOLOVEV = Layout(
+    mainLayer = KA_SOLOVEV_MAIN_LAYER,
     controlLayer = CONTROL_MESSAGEASE_LAYER,
 )
 
 @Composable
 @Preview
-fun GeKeyboardPreview() {
-    KeyboardLayoutPreview(layout = Layout(GE_MESSAGEASE_MAIN_LAYER))
+fun KaKeyboardPreview() {
+    KeyboardLayoutPreview(layout = Layout(KA_SOLOVEV_MAIN_LAYER))
 }
 
 @Composable
 @Preview
-fun GeFullKeyboardPreview() {
-    KeyboardLayoutPreview(layout = GE_MESSAGEASE, showAllModifiers = true)
+fun KaFullKeyboardPreview() {
+    KeyboardLayoutPreview(layout = KA_SOLOVEV, showAllModifiers = true)
 }
