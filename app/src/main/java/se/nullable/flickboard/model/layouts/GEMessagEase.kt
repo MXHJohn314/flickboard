@@ -9,7 +9,7 @@ import se.nullable.flickboard.model.Layer
 import se.nullable.flickboard.model.Layout
 import se.nullable.flickboard.ui.KeyboardLayoutPreview
 
-val EN_MESSAGEASE_MAIN_LAYER = Layer(
+val GE_MESSAGEASE_MAIN_LAYER = Layer(
     keyRows = listOf(
         listOf(
             KeyM(
@@ -90,19 +90,19 @@ val EN_MESSAGEASE_MAIN_LAYER = Layer(
     ),
 )
 
-val EN_MESSAGEASE = Layout(
-    mainLayer = EN_MESSAGEASE_MAIN_LAYER,
+val GE_MESSAGEASE = Layout(
+    mainLayer = GE_MESSAGEASE_MAIN_LAYER,
     controlLayer = CONTROL_MESSAGEASE_LAYER,
 )
 
 @Composable
 @Preview
-fun EnKeyboardPreview() {
-    KeyboardLayoutPreview(layout = Layout(EN_MESSAGEASE_MAIN_LAYER))
+fun GeKeyboardPreview() {
+    KeyboardLayoutPreview(layout = Layout(GE_MESSAGEASE_MAIN_LAYER))
 }
 
 @Composable
 @Preview
-fun EnFullKeyboardPreview() {
-    KeyboardLayoutPreview(layout = EN_MESSAGEASE, showAllModifiers = true)
+fun GeFullKeyboardPreview() {
+    KeyboardLayoutPreview(layout = GE_MESSAGEASE, showAllModifiers = true)
 }
