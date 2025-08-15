@@ -265,7 +265,7 @@ fun Keyboard(
                 this.contentDescription = "FlickBoard keyboard"
             },
     ) {
-        var desiredWidth = maxWidth
+        var desiredWidth = this.maxWidth
         LocalDisplayLimits.current?.let { limits ->
             val maxMargin = (desiredWidth - limits.portraitWidth).coerceAtLeast(0.dp)
             // Enforce portrait aspect ratio in landscape mode
