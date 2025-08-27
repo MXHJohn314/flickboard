@@ -2,6 +2,7 @@ package se.nullable.flickboard.model.zalgo
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.UUID
 
 class ZalgoManager(
     private val defaultSubstitutions: List<ZalgoSubstitution>,
@@ -27,7 +28,7 @@ class ZalgoManager(
                 .filter { it.isNotEmpty() && !it.startsWith("# ") }
                 .map {
                     val parts = it.split(" -> ")
-                    ZalgoSubstitution(parts[0], parts[1], isDefault = true)
+                    ZalgoSubstitution(parts[0], parts[1], UUID.randomUUID(), isDefault = true)
                 }
                 .toList()
     }

@@ -53,6 +53,7 @@ import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.LocalZalgoManager
 import se.nullable.flickboard.ui.util.PreviewLayoutDirectionProvider
 import se.nullable.flickboard.ui.util.modify
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,7 +63,7 @@ fun ZalgoSubstitutionsEditor(
 ) {
     val manager = LocalZalgoManager.current.value
     val substitutions = manager.substitutions.collectAsState(emptyList())
-    val composingNew = remember { mutableStateOf(false) }
+    val composingNewId = remember { mutableStateOf<UUID?>(null) }
     Scaffold(
         modifier,
         topBar = {
@@ -70,7 +71,7 @@ fun ZalgoSubstitutionsEditor(
                 title = { Text("Zalgo Macros") },
                 navigationIcon = { navigationIcon() },
                 actions = {
-                    IconButton({ composingNew.value = true; println("hiiii") }) {
+                    IconButton({ composingNewId.modify { this ?: UUID.randomUUID() } }) {
                         Icon(
                             painterResource(R.drawable.baseline_add_24),
                             contentDescription = "New",
@@ -84,8 +85,8 @@ fun ZalgoSubstitutionsEditor(
             substitutions.value,
             saveSubstitution = { manager.substitutionDao.upsert(it) },
             deleteSubstitution = { manager.substitutionDao.deleteOrRevert(it) },
-            composingNew = composingNew.value,
-            closeNew = { composingNew.value = false },
+            composingNewId = composingNewId.value,
+            closeNew = { composingNewId.value = null },
             modifier = Modifier.padding(padding),
         )
     }
@@ -96,14 +97,14 @@ fun ZalgoSubstitutionList(
     substitutions: List<ZalgoSubstitution>,
     saveSubstitution: suspend (ZalgoSubstitution) -> Unit,
     deleteSubstitution: suspend (ZalgoSubstitution) -> Unit,
-    composingNew: Boolean,
+    composingNewId: UUID?,
     closeNew: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
-    LaunchedEffect(composingNew) {
-        if (composingNew) {
+    LaunchedEffect(composingNewId) {
+        if (composingNewId != null) {
             listState.animateScrollToItem(0)
         }
     }
@@ -113,15 +114,21 @@ fun ZalgoSubstitutionList(
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
         state = listState,
     ) {
-        if (composingNew) {
-            item(contentType = "new") {
+        // Spacer item, compose tends to work better when the first item isn't moving around
+        item {}
+
+        if (composingNewId != null) {
+            item(key = composingNewId) {
                 Card(
                     Modifier
                         .animateItem()
                         .padding(horizontal = 8.dp),
                 ) {
+                    val substitution = remember {
+                        ZalgoSubstitution("", "", composingNewId, isDefault = true)
+                    }
                     ZalgoSubstitutionEditor(
-                        ZalgoSubstitution("", "", isDefault = true),
+                        substitution,
                         onSave = {
                             coroutineScope.launch {
                                 saveSubstitution(it)
@@ -139,7 +146,7 @@ fun ZalgoSubstitutionList(
             }
         }
 
-        items(substitutions, key = { it.from }) { substitution ->
+        items(substitutions, key = { it.visualId }) { substitution ->
             val editing = remember { mutableStateOf(false) }
             Card(
                 Modifier
@@ -254,13 +261,13 @@ fun ZalgoSubstitutionListPreview(
                 ZalgoSubstitutionList(
                     substitutions = listOf(
                         // WE GOT THE..
-                        ZalgoSubstitution("ae", "æ"),
-                        ZalgoSubstitution("o/", "ø"),
-                        ZalgoSubstitution("a0", "å"),
+                        ZalgoSubstitution("ae", "æ", remember { UUID.randomUUID() }),
+                        ZalgoSubstitution("o/", "ø", remember { UUID.randomUUID() }),
+                        ZalgoSubstitution("a0", "å", remember { UUID.randomUUID() }),
                     ),
                     saveSubstitution = {},
                     deleteSubstitution = {},
-                    composingNew = true,
+                    composingNewId = remember { UUID.randomUUID() },
                     closeNew = {},
                 )
             }
@@ -335,7 +342,7 @@ fun ZalgoSubstitutionEditorPreview() {
     FlickBoardParent {
         Surface(Modifier.safeDrawingPadding()) {
             ZalgoSubstitutionEditor(
-                ZalgoSubstitution("ae", "æ"),
+                ZalgoSubstitution("ae", "æ", remember { UUID.randomUUID() }),
                 onSave = {},
                 onCancel = {},
                 onDelete = {},
