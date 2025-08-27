@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,11 +33,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.LayoutDirection
@@ -117,7 +121,7 @@ fun ZalgoSubstitutionList(
                         .padding(horizontal = 8.dp),
                 ) {
                     ZalgoSubstitutionEditor(
-                        ZalgoSubstitution("", ""),
+                        ZalgoSubstitution("", "", isDefault = true),
                         onSave = {
                             coroutineScope.launch {
                                 saveSubstitution(it)
@@ -273,22 +277,30 @@ fun ZalgoSubstitutionEditor(
     modifier: Modifier = Modifier
 ) {
     val edited = remember { mutableStateOf(substitution) }
+    val validFrom = edited.value.from.length == 2
+    val fromFocusRequester = FocusRequester()
     Column(modifier) {
         TextField(
             edited.value.from,
             onValueChange = { edited.modify { copy(from = it) } },
-            label = { Text("Macro") },
-            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Macro (must be 2 characters)") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(fromFocusRequester),
+            singleLine = true,
+            isError = !validFrom,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         )
         TextField(
             edited.value.to,
             onValueChange = { edited.modify { copy(to = it) } },
             label = { Text("Replacement") },
             modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
         )
         Row(horizontalArrangement = Arrangement.End) {
             Spacer(Modifier.weight(1F))
-            IconButton({ onDelete() }) {
+            IconButton({ onDelete() }, enabled = !substitution.isDefault) {
                 Icon(
                     painterResource(R.drawable.baseline_delete_outline_24),
                     "Delete",
@@ -300,7 +312,14 @@ fun ZalgoSubstitutionEditor(
                     "Cancel",
                 )
             }
-            IconButton({ onSave(edited.value) }) {
+            IconButton(
+                {
+                    when {
+                        !validFrom -> fromFocusRequester.requestFocus()
+                        else -> onSave(edited.value)
+                    }
+                },
+            ) {
                 Icon(
                     painterResource(R.drawable.baseline_check_24),
                     "Save",

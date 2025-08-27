@@ -27,7 +27,7 @@ class ZalgoManager(
                 .filter { it.isNotEmpty() && !it.startsWith("# ") }
                 .map {
                     val parts = it.split(" -> ")
-                    ZalgoSubstitution(parts[0], parts[1])
+                    ZalgoSubstitution(parts[0], parts[1], isDefault = true)
                 }
                 .toList()
     }
