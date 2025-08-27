@@ -94,8 +94,8 @@ fun Credits(modifier: Modifier = Modifier) {
         }
         item {
             CreditEntry(
-                "moksh",
-                uri = "https://moksh.codeberg.page/",
+                "Untrusem",
+                uri = "https://untrusem.codeberg.page/",
                 "English Thumb-Key layout",
             )
         }
