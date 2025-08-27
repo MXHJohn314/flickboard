@@ -67,6 +67,7 @@ fun SettingsHomePage(
     onNavigateToBetaMenu: () -> Unit,
     onNavigateToCredits: () -> Unit,
     onNavigateToDescriber: () -> Unit,
+    onNavigateToZalgoEditor: () -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier
@@ -103,6 +104,13 @@ fun SettingsHomePage(
                     onClick = { onNavigateToSection(section) },
                     icon = painterResource(section.icon),
                     label = section.label,
+                )
+            }
+            item {
+                MenuPageLink(
+                    onClick = onNavigateToZalgoEditor,
+                    icon = painterResource(R.drawable.outline_cell_merge_24),
+                    label = "Zalgo Macros",
                 )
             }
             item {
@@ -344,6 +352,7 @@ private fun SettingsHomePreview() {
                         onNavigateToBetaMenu = {},
                         onNavigateToCredits = {},
                         onNavigateToDescriber = {},
+                        onNavigateToZalgoEditor = {},
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@AnimatedVisibility,
                     )

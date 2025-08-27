@@ -47,6 +47,7 @@ import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.settings.SettingsHomePage
 import se.nullable.flickboard.ui.settings.SettingsSectionPage
 import se.nullable.flickboard.ui.theme.Transition
+import se.nullable.flickboard.ui.zalgo.ZalgoSubstitutionsEditor
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
@@ -164,6 +165,9 @@ class MainActivity : ComponentActivity() {
                                                 onNavigateToDescriber = {
                                                     navController.navigate(MainActivityNav.KeyboardDescriber)
                                                 },
+                                                onNavigateToZalgoEditor = {
+                                                    navController.navigate(MainActivityNav.ZalgoSubstitutionsEditor)
+                                                },
                                                 sharedTransitionScope = this@SharedTransitionLayout,
                                                 animatedVisibilityScope = this@composable,
                                                 modifier = Modifier.padding(padding),
@@ -206,6 +210,13 @@ class MainActivity : ComponentActivity() {
                                             Credits(Modifier.padding(padding))
                                         }
                                     }
+                                    composable<MainActivityNav.ZalgoSubstitutionsEditor> {
+                                        ZalgoSubstitutionsEditor(
+                                            navigationIcon = {
+                                                NavigateUpIcon(navController)
+                                            },
+                                        )
+                                    }
                                     composable<MainActivityNav.SettingsSection> { backStackEntry ->
                                         val route =
                                             backStackEntry.toRoute<MainActivityNav.SettingsSection>()
@@ -244,6 +255,9 @@ sealed class MainActivityNav {
 
     @Serializable
     data class SettingsSection(val sectionKey: String) : MainActivityNav()
+
+    @Serializable
+    data object ZalgoSubstitutionsEditor : MainActivityNav()
 
     @Serializable
     data object Tutorial : MainActivityNav()

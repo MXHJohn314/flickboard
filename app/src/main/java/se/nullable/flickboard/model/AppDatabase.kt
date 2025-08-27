@@ -7,19 +7,24 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import se.nullable.flickboard.model.clipboard.ClipboardEntry
 import se.nullable.flickboard.model.clipboard.ClipboardEntryDao
+import se.nullable.flickboard.model.zalgo.ZalgoSubstitution
+import se.nullable.flickboard.model.zalgo.ZalgoSubstitutionDao
 import java.time.Instant
 
 @Database(
-    version = 3,
-    entities = [ClipboardEntry::class],
+    version = 4,
+    entities = [ClipboardEntry::class, ZalgoSubstitution::class],
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4),
     ],
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun clipboardEntryDao(): ClipboardEntryDao
+
+    abstract fun zalgoSubstitutionDao(): ZalgoSubstitutionDao
 }
 
 class Converters {

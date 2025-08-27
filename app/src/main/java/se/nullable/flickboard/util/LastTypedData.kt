@@ -2,6 +2,7 @@ package se.nullable.flickboard.util
 
 import android.icu.lang.UCharacter
 import android.icu.text.Normalizer2
+import se.nullable.flickboard.model.zalgo.ZalgoDatabase
 
 data class LastTypedData(val char: String?, val position: Int, val combiner: Combiner?) {
     data class Combiner(

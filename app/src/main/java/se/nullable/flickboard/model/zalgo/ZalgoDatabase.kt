@@ -1,4 +1,6 @@
-package se.nullable.flickboard.util
+package se.nullable.flickboard.model.zalgo
+
+import se.nullable.flickboard.util.LastTypedData
 
 data class ZalgoDatabase(private val substitutions: Map<String, String>) {
     fun findCombiner(previous: String?, next: String): LastTypedData.Combiner? = run {
@@ -11,18 +13,6 @@ data class ZalgoDatabase(private val substitutions: Map<String, String>) {
             original = concated,
             combinedReplacement = substitution,
             baseCharLength = previous.length,
-        )
-    }
-
-    companion object {
-        fun parse(fileContents: String): ZalgoDatabase = ZalgoDatabase(
-            substitutions = fileContents.lineSequence()
-                // Comments
-                .filter { it.isNotEmpty() && !it.startsWith("# ") }
-                .associate {
-                    val parts = it.split(" -> ")
-                    Pair(parts[0], parts[1])
-                },
         )
     }
 }
