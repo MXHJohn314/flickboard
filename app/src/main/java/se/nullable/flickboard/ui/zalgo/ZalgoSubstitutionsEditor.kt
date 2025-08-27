@@ -83,7 +83,7 @@ fun ZalgoSubstitutionsEditor(
     ) { padding ->
         ZalgoSubstitutionList(
             substitutions.value,
-            saveSubstitution = { manager.substitutionDao.upsert(it) },
+            saveSubstitution = { new, old -> manager.substitutionDao.upsert(new, old) },
             deleteSubstitution = { manager.substitutionDao.deleteOrRevert(it) },
             composingNewId = composingNewId.value,
             closeNew = { composingNewId.value = null },
@@ -95,7 +95,7 @@ fun ZalgoSubstitutionsEditor(
 @Composable
 fun ZalgoSubstitutionList(
     substitutions: List<ZalgoSubstitution>,
-    saveSubstitution: suspend (ZalgoSubstitution) -> Unit,
+    saveSubstitution: suspend (new: ZalgoSubstitution, old: ZalgoSubstitution?) -> Unit,
     deleteSubstitution: suspend (ZalgoSubstitution) -> Unit,
     composingNewId: UUID?,
     closeNew: () -> Unit,
@@ -131,7 +131,7 @@ fun ZalgoSubstitutionList(
                         substitution,
                         onSave = {
                             coroutineScope.launch {
-                                saveSubstitution(it)
+                                saveSubstitution(it, null)
                                 closeNew()
                             }
                         },
@@ -159,7 +159,7 @@ fun ZalgoSubstitutionList(
                             substitution,
                             onSave = {
                                 coroutineScope.launch {
-                                    saveSubstitution(it)
+                                    saveSubstitution(it, substitution)
                                     editing.value = false
                                 }
                             },
@@ -265,7 +265,7 @@ fun ZalgoSubstitutionListPreview(
                         ZalgoSubstitution("o/", "ø", remember { UUID.randomUUID() }),
                         ZalgoSubstitution("a0", "å", remember { UUID.randomUUID() }),
                     ),
-                    saveSubstitution = {},
+                    saveSubstitution = { _, _ -> },
                     deleteSubstitution = {},
                     composingNewId = remember { UUID.randomUUID() },
                     closeNew = {},
