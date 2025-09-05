@@ -38,6 +38,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
@@ -99,7 +100,9 @@ fun ZalgoSubstitutionsEditor(
             deleteSubstitution = { manager.substitutionDao.deleteOrRevert(it) },
             composingNewId = composingNewId.value,
             closeNew = { composingNewId.value = null },
-            modifier = Modifier.padding(padding),
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize(),
         )
     }
 }
@@ -117,6 +120,7 @@ fun ZalgoSubstitutionList(
     val appSettings = LocalAppSettings.current
     val showCustom = appSettings.zalgoSubstitutionsShowCustom.state
     val showDefault = appSettings.zalgoSubstitutionsShowDefault.state
+    val showTips = appSettings.zalgoSubstitutionsShowTips.state
 
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
@@ -125,9 +129,27 @@ fun ZalgoSubstitutionList(
             listState.animateScrollToItem(0)
         }
     }
+
+    val tips = remember {
+        listOf(
+            AnnotatedString("You can use Zalgo macros to enter long texts or type otherwise-missing characters."),
+            buildAnnotatedString {
+                append("Macros always have two characters.\n")
+                append("To use a macro, type the first character, then ")
+                appendInlineContent(ZalgoInlineContent.zalgoIconId, "the zalgo character")
+                append(", and then the second character.")
+            },
+            buildAnnotatedString {
+                appendInlineContent(ZalgoInlineContent.zalgoIconId, "Zalgo")
+                append(" mode can also be used to combine arbitrary accents, like G")
+                appendInlineContent(ZalgoInlineContent.zalgoIconId, "+")
+                append("¨.")
+            },
+        )
+    }
+
     LazyColumn(
         modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
         state = listState,
     ) {
@@ -196,6 +218,18 @@ fun ZalgoSubstitutionList(
                 )
             }
         }
+
+        collapsibleListHeader(
+            "Tips",
+            expanded = showTips.value,
+            onSetExpanded = { appSettings.zalgoSubstitutionsShowTips.currentValue = it },
+        )
+
+        if (showTips.value) {
+            items(tips, key = { it.hashCode() }, contentType = { "tip" }) {
+                ZalgoTipCard(it, Modifier.animateItem())
+            }
+        }
     }
 }
 
@@ -258,12 +292,11 @@ fun ZalgoSubstitutionViewer(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            val zalgoIconId = "join"
             val fromWithIcons = remember(substitution.from) {
                 buildAnnotatedString {
                     substitution.from.forEachIndexed { i, chr ->
                         if (i > 0) {
-                            appendInlineContent(zalgoIconId, alternateText = " ")
+                            appendInlineContent(ZalgoInlineContent.zalgoIconId, alternateText = " ")
                         }
                         append(chr)
                     }
@@ -271,21 +304,7 @@ fun ZalgoSubstitutionViewer(
             }
             Text(
                 fromWithIcons,
-                inlineContent = mapOf(
-                    zalgoIconId to InlineTextContent(
-                        Placeholder(
-                            width = 1.em,
-                            height = 1.em,
-                            placeholderVerticalAlign = PlaceholderVerticalAlign.Center,
-                        ),
-                    ) {
-                        Icon(
-                            painterResource(R.drawable.outline_cell_merge_24),
-                            contentDescription = "and",
-                            Modifier.fillMaxSize(),
-                        )
-                    },
-                ),
+                inlineContent = ZalgoInlineContent.inlineContent,
             )
             Icon(
                 painterResource(R.drawable.outline_arrow_right_alt_24),
@@ -409,4 +428,48 @@ fun ZalgoSubstitutionEditorPreview() {
             )
         }
     }
+}
+
+@Composable
+fun ZalgoTipCard(tip: AnnotatedString, modifier: Modifier = Modifier) {
+    Card(
+        onClick = {}, enabled = false,
+        modifier = modifier
+            .padding(horizontal = 8.dp)
+            .fillMaxWidth(),
+    ) {
+        Text(
+            tip, Modifier.padding(8.dp),
+            inlineContent = ZalgoInlineContent.inlineContent,
+        )
+    }
+}
+
+@Preview(widthDp = 200)
+@Composable
+fun ZalgoTipCardPreview() {
+    FlickBoardParent {
+        Surface(Modifier.safeDrawingPadding()) {
+            ZalgoTipCard(AnnotatedString("Did you know that FlickBoard will try to display tips here and there?"))
+        }
+    }
+}
+
+private object ZalgoInlineContent {
+    val zalgoIconId = "join"
+    val inlineContent = mapOf(
+        zalgoIconId to InlineTextContent(
+            Placeholder(
+                width = 1.em,
+                height = 1.em,
+                placeholderVerticalAlign = PlaceholderVerticalAlign.Center,
+            ),
+        ) {
+            Icon(
+                painterResource(R.drawable.outline_cell_merge_24),
+                contentDescription = "zalgo",
+                Modifier.fillMaxSize(),
+            )
+        },
+    )
 }

@@ -780,6 +780,13 @@ class AppSettings(val ctx: SettingsContext) {
         ctx = ctx,
     )
 
+    val zalgoSubstitutionsShowTips = Setting.Bool(
+        key = "zalgoSubstitutionsShowTips",
+        label = "Zalgo Substitutions: Show Tips",
+        defaultValue = true,
+        ctx = ctx,
+    )
+
     val all =
         listOf(
             SettingsSection(
