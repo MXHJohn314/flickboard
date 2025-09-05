@@ -14,7 +14,8 @@ import java.time.Instant
 
 @Entity
 data class ClipboardEntry(
-    @PrimaryKey(autoGenerate = true) val id: Long,
+    @PrimaryKey(autoGenerate = true)
+    val id: Long,
     val lastAddedOn: Instant,
     val clipData: String,
     @ColumnInfo(defaultValue = "0")

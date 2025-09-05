@@ -1,0 +1,88 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "335a355878978fa85e3aa4926f3146e6",
+    "entities": [
+      {
+        "tableName": "ClipboardEntry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `lastAddedOn` INTEGER NOT NULL, `clipData` TEXT NOT NULL, `pinned` INTEGER NOT NULL DEFAULT 0, `generation` INTEGER NOT NULL DEFAULT 0)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastAddedOn",
+            "columnName": "lastAddedOn",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clipData",
+            "columnName": "clipData",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pinned",
+            "columnName": "pinned",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "generation",
+            "columnName": "generation",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "ZalgoSubstitution",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`from` TEXT NOT NULL, `to` TEXT NOT NULL, `visualId` BLOB NOT NULL DEFAULT '(migration placeholder)', PRIMARY KEY(`from`))",
+        "fields": [
+          {
+            "fieldPath": "from",
+            "columnName": "from",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "to",
+            "columnName": "to",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "visualId",
+            "columnName": "visualId",
+            "affinity": "BLOB",
+            "notNull": true,
+            "defaultValue": "'(migration placeholder)'"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "from"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '335a355878978fa85e3aa4926f3146e6')"
+    ]
+  }
+}

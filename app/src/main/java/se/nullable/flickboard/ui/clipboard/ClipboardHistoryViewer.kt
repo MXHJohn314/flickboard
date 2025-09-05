@@ -2,8 +2,6 @@ package se.nullable.flickboard.ui.clipboard
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,10 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -47,11 +43,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
@@ -75,6 +69,7 @@ import se.nullable.flickboard.ui.layout.rememberSwipeToOptionsBoxState
 import se.nullable.flickboard.ui.layout.reverse
 import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.theme.PageTitle
+import se.nullable.flickboard.ui.util.collapsibleListHeader
 import se.nullable.flickboard.ui.util.defaultFocus
 import se.nullable.flickboard.ui.util.items
 import se.nullable.flickboard.ui.util.replaceWith
@@ -206,7 +201,7 @@ fun ClipboardHistoryViewer(
                 item {}
 
                 if (pinnedEntries.itemCount > 0) {
-                    clipboardHistoryHeader(
+                    collapsibleListHeader(
                         "Pinned",
                         expanded = showPinned.value,
                         onSetExpanded = appSettings.clipboardHistoryShowPinned::currentValue::set,
@@ -236,7 +231,7 @@ fun ClipboardHistoryViewer(
                 // where the *previous* item (or the header) is considered the top item, so that if
                 // the visible top item is deleted and restored it will reappear within the visible
                 // area.
-                clipboardHistoryHeader(
+                collapsibleListHeader(
                     "History",
                     expanded = showHistory.value,
                     onSetExpanded = appSettings.clipboardHistoryShowHistory::currentValue::set,
@@ -274,7 +269,7 @@ fun ClipboardHistoryViewer(
                     }
                 }
 
-                clipboardHistoryHeader(
+                collapsibleListHeader(
                     "Tips",
                     expanded = showTips.value,
                     onSetExpanded = appSettings.clipboardHistoryShowTips::currentValue::set,
@@ -294,46 +289,6 @@ fun ClipboardHistoryViewer(
                 item {
                     Spacer(Modifier.safeDrawingPadding())
                 }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-private fun LazyListScope.clipboardHistoryHeader(
-    label: String,
-    expanded: Boolean,
-    onSetExpanded: (expanded: Boolean) -> Unit,
-) {
-    stickyHeader(key = label, contentType = "header") {
-        Surface(
-            Modifier
-                .fillMaxWidth()
-                .animateItem()
-                .toggleable(expanded, onValueChange = onSetExpanded, role = Role.Checkbox),
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7F),
-        ) {
-            Row(
-                Modifier.padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(label, Modifier.padding(8.dp))
-                Spacer(Modifier.weight(1F))
-                val hideIconAngle = animateFloatAsState(
-                    when {
-                        expanded -> 180F
-                        else -> 0F
-                    },
-                    label = "hideIconAngle",
-                )
-                Icon(
-                    painterResource(R.drawable.baseline_arrow_drop_down_24),
-                    when {
-                        expanded -> "Hide"
-                        else -> "Show"
-                    },
-                    Modifier.rotate(hideIconAngle.value),
-                )
             }
         }
     }

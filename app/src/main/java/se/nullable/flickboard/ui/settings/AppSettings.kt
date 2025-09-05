@@ -766,6 +766,27 @@ class AppSettings(val ctx: SettingsContext) {
         ctx = ctx,
     )
 
+    val zalgoSubstitutionsShowCustom = Setting.Bool(
+        key = "zalgoSubstitutionsShowCustom",
+        label = "Zalgo Substitutions: Show Custom",
+        defaultValue = true,
+        ctx = ctx,
+    )
+
+    val zalgoSubstitutionsShowDefault = Setting.Bool(
+        key = "zalgoSubstitutionsShowDefault",
+        label = "Zalgo Substitutions: Show Default",
+        defaultValue = false,
+        ctx = ctx,
+    )
+
+    val zalgoSubstitutionsShowTips = Setting.Bool(
+        key = "zalgoSubstitutionsShowTips",
+        label = "Zalgo Substitutions: Show Tips",
+        defaultValue = true,
+        ctx = ctx,
+    )
+
     val all =
         listOf(
             SettingsSection(
