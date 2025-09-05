@@ -64,7 +64,6 @@ import kotlinx.coroutines.launch
 import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.FlickBoardParent
-import se.nullable.flickboard.ui.appDatabaseForContext
 import se.nullable.flickboard.ui.clipboard.ClipboardHistoryViewer
 import se.nullable.flickboard.ui.emoji.EmojiKeyboard
 import se.nullable.flickboard.ui.emoji.EmojiTab
@@ -87,8 +86,6 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         savedStateRegistryController.savedStateRegistry
 
     override val viewModelStore: ViewModelStore = ViewModelStore()
-
-    private val appDatabase = lazy { appDatabaseForContext(this@KeyboardService) }
 
     private var viewHeight: Int = 0 // Set once view is measured
     private var keyboardHeight: Int = 0 // Set once view is measured
@@ -203,7 +200,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                 keyboardHeight = size.height
                             },
                     ) {
-                        FlickBoardParent(appDatabase = appDatabase) {
+                        FlickBoardParent(application = application as FlickboardApplication) {
                             val snackbarHostState = remember { SnackbarHostState() }
                             val keyboardTheme = LocalKeyboardTheme.current
 
@@ -516,7 +513,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         context = this@KeyboardService,
                     ),
                     coroutineScope = this,
-                    appDatabase = appDatabase,
+                    appDatabase = (application as FlickboardApplication).appDatabase,
                 ),
             )
             clipboardTracker(

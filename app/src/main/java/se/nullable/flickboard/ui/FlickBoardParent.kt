@@ -15,6 +15,7 @@ import androidx.room.Room
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
+import se.nullable.flickboard.FlickboardApplication
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.AppDatabase
 import se.nullable.flickboard.model.credits.DependencyInfo
@@ -61,7 +62,7 @@ val LocalDollar1GestureLibrary = staticCompositionLocalOf<Lazy<Boxed<GestureLibr
 @Composable
 fun FlickBoardParent(
     prefs: SharedPreferences? = null,
-    appDatabase: Lazy<AppDatabase>? = null,
+    application: FlickboardApplication? = null,
     displayLimits: DisplayLimits = DisplayLimits.calculateCurrent(),
     content: @Composable () -> Unit
 ) {
@@ -87,7 +88,9 @@ fun FlickBoardParent(
             }
         }
     }
-    val providedAppDatabase = appDatabase ?: remember(context) {
+    // Prefer sharing the application's appdb, since otherwise watching will fail to update
+    // across contexts
+    val providedAppDatabase = application?.appDatabase ?: remember(context) {
         lazy {
             appDatabaseForContext(context)
         }

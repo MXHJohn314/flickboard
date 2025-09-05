@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         setContent {
-            FlickBoardParent {
+            FlickBoardParent(application = application as FlickboardApplication) {
                 val navController = rememberNavController()
                 // A surface container using the 'background' color from the theme
                 Surface(
