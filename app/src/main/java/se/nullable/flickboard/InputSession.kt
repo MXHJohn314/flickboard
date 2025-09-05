@@ -654,6 +654,22 @@ class InputSession(
                         android.R.id.paste,
                     )
 
+                Action.Undo ->
+                    sendKeyPressEvents(
+                        KeyEvent.KEYCODE_Z,
+                        extraModifiers = KeyEvent.normalizeMetaState(
+                            KeyEvent.META_CTRL_LEFT_ON,
+                        ),
+                    )
+
+                Action.Redo ->
+                    sendKeyPressEvents(
+                        KeyEvent.KEYCODE_Z,
+                        extraModifiers = KeyEvent.normalizeMetaState(
+                            KeyEvent.META_CTRL_LEFT_ON or KeyEvent.META_SHIFT_LEFT_ON,
+                        ),
+                    )
+
                 Action.SelectAll ->
                     inputConnection.performContextMenuAction(
                         android.R.id.selectAll,

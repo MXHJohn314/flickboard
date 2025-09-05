@@ -172,6 +172,8 @@ val CONTROL_MESSAGEASE_LAYER =
                         Direction.TOP to Action.Copy,
                         Direction.TOP_RIGHT to Action.Cut,
                         Direction.BOTTOM to Action.Paste,
+                        Direction.LEFT to Action.Undo,
+                        Direction.RIGHT to Action.Redo,
                         Direction.BOTTOM_LEFT to Action.EnableVoiceMode,
                         Direction.BOTTOM_RIGHT to Action.EnableVoiceMode,
                     ),

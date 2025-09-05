@@ -509,6 +509,22 @@ sealed class Action {
         override val description: String = "Pastes whatever is in the clipboard."
     }
 
+    data object Undo : Action() {
+        override fun visual(keyboardState: KeyboardState): ActionVisual =
+            ActionVisual.Icon(R.drawable.outline_undo_24)
+
+        override val title: String = "Undo"
+        override val description: String = "Reverts the previous action."
+    }
+
+    data object Redo : Action() {
+        override fun visual(keyboardState: KeyboardState): ActionVisual =
+            ActionVisual.Icon(R.drawable.outline_redo_24)
+
+        override val title: String = "Redo"
+        override val description: String = "Attempts to restore the action that was just undone."
+    }
+
     data object Settings : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_settings_24)
