@@ -5,17 +5,14 @@ import kotlinx.coroutines.flow.map
 import java.util.UUID
 
 class ZalgoManager(
-    private val defaultSubstitutions: List<ZalgoSubstitution>,
+    val defaultSubstitutions: List<ZalgoSubstitution>,
     val substitutionDao: ZalgoSubstitutionDao,
 ) {
     private val defaultSubstitutionMap: Map<String, String> =
         defaultSubstitutions.toZalgoMap()
 
-    val substitutions: Flow<List<ZalgoSubstitution>> =
-        substitutionDao.allCustom().map { customSubstitutions ->
-            val customFroms = customSubstitutions.asSequence().map { it.from }.toSet()
-            customSubstitutions + (defaultSubstitutions.filterNot { customFroms.contains(it.from) })
-        }
+    val customSubstitutions: Flow<List<ZalgoSubstitution>> =
+        substitutionDao.allCustom()
 
     val db: Flow<ZalgoDatabase> = substitutionDao.allCustom().map {
         ZalgoDatabase(defaultSubstitutionMap + it.toZalgoMap())

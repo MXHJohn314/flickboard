@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,7 +52,9 @@ import se.nullable.flickboard.R
 import se.nullable.flickboard.model.zalgo.ZalgoSubstitution
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.LocalZalgoManager
+import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.util.PreviewLayoutDirectionProvider
+import se.nullable.flickboard.ui.util.collapsibleListHeader
 import se.nullable.flickboard.ui.util.modify
 import java.util.UUID
 
@@ -62,7 +65,15 @@ fun ZalgoSubstitutionsEditor(
     modifier: Modifier = Modifier
 ) {
     val manager = LocalZalgoManager.current.value
-    val substitutions = manager.substitutions.collectAsState(emptyList())
+    val customSubstitutions = manager.customSubstitutions.collectAsState(emptyList())
+    val unshadowedDefaultSubstitutions = remember {
+        val shadowedFroms = derivedStateOf {
+            customSubstitutions.value.mapTo(mutableSetOf()) { it.from }
+        }
+        derivedStateOf {
+            manager.defaultSubstitutions.filterNot { shadowedFroms.value.contains(it.from) }
+        }
+    }
     val composingNewId = remember { mutableStateOf<UUID?>(null) }
     Scaffold(
         modifier,
@@ -82,7 +93,8 @@ fun ZalgoSubstitutionsEditor(
         },
     ) { padding ->
         ZalgoSubstitutionList(
-            substitutions.value,
+            customSubstitutions = customSubstitutions.value,
+            defaultSubstitutions = unshadowedDefaultSubstitutions.value,
             saveSubstitution = { new, old -> manager.substitutionDao.upsert(new, old) },
             deleteSubstitution = { manager.substitutionDao.deleteOrRevert(it) },
             composingNewId = composingNewId.value,
@@ -94,13 +106,18 @@ fun ZalgoSubstitutionsEditor(
 
 @Composable
 fun ZalgoSubstitutionList(
-    substitutions: List<ZalgoSubstitution>,
+    customSubstitutions: List<ZalgoSubstitution>,
+    defaultSubstitutions: List<ZalgoSubstitution>,
     saveSubstitution: suspend (new: ZalgoSubstitution, old: ZalgoSubstitution?) -> Unit,
     deleteSubstitution: suspend (ZalgoSubstitution) -> Unit,
     composingNewId: UUID?,
     closeNew: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val appSettings = LocalAppSettings.current
+    val showCustom = appSettings.zalgoSubstitutionsShowCustom.state
+    val showDefault = appSettings.zalgoSubstitutionsShowDefault.state
+
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     LaunchedEffect(composingNewId) {
@@ -116,6 +133,12 @@ fun ZalgoSubstitutionList(
     ) {
         // Spacer item, compose tends to work better when the first item isn't moving around
         item {}
+
+        collapsibleListHeader(
+            "Custom",
+            expanded = showCustom.value,
+            onSetExpanded = { appSettings.zalgoSubstitutionsShowCustom.currentValue = it },
+        )
 
         if (composingNewId != null) {
             item(key = composingNewId) {
@@ -146,44 +169,78 @@ fun ZalgoSubstitutionList(
             }
         }
 
-        items(substitutions, key = { it.visualId }) { substitution ->
-            val editing = remember { mutableStateOf(false) }
-            Card(
-                Modifier
-                    .animateItem()
-                    .padding(horizontal = 8.dp),
-            ) {
-                AnimatedContent(editing.value) { isEditing ->
-                    when {
-                        isEditing -> ZalgoSubstitutionEditor(
-                            substitution,
-                            onSave = {
-                                coroutineScope.launch {
-                                    saveSubstitution(it, substitution)
-                                    editing.value = false
-                                }
-                            },
-                            onCancel = { editing.value = false },
-                            onDelete = {
-                                coroutineScope.launch {
-                                    deleteSubstitution(substitution)
-                                    editing.value = false
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp),
-                        )
+        if (showCustom.value) {
+            items(customSubstitutions, key = { it.visualId }) { substitution ->
+                EditableZalgoSubstitution(
+                    substitution,
+                    saveSubstitution = saveSubstitution,
+                    deleteSubstitution = deleteSubstitution,
+                    modifier = Modifier.animateItem(),
+                )
+            }
+        }
 
-                        else -> ZalgoSubstitutionViewer(
-                            substitution,
-                            onEdit = { editing.value = true },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp),
-                        )
-                    }
-                }
+        collapsibleListHeader(
+            "Built-in",
+            expanded = showDefault.value,
+            onSetExpanded = { appSettings.zalgoSubstitutionsShowDefault.currentValue = it },
+        )
+
+        if (showDefault.value) {
+            items(defaultSubstitutions, key = { it.visualId }) { substitution ->
+                EditableZalgoSubstitution(
+                    substitution,
+                    saveSubstitution = saveSubstitution,
+                    deleteSubstitution = deleteSubstitution,
+                    modifier = Modifier.animateItem(),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EditableZalgoSubstitution(
+    substitution: ZalgoSubstitution,
+    saveSubstitution: suspend (old: ZalgoSubstitution, new: ZalgoSubstitution) -> Unit,
+    deleteSubstitution: suspend (ZalgoSubstitution) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val editing = remember { mutableStateOf(false) }
+    Card(
+        modifier
+            .padding(horizontal = 8.dp),
+    ) {
+        AnimatedContent(editing.value) { isEditing ->
+            when {
+                isEditing -> ZalgoSubstitutionEditor(
+                    substitution,
+                    onSave = {
+                        coroutineScope.launch {
+                            saveSubstitution(it, substitution)
+                            editing.value = false
+                        }
+                    },
+                    onCancel = { editing.value = false },
+                    onDelete = {
+                        coroutineScope.launch {
+                            deleteSubstitution(substitution)
+                            editing.value = false
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                )
+
+                else -> ZalgoSubstitutionViewer(
+                    substitution,
+                    onEdit = { editing.value = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                )
             }
         }
     }
@@ -259,11 +316,14 @@ fun ZalgoSubstitutionListPreview(
         FlickBoardParent {
             Surface(Modifier.safeDrawingPadding()) {
                 ZalgoSubstitutionList(
-                    substitutions = listOf(
+                    customSubstitutions = listOf(
                         // WE GOT THE..
                         ZalgoSubstitution("ae", "æ", remember { UUID.randomUUID() }),
                         ZalgoSubstitution("o/", "ø", remember { UUID.randomUUID() }),
                         ZalgoSubstitution("a0", "å", remember { UUID.randomUUID() }),
+                    ),
+                    defaultSubstitutions = listOf(
+                        ZalgoSubstitution("øø", "Ø", remember { UUID.randomUUID() }),
                     ),
                     saveSubstitution = { _, _ -> },
                     deleteSubstitution = {},
