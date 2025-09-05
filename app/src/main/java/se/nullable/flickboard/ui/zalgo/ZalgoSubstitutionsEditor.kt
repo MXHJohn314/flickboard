@@ -288,10 +288,9 @@ fun ZalgoSubstitutionViewer(
 ) {
     Row(
         modifier.padding(start = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.weight(1F), verticalAlignment = Alignment.CenterVertically) {
             val fromWithIcons = remember(substitution.from) {
                 buildAnnotatedString {
                     substitution.from.forEachIndexed { i, chr ->
@@ -336,6 +335,11 @@ fun ZalgoSubstitutionListPreview(
             Surface(Modifier.safeDrawingPadding()) {
                 ZalgoSubstitutionList(
                     customSubstitutions = listOf(
+                        ZalgoSubstitution(
+                            "aa",
+                            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            remember { UUID.randomUUID() },
+                        ),
                         // WE GOT THE..
                         ZalgoSubstitution("ae", "æ", remember { UUID.randomUUID() }),
                         ZalgoSubstitution("o/", "ø", remember { UUID.randomUUID() }),
