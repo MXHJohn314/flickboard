@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -292,12 +293,13 @@ fun ZalgoSubstitutionViewer(
         modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
+        FlowRow(
             Modifier
                 .weight(1F)
                 .padding(end = 4.dp)
                 .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            itemVerticalAlignment = Alignment.CenterVertically,
         ) {
             val fromWithIcons = remember(substitution.from) {
                 buildAnnotatedString {
