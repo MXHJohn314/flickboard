@@ -28,8 +28,11 @@ data class ZalgoSubstitution @JvmOverloads constructor(
 
 @Dao
 abstract class ZalgoSubstitutionDao(private val db: AppDatabase) {
-    @Query("SELECT * from zalgosubstitution")
+    @Query("SELECT * from zalgosubstitution ORDER BY `from` ASC")
     abstract fun allCustom(): Flow<List<ZalgoSubstitution>>
+
+    @Query("SELECT * from zalgosubstitution")
+    abstract fun allCustomUnordered(): Flow<List<ZalgoSubstitution>>
 
     @Upsert
     protected abstract suspend fun upsertNew(substitution: ZalgoSubstitution)

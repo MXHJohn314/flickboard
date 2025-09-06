@@ -14,7 +14,7 @@ class ZalgoManager(
     val customSubstitutions: Flow<List<ZalgoSubstitution>> =
         substitutionDao.allCustom()
 
-    val db: Flow<ZalgoDatabase> = substitutionDao.allCustom().map {
+    val db: Flow<ZalgoDatabase> = substitutionDao.allCustomUnordered().map {
         ZalgoDatabase(defaultSubstitutionMap + it.toZalgoMap())
     }
 
