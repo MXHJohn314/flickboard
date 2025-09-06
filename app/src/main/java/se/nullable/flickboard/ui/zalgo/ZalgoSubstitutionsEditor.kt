@@ -2,6 +2,7 @@ package se.nullable.flickboard.ui.zalgo
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,9 +17,11 @@ import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -242,39 +245,39 @@ fun EditableZalgoSubstitution(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val editing = remember { mutableStateOf(false) }
-    Card(
-        modifier
-            .padding(horizontal = 8.dp),
-    ) {
+    Box(modifier.padding(horizontal = 8.dp)) {
         AnimatedContent(editing.value) { isEditing ->
             when {
-                isEditing -> ZalgoSubstitutionEditor(
-                    substitution,
-                    onSave = {
-                        coroutineScope.launch {
-                            saveSubstitution(it, substitution)
-                            editing.value = false
-                        }
-                    },
-                    onCancel = { editing.value = false },
-                    onDelete = {
-                        coroutineScope.launch {
-                            deleteSubstitution(substitution)
-                            editing.value = false
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                )
+                isEditing -> Card {
+                    ZalgoSubstitutionEditor(
+                        substitution,
+                        onSave = {
+                            coroutineScope.launch {
+                                saveSubstitution(it, substitution)
+                                editing.value = false
+                            }
+                        },
+                        onCancel = { editing.value = false },
+                        onDelete = {
+                            coroutineScope.launch {
+                                deleteSubstitution(substitution)
+                                editing.value = false
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                    )
+                }
 
-                else -> ZalgoSubstitutionViewer(
-                    substitution,
-                    onEdit = { editing.value = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                )
+                else -> Card(onClick = { editing.value = true }) {
+                    ZalgoSubstitutionViewer(
+                        substitution,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                    )
+                }
             }
         }
     }
@@ -283,14 +286,19 @@ fun EditableZalgoSubstitution(
 @Composable
 fun ZalgoSubstitutionViewer(
     substitution: ZalgoSubstitution,
-    onEdit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier.padding(start = 8.dp),
+        modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(Modifier.weight(1F), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            Modifier
+                .weight(1F)
+                .padding(end = 4.dp)
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             val fromWithIcons = remember(substitution.from) {
                 buildAnnotatedString {
                     substitution.from.forEachIndexed { i, chr ->
@@ -301,26 +309,28 @@ fun ZalgoSubstitutionViewer(
                     }
                 }
             }
-            Text(
-                fromWithIcons,
-                inlineContent = ZalgoInlineContent.inlineContent,
-            )
+            ElevatedCard(shape = MaterialTheme.shapes.extraSmall) {
+                Text(
+                    fromWithIcons,
+                    Modifier.padding(4.dp),
+                    inlineContent = ZalgoInlineContent.inlineContent,
+                )
+            }
             Icon(
                 painterResource(R.drawable.outline_arrow_right_alt_24),
                 contentDescription = "becomes",
             )
-            Text(
-                substitution.to,
-            )
-        }
-        Row {
-            IconButton(onClick = { onEdit() }) {
-                Icon(
-                    painterResource(R.drawable.baseline_edit_24),
-                    contentDescription = "Edit",
+            ElevatedCard(shape = MaterialTheme.shapes.extraSmall) {
+                Text(
+                    substitution.to,
+                    Modifier.padding(4.dp),
                 )
             }
         }
+        Icon(
+            painterResource(R.drawable.baseline_edit_24),
+            contentDescription = "Edit",
+        )
     }
 }
 
