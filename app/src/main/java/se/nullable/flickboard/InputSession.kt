@@ -117,7 +117,11 @@ class InputSession(
             }
         }
 
-    private fun sendKeyPressEvents(keyCode: Int, extraModifiers: Int = 0) {
+    private fun sendKeyPressEvents(
+        keyCode: Int,
+        extraModifiers: Int = 0,
+        ignoreActiveModifiers: Boolean = false
+    ) {
         listOf(KeyEvent.ACTION_DOWN, KeyEvent.ACTION_UP).forEach { keyAction ->
             inputConnection.sendKeyEvent(
                 KeyEvent(
@@ -126,7 +130,8 @@ class InputSession(
                     keyAction,
                     keyCode,
                     0,
-                    activeModifiers.androidMetaState or extraModifiers,
+                    (activeModifiers.androidMetaState * !ignoreActiveModifiers)
+                            or extraModifiers,
                     KeyCharacterMap.VIRTUAL_KEYBOARD,
                     0,
                     KeyEvent.FLAG_SOFT_KEYBOARD,
@@ -660,6 +665,7 @@ class InputSession(
                         extraModifiers = KeyEvent.normalizeMetaState(
                             KeyEvent.META_CTRL_LEFT_ON,
                         ),
+                        ignoreActiveModifiers = true,
                     )
 
                 Action.Redo ->
@@ -668,6 +674,7 @@ class InputSession(
                         extraModifiers = KeyEvent.normalizeMetaState(
                             KeyEvent.META_CTRL_LEFT_ON or KeyEvent.META_SHIFT_LEFT_ON,
                         ),
+                        ignoreActiveModifiers = true,
                     )
 
                 Action.SelectAll ->
