@@ -41,8 +41,8 @@ android {
         applicationId = "se.nullable.flickboard"
         minSdk = 26
         targetSdk = 36
-        versionCode = 100
-        versionName = "0.3.0"
+        versionCode = 101
+        versionName = "0.3.0.1"
         // This is actually a global, but set here since it depends on the versionName
         // THIS IS NOT UPDATED FOR VARIANTS' versionNames!
         base.archivesName = "flickboard-v${versionName}"
