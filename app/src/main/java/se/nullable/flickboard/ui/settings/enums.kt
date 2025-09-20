@@ -9,6 +9,7 @@ import se.nullable.flickboard.model.layouts.DE_MESSAGEASE
 import se.nullable.flickboard.model.layouts.EN_DE_MESSAGEASE
 import se.nullable.flickboard.model.layouts.EN_ES_MESSAGEASE
 import se.nullable.flickboard.model.layouts.EN_MESSAGEASE
+import se.nullable.flickboard.model.layouts.EO_MESSAGEASE
 import se.nullable.flickboard.model.layouts.EN_THUMBKEY
 import se.nullable.flickboard.model.layouts.ES_CA_MESSAGEASE
 import se.nullable.flickboard.model.layouts.ES_MESSAGEASE
@@ -134,6 +135,7 @@ enum class LetterLayerOption(override val label: String, val layout: Layout) : L
     Arabic("Arabic (MessagEase)", AR_MESSAGEASE),
     Danish("Danish (MessagEase)", DA_MESSAGEASE),
     English("English (MessagEase)", EN_MESSAGEASE),
+    Esperanto("Esperanto (MessagEase)", EO_MESSAGEASE),
     EnglishThumbKey("English (Thumb-Key)", EN_THUMBKEY),
     French("French (MessagEase)", FR_MESSAGEASE),
     FrenchExt("French (Extended MessagEase)", FR_EXT_MESSAGEASE),
