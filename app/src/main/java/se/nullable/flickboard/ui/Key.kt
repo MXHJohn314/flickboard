@@ -3,6 +3,7 @@ package se.nullable.flickboard.ui
 import android.gesture.GestureLibrary
 import android.gesture.GesturePoint
 import android.gesture.GestureStroke
+import android.os.Trace
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -53,6 +54,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.style.LineHeightStyle
@@ -202,6 +204,7 @@ fun Key(
                     ignoreJumpsLongerThanPx = { ignoreJumpsLongerThanPx.value },
                     flicksMustBeLongerThanSeconds = { flicksMustBeLongerThanSeconds.value },
                 )?.let { gesture ->
+                    Trace.beginSection("Key.onClick")
                     val flick =
                         gesture.normalizeToFlick(
                             clockwiseCircleBehaviour = clockwiseCircleBehaviour.value,
@@ -209,6 +212,7 @@ fun Key(
                             longHoldBehaviour = longHoldBehaviour.value,
                         )
                     flick.resolveAction(key)?.let { handleAction(it, gesture, isFast = false) }
+                    Trace.endSection()
                 }
             }
         }
@@ -228,6 +232,7 @@ fun Key(
     }
     Box(
         modifier
+            .testTag("key(${key.actions[Direction.CENTER]?.title})")
             .background(
                 keyboardTheme.keySurfaceColour.copy(alpha = keyOpacity.value),
                 shape = shape,

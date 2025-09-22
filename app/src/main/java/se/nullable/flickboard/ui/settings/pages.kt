@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDirection
@@ -117,7 +118,12 @@ fun SettingsHomePage(
                 TextField(
                     value = tryText.value,
                     onValueChange = { tryText.value = it },
-                    label = { Text("Type here to try FlickBoard") },
+                    label = {
+                        Text(
+                            "Type here to try FlickBoard",
+                            Modifier.testTag("testPad"),
+                        )
+                    },
                     textStyle = TextStyle(textDirection = TextDirection.Content),
                     modifier = Modifier
                         .fillMaxWidth()

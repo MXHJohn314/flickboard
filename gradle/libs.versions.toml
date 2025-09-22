@@ -13,7 +13,7 @@ androidx-paging = "3.3.6"
 androidx-room = "2.7.1"
 androidx-test-espresso = "3.6.1"
 androidx-test-junit = "1.2.1"
-androidx-test-uiautomator = "2.3.0"
+androidx-test-uiautomator = "2.4.0-alpha06"
 fastlane-screengrab = "2.1.1"
 junit = "4.13.2"
 gradle = "8.7.3"
@@ -21,6 +21,7 @@ kotlin = "2.1.0"
 # Must start with ${kotlin}-
 kotlin-ksp = "2.1.0-1.0.29"
 kotlinx-serialization = "1.8.0"
+benchmark-macro-junit4 = "1.4.1"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
@@ -63,6 +64,7 @@ junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 gradle-api = { module = "com.android.tools.build:gradle-api", version.ref = "gradle" }
+androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "android-gradle-plugin" }
@@ -74,3 +76,4 @@ kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization"
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp" }
 flickboard-emojidb = { id = "se.nullable.flickboard.build.emojidb" }
 flickboard-dependencycollector = { id = "se.nullable.flickboard.build.dependencycollector" }
+android-test = { id = "com.android.test", version.ref = "android-gradle-plugin" }

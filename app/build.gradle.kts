@@ -72,8 +72,19 @@ android {
             initWith(getByName("release"))
             applicationIdSuffix = ".unsigned"
             signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+        create("benchmark") {
+            initWith(buildTypes.getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
+//    testBuildType = "unsignedRelease"
     flavorDimensions += "purpose"
     productFlavors {
         create("plain") {

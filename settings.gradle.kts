@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 rootProject.name = "FlickBoard"
 include(":app")
 include(":test-apps:formr")
+include(":benchmark")

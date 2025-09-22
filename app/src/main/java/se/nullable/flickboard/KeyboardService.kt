@@ -42,6 +42,9 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -179,9 +182,12 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         return ComposeView(this).also { view ->
             view.setContent {
                 BoxWithConstraints(
-                    Modifier.onSizeChanged { size ->
-                        viewHeight = size.height
-                    },
+                    Modifier
+                        .onSizeChanged { size ->
+                            viewHeight = size.height
+                        }
+                        .semantics { testTagsAsResourceId = true }
+                        .testTag("flickboardKeyboardService"),
                     contentAlignment = Alignment.BottomCenter,
                 ) {
                     // Android clips ongoing touch events at the border between the keyboard and app.
