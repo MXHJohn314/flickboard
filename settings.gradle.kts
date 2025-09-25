@@ -18,3 +18,4 @@ rootProject.name = "FlickBoard"
 include(":app")
 include(":test-apps:formr")
 include(":benchmark")
+include(":test-apps:autofillr")

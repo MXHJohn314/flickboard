@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -25,9 +27,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -46,63 +54,91 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     snackbarHost = { SnackbarHost(snackbarState, Modifier.safeDrawingPadding()) },
                 ) { innerPadding ->
-                    Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(innerPadding),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text("Welcome to Formr!")
-                        val username = remember { mutableStateOf("") }
-                        val password = remember { mutableStateOf("") }
-                        val loginScope = rememberCoroutineScope()
-                        val failureSnackbarScope = rememberCoroutineScope()
-                        val sendIs = remember { MutableInteractionSource() }
+                    val navController = rememberNavController()
+                    NavHost(navController, "login") {
+                        composable("login") {
+                            Column(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(innerPadding),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Text("Welcome to Formr!")
+                                val username = remember { mutableStateOf("") }
+                                val password = remember { mutableStateOf("") }
+                                val shouldSucceed = remember { mutableStateOf(true) }
+                                val loginScope = rememberCoroutineScope()
+                                val failureSnackbarScope = rememberCoroutineScope()
+                                val sendIs = remember { MutableInteractionSource() }
 
-                        val isLoggingIn = remember { mutableStateOf(false) }
-                        val loginMutex = remember { UiMutex() }
-                        suspend fun logIn() {
-                            assert(!isLoggingIn.value)
-                            val success = loginMutex.withLock {
-                                delay(1000)
-                                false
-                            }
-                            if (!success) {
-                                failureSnackbarScope.coroutineContext.cancelChildren()
-                                failureSnackbarScope.launch {
-                                    snackbarState.showSnackbar("Login failed")
+                                val isLoggingIn = remember { mutableStateOf(false) }
+                                val loginMutex = remember { UiMutex() }
+                                suspend fun logIn() {
+                                    assert(!isLoggingIn.value)
+                                    val success = loginMutex.withLock {
+                                        delay(1000)
+                                        shouldSucceed.value
+                                    }
+                                    when {
+                                        success -> {
+                                            navController.navigate("main") { popUpTo("login") }
+                                        }
+
+                                        else -> {
+                                            failureSnackbarScope.coroutineContext.cancelChildren()
+                                            failureSnackbarScope.launch {
+                                                snackbarState.showSnackbar("Login failed")
+                                            }
+                                        }
+                                    }
                                 }
+
+                                TextField(
+                                    username.value,
+                                    username::value::set,
+                                    enabled = !loginMutex.isLocked,
+                                    singleLine = true,
+                                    label = { Text("Username") },
+                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                                    modifier = Modifier.semantics {
+                                        contentType = ContentType.Username
+                                    },
+                                )
+                                TextField(
+                                    password.value,
+                                    password::value::set,
+                                    enabled = !loginMutex.isLocked,
+                                    singleLine = true,
+                                    label = { Text("Password") },
+                                    visualTransformation = PasswordVisualTransformation(),
+                                    keyboardOptions = KeyboardOptions(
+                                        keyboardType = KeyboardType.Password,
+                                        imeAction = ImeAction.Send,
+                                    ),
+                                    keyboardActions = KeyboardActions(
+                                        onSend = { loginScope.launch { logIn() } },
+                                    ),
+                                    modifier = Modifier.semantics {
+                                        contentType = ContentType.Password
+                                    },
+                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text("Should succeed")
+                                    Checkbox(shouldSucceed.value, shouldSucceed::value::set)
+                                }
+                                Button(
+                                    onClick = { loginScope.launch { logIn() } },
+                                    interactionSource = sendIs,
+                                    enabled = !loginMutex.isLocked,
+                                ) { Text("Log in") }
                             }
                         }
-
-                        TextField(
-                            username.value,
-                            username::value::set,
-                            enabled = !loginMutex.isLocked,
-                            singleLine = true,
-                            label = { Text("Username") },
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                        )
-                        TextField(
-                            password.value,
-                            password::value::set,
-                            enabled = !loginMutex.isLocked,
-                            singleLine = true,
-                            label = { Text("Password") },
-                            visualTransformation = PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                imeAction = ImeAction.Send,
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onSend = { loginScope.launch { logIn() } },
-                            ),
-                        )
-                        Button(
-                            onClick = { loginScope.launch { logIn() } },
-                            interactionSource = sendIs,
-                            enabled = !loginMutex.isLocked,
-                        ) { Text("Log in") }
+                        composable("main") {
+                            Button(
+                                onClick = { navController.navigate("login") { popUpTo("main") } },
+                                modifier = Modifier.padding(innerPadding),
+                            ) { Text("Log out") }
+                        }
                     }
                 }
             }

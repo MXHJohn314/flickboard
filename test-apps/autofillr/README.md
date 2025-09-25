@@ -1,0 +1,1 @@
+An app that provides a dummy autofill service, to test autofill integration.
