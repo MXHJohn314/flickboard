@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.assist.AssistStructure
 import android.content.Intent
+import android.graphics.drawable.Icon
 import android.os.CancellationSignal
 import android.service.autofill.AutofillService
 import android.service.autofill.Dataset
@@ -55,6 +56,7 @@ class AutofillrAutofillService : AutofillService() {
         val content = InlineSuggestionUi
             .newContentBuilder(attributionIntent)
             .setTitle(title)
+            .setStartIcon(Icon.createWithResource(this, R.drawable.outline_person_24))
             .build()
         InlinePresentation(
             // The RestrictedApi seems to be a mistake..
@@ -95,7 +97,12 @@ class AutofillrAutofillService : AutofillService() {
                         ).build(),
                     )
                     .also { fill ->
-                        listOf("foo", "bar", "spam", "eggs").forEachIndexed { i, username ->
+                        listOf(
+                            "Lancelot",
+                            "King Arthur",
+                            "Sir Has-A-Way-Too-Long-Name-For-This-Movie",
+                            "Brian",
+                        ).forEachIndexed { i, username ->
                             val menuPresentation = RemoteViews(
                                 packageName,
                                 android.R.layout.simple_list_item_1,

@@ -1,9 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Theme.FlickBoard.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenAnimatedIcon">@mipmap/logo</item>
         <item name="postSplashScreenTheme">@style/Theme.FlickBoard</item>
     </style>
-    <style name="Theme.FlickBoard" parent="android:Theme.Material.NoActionBar" />
+
+    <style name="Theme.FlickBoard" parent="android:Theme.Material.NoActionBar">
+        <item name="isAutofillInlineSuggestionTheme">true</item>
+        <item name="autofillInlineSuggestionChip">
+            @style/Theme.FlickBoard.Autofill.InlineSuggestionChip
+        </item>
+        <item name="autofillInlineSuggestionStartIconStyle">
+            @style/Widget.Autofill.InlineSuggestionStartIconStyle
+        </item>
+        <item name="autofillInlineSuggestionTitle">
+            @style/Widget.Autofill.InlineSuggestionTitle
+        </item>
+        <item name="autofillInlineSuggestionSubtitle">
+            @style/Widget.Autofill.InlineSuggestionSubtitle
+        </item>
+        <item name="autofillInlineSuggestionEndIconStyle">
+            @style/Widget.Autofill.InlineSuggestionEndIconStyle
+        </item>
+    </style>
+
+    <style name="Theme.AutofillInlineSuggestion" parent="@android:style/Theme.DeviceDefault" tools:override="true">
+        <item name="autofillInlineSuggestionChip">
+            @style/Theme.FlickBoard.Autofill.InlineSuggestionChip
+        </item>
+    </style>
+
+    <style name="Theme.FlickBoard.Autofill.InlineSuggestionChip" parent="@style/Widget.Autofill.InlineSuggestionChip">
+        <item name="android:paddingStart">43dp</item>
+        <item name="android:paddingLeft">43dp</item>
+        <item name="android:paddingEnd">43dp</item>
+        <item name="android:paddingRight">43dp</item>
+    </style>
 </resources>

@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Handler
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
+import android.view.View
 import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedTextRequest
@@ -13,6 +14,7 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.getSystemService
@@ -848,4 +850,17 @@ class InputSession(
             inputConnection.setImeConsumesInput(isShadowed)
         }
     }
+
+    /**
+     * Opaque key used to associate [inlineAutofillOptionViews] with a specific
+     * autofill session.
+     */
+    var inlineAutofillKey: Any = Any()
+
+    /**
+     * Views representing inline autofill response options.
+     *
+     * `null` is used for views that are still being inflated.
+     */
+    val inlineAutofillOptionViews = mutableStateListOf<View?>()
 }

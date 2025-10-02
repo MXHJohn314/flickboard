@@ -1,30 +1,47 @@
 package se.nullable.flickboard
 
+import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.inputmethodservice.InputMethodService
 import android.os.Build
+import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InlineSuggestionsRequest
+import android.view.inputmethod.InlineSuggestionsResponse
 import android.view.inputmethod.InputConnection
+import android.widget.inline.InlinePresentationSpec
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.BackHandler
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
+import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
+import androidx.autofill.inline.UiVersions
+import androidx.autofill.inline.common.ImageViewStyle
+import androidx.autofill.inline.common.TextViewStyle
+import androidx.autofill.inline.common.ViewStyle
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -45,6 +62,7 @@ import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -224,6 +242,14 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                         keyboardTheme.surfaceColour.toArgb()
                                     insets.isAppearanceLightNavigationBars =
                                         !keyboardTheme.isDark
+
+                                    inlineSuggestionTextColour =
+                                        keyboardTheme.keyIndicatorColour.toArgb()
+                                    inlineSuggestionBackground =
+                                        when {
+                                            keyboardTheme.isDark -> R.drawable.autofill_chip_background_dark
+                                            else -> R.drawable.autofill_chip_background_light
+                                        }
                                 }
                             }
 
@@ -308,6 +334,20 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                         }
                                                     }
                                                 }
+                                            Surface(color = LocalKeyboardTheme.current.surfaceColour) {
+                                                Row(
+                                                    Modifier.horizontalScroll(rememberScrollState()),
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                ) {
+                                                    inputSession.inlineAutofillOptionViews.forEachIndexed { i, responseView ->
+                                                        if (responseView != null) {
+                                                            key(i, responseView) {
+                                                                AndroidView(factory = { responseView })
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                             CompositionLocalProvider(
                                                 // Override LocalSoftwareKeyboardController to affect
                                                 // the nested input instead.
@@ -533,6 +573,120 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         lifecycleRegistry.currentState = Lifecycle.State.RESUMED
         super.onStartInputView(editorInfo, restarting)
     }
+
+    // These are set by the input view once rendered
+    @DrawableRes
+    var inlineSuggestionBackground: Int = 0
+
+    @ColorInt
+    var inlineSuggestionTextColour: Int = 0
+
+    override fun onCreateInlineSuggestionsRequest(uiExtras: Bundle): InlineSuggestionsRequest? {
+        return when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                // We only support the v1 style, so fall back to
+                // ye olde autofill menu if the app doesn't support that.
+                if (!UiVersions.getVersions(uiExtras)
+                        .contains(UiVersions.INLINE_UI_VERSION_1)
+                ) {
+                    return null
+                }
+
+                // This will desync if the relevant settings are changed while
+                // the autofill is open.
+                // Annoyingly, I can't seem to find a way to request that the
+                // autofill request be updated.
+                // So I think we'll just have to deal with it for now.. :/
+                val textStyle = TextViewStyle.Builder()
+                    .setTextColor(inlineSuggestionTextColour)
+                    .build()
+                val iconStyle = ImageViewStyle.Builder()
+                    .setTintList(ColorStateList.valueOf(inlineSuggestionTextColour))
+                    .build()
+                // @RestrictedApi seems to be a mistake,
+                // this is a documented API API of InlineSuggestionUi
+                @SuppressLint("RestrictedApi")
+                val chipStyle = ViewStyle.Builder()
+                    .setBackground(
+                        android.graphics.drawable.Icon.createWithResource(
+                            this,
+                            inlineSuggestionBackground,
+                        ),
+                    )
+                    .setPadding(32, 32, 32, 32)
+                    .build()
+
+                InlineSuggestionsRequest.Builder(
+                    listOf(
+                        InlinePresentationSpec.Builder(
+                            android.util.Size(0, 0),
+                            android.util.Size(Int.MAX_VALUE, Int.MAX_VALUE),
+                        )
+                            .setStyle(
+                                UiVersions.newStylesBuilder()
+                                    .addStyle(
+                                        androidx.autofill.inline.v1.InlineSuggestionUi
+                                            .newStyleBuilder()
+                                            .setTitleStyle(textStyle)
+                                            .setSubtitleStyle(textStyle)
+                                            .setStartIconStyle(iconStyle)
+                                            .setEndIconStyle(iconStyle)
+                                            .setChipStyle(
+                                                chipStyle,
+                                            )
+                                            .build(),
+                                    )
+                                    .build(),
+                            )
+                            .build(),
+                    ),
+                ).build()
+            }
+
+            else -> null
+        }
+    }
+
+    override fun onInlineSuggestionsResponse(response: InlineSuggestionsResponse): Boolean =
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                // only the base input session gets these KeyboardService callbacks
+                val inputSession = baseInputSession ?: return false
+
+                // Since inflation is asynchronous, we can only assume that our indexes
+                // are still valid if there hasn't been another call to
+                // onInlineSuggestionsResponse() since the last one.
+                // So we need to validate inlineAutofillKey before each use.
+                val key = Any()
+                inputSession.inlineAutofillKey = key
+                // When a new set of autofill responses is obtained,
+                // replace them all with placeholders and then fill them in as they are retrieved.
+                // That way, we preserve the ordering intended by the autofill provider,
+                // no matter the order that we end up inflating them in.
+                inputSession.inlineAutofillOptionViews.clear()
+                inputSession.inlineAutofillOptionViews.addAll(
+                    response.inlineSuggestions.map { null },
+                )
+
+                response.inlineSuggestions.forEachIndexed { i, suggestion ->
+                    suggestion.inflate(
+                        this,
+                        android.util.Size(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ),
+                        mainExecutor,
+                    ) {
+                        if (inputSession.inlineAutofillKey === key) {
+                            inputSession.inlineAutofillOptionViews[i] = it
+                        }
+                    }
+                }
+                true
+            }
+
+            else -> false
+        }
 
     override fun onDestroy() {
         lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
