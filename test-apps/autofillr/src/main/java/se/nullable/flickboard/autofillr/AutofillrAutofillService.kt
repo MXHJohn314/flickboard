@@ -1,12 +1,17 @@
 package se.nullable.flickboard.autofillr
 
+import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.app.assist.AssistStructure
+import android.content.Intent
 import android.os.CancellationSignal
 import android.service.autofill.AutofillService
 import android.service.autofill.Dataset
+import android.service.autofill.Field
 import android.service.autofill.FillCallback
 import android.service.autofill.FillRequest
 import android.service.autofill.FillResponse
+import android.service.autofill.InlinePresentation
 import android.service.autofill.Presentations
 import android.service.autofill.SaveCallback
 import android.service.autofill.SaveInfo
@@ -14,9 +19,54 @@ import android.service.autofill.SaveRequest
 import android.view.View
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
+import android.view.inputmethod.InlineSuggestionsRequest
 import android.widget.RemoteViews
+import androidx.autofill.inline.UiVersions
+import androidx.autofill.inline.v1.InlineSuggestionUi
 
 class AutofillrAutofillService : AutofillService() {
+    val attributionIntent: PendingIntent by lazy {
+        PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE,
+        )
+    }
+
+    private fun inlinePresentationFor(
+        request: InlineSuggestionsRequest?,
+        index: Int,
+        title: String
+    ): InlinePresentation? = run {
+        request ?: return@run null
+        if (index >= request.maxSuggestionCount) {
+            return@run null
+        }
+        val specs = request.inlinePresentationSpecs
+        val spec = (specs.getOrNull(index)
+            ?: specs.lastOrNull()
+            ?: return@run null)
+        if (!UiVersions.getVersions(spec.style)
+                .contains(UiVersions.INLINE_UI_VERSION_1)
+        ) {
+            return@run null
+        }
+        val content = InlineSuggestionUi
+            .newContentBuilder(attributionIntent)
+            .setTitle(title)
+            .build()
+        InlinePresentation(
+            // The RestrictedApi seems to be a mistake..
+            // It's explicitly documented as the API to use,
+            // and I can't find a better option...
+            @SuppressLint("RestrictedApi")
+            content.slice,
+            spec,
+            false,
+        )
+    }
+
     override fun onFillRequest(
         request: FillRequest,
         cancellationSignal: CancellationSignal,
@@ -45,7 +95,7 @@ class AutofillrAutofillService : AutofillService() {
                         ).build(),
                     )
                     .also { fill ->
-                        listOf("foo", "bar", "spam", "eggs").forEach { username ->
+                        listOf("foo", "bar", "spam", "eggs").forEachIndexed { i, username ->
                             val menuPresentation = RemoteViews(
                                 packageName,
                                 android.R.layout.simple_list_item_1,
@@ -55,16 +105,27 @@ class AutofillrAutofillService : AutofillService() {
                                 Dataset.Builder(
                                     Presentations.Builder()
                                         .setMenuPresentation(menuPresentation)
+                                        .also {
+                                            inlinePresentationFor(
+                                                request.inlineSuggestionsRequest,
+                                                index = i,
+                                                title = username,
+                                            )?.let(it::setInlinePresentation)
+                                        }
                                         .build(),
                                 ).also { ds ->
-                                    ds.setValue(
+                                    ds.setField(
                                         usernameField,
-                                        AutofillValue.forText(username),
+                                        Field.Builder()
+                                            .setValue(AutofillValue.forText(username))
+                                            .build(),
                                     )
                                     if (passwordField != null) {
-                                        ds.setValue(
+                                        ds.setField(
                                             passwordField,
-                                            AutofillValue.forText("password for $username"),
+                                            Field.Builder()
+                                                .setValue(AutofillValue.forText("password for $username"))
+                                                .build(),
                                         )
                                     }
                                 }.build(),
