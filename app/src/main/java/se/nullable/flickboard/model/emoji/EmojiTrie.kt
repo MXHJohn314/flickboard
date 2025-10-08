@@ -3,6 +3,7 @@ package se.nullable.flickboard.model.emoji
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import se.nullable.flickboard.util.startsWithOrIsPrefixOf
+import se.nullable.flickboard.util.unique
 
 /**
  * A prefix trie for searching for emojis by name.
@@ -61,6 +62,6 @@ data class EmojiTrie(private val root: Node) {
             nodeQueue.addAll(node.children.values)
             matches.addAll(node.values)
         }
-        return matches
+        return matches.unique()
     }
 }
