@@ -21,7 +21,12 @@ import java.io.File
 
 abstract class EmojiDbGeneratorTask : DefaultTask() {
     @get:InputFile
-    val gemojiEmojiJson: File = project.rootDir.resolve("vendor/gemoji/db/emoji.json")
+    val emojibaseEmojisJson: File =
+        project.rootDir.resolve("vendor/emojibase/packages/data/en/data.raw.json")
+
+    @get:InputFile
+    val emojibaseShortcodesJson: File =
+        project.rootDir.resolve("vendor/emojibase/packages/data/en/shortcodes/emojibase.raw.json")
 
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
@@ -36,12 +41,26 @@ abstract class EmojiDbGeneratorTask : DefaultTask() {
         outRawResDir.mkdirs()
         val lenientJson = Json { ignoreUnknownKeys = true }
         val minJson = Json { explicitNulls = false }
+
         val emojis: List<EmojiInfo> =
-            gemojiEmojiJson.inputStream().use(lenientJson::decodeFromStream)
+            emojibaseEmojisJson.inputStream().use(lenientJson::decodeFromStream)
+        val emojisWithSkins = emojis.flatMap { emoji -> listOf(emoji) + emoji.skins }
+        val emojisByHexcode = emojisWithSkins.associateBy { it.hexcode }
+        val tagsByEmoji = emojisWithSkins.associateWith { it.tags }
+
+        val shortcodes: Map<String, ListOrSingle<String>> =
+            emojibaseShortcodesJson.inputStream().use(lenientJson::decodeFromStream)
+        val shortcodesByEmoji = shortcodes.map { (hexcode, shortcodes) ->
+            val emoji = emojisByHexcode[hexcode] ?: throw Exception("emoji $hexcode not found")
+            Pair(emoji, shortcodes.values)
+        }
+
         val trie = EmojiTrie()
-        emojis.forEach { emoji ->
-            (emoji.aliases + emoji.tags).forEach {
+        val finalShortcodes = mutableMapOf<String, MutableList<String>>()
+        (tagsByEmoji.toList() + shortcodesByEmoji.toList()).forEach { (emoji, shortcodes) ->
+            shortcodes.forEach {
                 val tag = it.replace("_", " ")
+                finalShortcodes.getOrPut(tag, ::mutableListOf) += emoji.emoji
                 // Include all substrings, for example: "illy" matches "silly"
                 tag.indices.forEach { startIndex ->
                     trie.insert(
@@ -56,15 +75,22 @@ abstract class EmojiDbGeneratorTask : DefaultTask() {
             .use { minJson.encodeToStream(trie.root, it) }
         outRawResDir.resolve("emoji_db.json").outputStream()
             .use { minJson.encodeToStream(EmojiDb(emojis), it) }
+
+        // For debugging: the final list of shortcodes used by emoji_trie.json
+        if (false) {
+            outRawResDir.resolve("emoji_shortcodes.json").outputStream()
+                .use { minJson.encodeToStream(finalShortcodes, it) }
+        }
     }
 }
 
 @Serializable
 data class EmojiInfo(
     val emoji: String,
-    val aliases: List<String>,
-    val tags: List<String>,
-    @SerialName("skin_tones") val skinTones: Boolean = false
+    val hexcode: String,
+    val label: String,
+    val tags: List<String> = emptyList(),
+    val skins: List<EmojiInfo> = emptyList(),
 )
 
 /**
@@ -81,8 +107,9 @@ data class EmojiDb(val entries: Map<String, Metadata>) {
     constructor(emojis: List<EmojiInfo>) : this(
         entries = emojis.associate { emoji ->
             emoji.emoji to Metadata(
-                name = emoji.aliases.first(),
-                skinTones = emoji.skinTones,
+                name = emoji.label,
+                // FIXME: use the specific skin data instead
+                skinTones = emoji.skins.isNotEmpty(),
             )
         },
     )
@@ -122,7 +149,9 @@ class EmojiTrie {
         val node = path.fold(root) { node, chr ->
             node.children.getOrPut(chr) { Node() }
         }
-        node.values.add(value)
+        if (!node.values.contains(value)) {
+            node.values.add(value)
+        }
     }
 }
 
