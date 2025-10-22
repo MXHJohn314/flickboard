@@ -37,6 +37,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.R
@@ -109,7 +110,16 @@ fun ClipboardEntryCard(
                 enabled = onClick != null,
                 modifier = cardModifier,
             ) {
-                Text(clipData, Modifier.padding(16.dp))
+                Text(
+                    clipData, Modifier.padding(16.dp),
+                    // LazyColumn crashes if the *layout area* for an item is too large
+                    // (~400 paragraphs of https://getlorem.com/ seems to trigger it, for example).
+                    // This is a pretty conservative limit that leaves a huge safety margin,
+                    // but too large values also make it difficult to scroll through.
+                    // TODO: Provide a separate "expanded view" instead.
+                    maxLines = 10,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
     }
