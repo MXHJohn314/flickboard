@@ -1,55 +1,35 @@
 package se.nullable.flickboard.ui.clipboard
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
-import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.layout.LocalPinnableContainer
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -57,20 +37,13 @@ import androidx.paging.cachedIn
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.R
-import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.clipboard.ClipboardEntry
-import se.nullable.flickboard.model.clipboard.ClipboardEntryDao
 import se.nullable.flickboard.model.clipboard.clipboardHistorySize
 import se.nullable.flickboard.ui.LocalAppDatabase
 import se.nullable.flickboard.ui.OnAction
-import se.nullable.flickboard.ui.layout.SwipeToOptionsBox
-import se.nullable.flickboard.ui.layout.centerVerticallyInVisibleBounds
-import se.nullable.flickboard.ui.layout.rememberSwipeToOptionsBoxState
-import se.nullable.flickboard.ui.layout.reverse
 import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.theme.PageTitle
 import se.nullable.flickboard.ui.util.collapsibleListHeader
-import se.nullable.flickboard.ui.util.defaultFocus
 import se.nullable.flickboard.ui.util.items
 import se.nullable.flickboard.ui.util.replaceWith
 import java.time.Instant
@@ -294,229 +267,3 @@ fun ClipboardHistoryViewer(
     }
 }
 
-@Composable
-private fun LazyItemScope.ClipboardEntryItem(
-    entry: ClipboardEntry?,
-    entryDao: ClipboardEntryDao,
-    onAction: OnAction,
-    onEntryDeleted: (ClipboardEntry) -> Unit,
-    snackbarHostState: SnackbarHostState,
-    allowPinToggle: Boolean,
-) {
-    val coroutineScope = rememberCoroutineScope()
-    val clipboardManager = LocalClipboardManager.current
-    val swipeState = key(entry?.id, entry?.generation) {
-        rememberSwipeToOptionsBoxState()
-    }
-    val editing = remember { mutableStateOf(false) }
-    if (swipeState.currentValue != SwipeToDismissBoxValue.Settled) {
-        // Pin when in a non-default state, so that we don't lose the state when scrolled offscreen.
-        val pinnable = LocalPinnableContainer.current
-        DisposableEffect(pinnable) {
-            val pinHandle = pinnable?.pin()
-            onDispose {
-                pinHandle?.release()
-            }
-        }
-    }
-    val swipeMarginOffset = 32.dp
-    SwipeToOptionsBox(
-        swipeState,
-        swipeMarginOffset = swipeMarginOffset,
-        allowSwipeGesture = !editing.value,
-        // We can't show popup windows (like bottom sheets or dropdown menus) from IMEs,
-        // so instead, use the swipe-to-dismiss background as a makeshift "menu".
-        backgroundContent = {
-            // Use Modifier.alpha instead of AnimatedVisibility to sync the animation state with the
-            // swipe.
-            if (swipeState.backgroundProgress > 0F) {
-                Box(Modifier.alpha(swipeState.backgroundProgress)) {
-                    val currentEntry = rememberUpdatedState(entry)
-                    Surface(
-                        Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                    ) {
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp)
-                                .padding(swipeState.swipeDirectionPadding(swipeMarginOffset - 8.dp))
-                                .centerVerticallyInVisibleBounds(),
-                            horizontalArrangement = when (swipeState.swipeDirection) {
-                                SwipeToDismissBoxValue.StartToEnd -> Arrangement.Start
-                                else -> Arrangement.Start.reverse()
-                            },
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    currentEntry.value?.let {
-                                        clipboardManager.setText(AnnotatedString(it.clipData))
-                                        coroutineScope.launch {
-                                            swipeState.animateReset()
-                                        }
-                                        // API 33+ provides its own copy toast, so we don't need to provide one there
-                                        // see https://developer.android.com/develop/ui/compose/touch-input/copy-and-paste#feedback_to_copying_content
-                                        if (android.os.Build.VERSION.SDK_INT < 33) {
-                                            coroutineScope.launch {
-                                                snackbarHostState.showSnackbar(
-                                                    "Copied \"${it.clipData}\"",
-                                                    withDismissAction = true,
-                                                )
-                                            }
-                                        }
-                                    }
-                                },
-                            ) {
-                                Icon(
-                                    painterResource(R.drawable.baseline_content_copy_24),
-                                    "Copy",
-                                )
-                            }
-                            IconButton(
-                                enabled = allowPinToggle,
-                                onClick = {
-                                    currentEntry.value?.let {
-                                        coroutineScope.launch {
-                                            entryDao.setPinned(id = it.id, pinned = !it.pinned)
-                                        }
-                                        coroutineScope.launch {
-                                            swipeState.animateReset()
-                                        }
-                                    }
-                                },
-                            ) {
-                                when {
-                                    entry?.pinned == true -> Icon(
-                                        painterResource(R.drawable.outline_keep_off_24),
-                                        "Unpin",
-                                    )
-
-                                    else -> Icon(
-                                        painterResource(R.drawable.outline_keep_24),
-                                        "Pin",
-                                    )
-                                }
-                            }
-                            Spacer(Modifier.weight(1F))
-                            IconButton(
-                                onClick = {
-                                    editing.value = true
-                                    coroutineScope.launch { swipeState.animateReset() }
-                                },
-                            ) {
-                                Icon(
-                                    painterResource(R.drawable.baseline_edit_24),
-                                    "Edit",
-                                )
-                            }
-                            IconButton(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        currentEntry.value?.let {
-                                            entryDao.delete(it)
-                                            onEntryDeleted(it)
-                                        }
-                                    }
-                                },
-                            ) {
-                                Icon(
-                                    painterResource(R.drawable.baseline_delete_outline_24),
-                                    "Delete",
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        modifier = Modifier.animateItem(),
-    ) {
-        ClipboardEntryCard(
-            clipData = entry?.clipData ?: "(loading)",
-            onClick = {
-                if (entry != null) {
-                    onAction.onAction(
-                        Action.Text(entry.clipData, hidden = { true }),
-                        key = null,
-                        gesture = null,
-                    )
-                }
-            },
-            editing = editing.value,
-            onEditDone = { newClipData ->
-                editing.value = false
-                if (newClipData != null && entry != null) {
-                    coroutineScope.launch {
-                        entryDao.setClipData(entry.id, newClipData)
-                    }
-                }
-            },
-        )
-    }
-}
-
-@Composable
-private fun ClipboardEntryCard(
-    clipData: String,
-    onClick: (() -> Unit)?,
-    modifier: Modifier = Modifier,
-    editing: Boolean = false,
-    onEditDone: ((String?) -> Unit) = {},
-) {
-    val cardModifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 8.dp)
-    AnimatedContent(editing, modifier, label = "entry card state") { isEditing ->
-        when {
-            isEditing -> OutlinedCard(cardModifier) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    val editedClipData = remember {
-                        mutableStateOf(
-                            TextFieldValue(
-                                clipData,
-                                selection = TextRange(clipData.length),
-                            ),
-                        )
-                    }
-                    TextField(
-                        editedClipData.value,
-                        onValueChange = editedClipData::value::set,
-                        Modifier
-                            .weight(1F)
-                            .defaultFocus(),
-                        maxLines = 4,
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                onEditDone(
-                                    editedClipData.value.text,
-                                )
-                            },
-                        ),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    )
-                    Row(
-                        Modifier.centerVerticallyInVisibleBounds(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        IconButton(onClick = { onEditDone(null) }) {
-                            Icon(painterResource(R.drawable.baseline_clear_24), "Cancel")
-                        }
-                        IconButton(onClick = { onEditDone(editedClipData.value.text) }) {
-                            Icon(painterResource(R.drawable.baseline_check_24), "Save")
-                        }
-                    }
-                }
-            }
-
-
-            else -> OutlinedCard(
-                onClick = { onClick?.invoke() },
-                enabled = onClick != null,
-                modifier = cardModifier,
-            ) {
-                Text(clipData, Modifier.padding(16.dp))
-            }
-        }
-    }
-}
