@@ -61,6 +61,7 @@ import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.emoji.EmojiCategory
 import se.nullable.flickboard.model.emoji.EmojiGroup
 import se.nullable.flickboard.model.emoji.EmojiList
+import se.nullable.flickboard.ui.LocalEmojiChecker
 import se.nullable.flickboard.ui.LocalEmojiDb
 import se.nullable.flickboard.ui.LocalEmojiTrie
 import se.nullable.flickboard.ui.OnAction
@@ -179,6 +180,7 @@ fun EmojiKeyboard(
             )
         }
 
+        val emojiChecker = LocalEmojiChecker.current.value
         val tabEmojis = when (val tab = selectedTab.value) {
             is EmojiTab.Category -> emojis.categories[tab.index].emojis
 
@@ -197,7 +199,7 @@ fun EmojiKeyboard(
                         .map(emojiDb::groupForBaseEmoji)
                 }
             }
-        }
+        }.filter { emojiChecker.hasEmoji(it.baseVariant) }
         val emojiGridColumns = GridCells.Adaptive(emojiItemSize)
         LazyVerticalGrid(
             columns = emojiGridColumns,

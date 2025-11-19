@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.gesture.GestureLibraries
 import android.gesture.GestureLibrary
+import android.graphics.Paint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
@@ -11,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
+import androidx.emoji2.text.EmojiCompat
 import androidx.room.Room
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -23,6 +25,7 @@ import se.nullable.flickboard.model.emoji.EmojiDb
 import se.nullable.flickboard.model.emoji.EmojiTrie
 import se.nullable.flickboard.model.zalgo.ZalgoDatabase
 import se.nullable.flickboard.model.zalgo.ZalgoManager
+import se.nullable.flickboard.ui.emoji.EmojiChecker
 import se.nullable.flickboard.ui.settings.AppSettingsProvider
 import se.nullable.flickboard.ui.theme.FlickBoardTheme
 import se.nullable.flickboard.util.Boxed
@@ -32,6 +35,9 @@ val LocalEmojiTrie = staticCompositionLocalOf<Lazy<EmojiTrie>> {
 }
 val LocalEmojiDb = staticCompositionLocalOf<Lazy<EmojiDb>> {
     throw Exception("LocalEmojiDb used outside of FlickBoardParent")
+}
+val LocalEmojiChecker = staticCompositionLocalOf<Lazy<EmojiChecker>> {
+    throw Exception("LocalEmojiChecker used outside of FlickBoardParent")
 }
 val LocalDependencyInfo = staticCompositionLocalOf<Lazy<List<DependencyInfo>>> {
     throw Exception("LocalDependencyInfo used outside of FlickBoardParent")
@@ -81,6 +87,11 @@ fun FlickBoardParent(
             }
         }
     }
+    val emojiChecker = remember {
+        lazy {
+            EmojiChecker(Paint(), EmojiCompat.get())
+        }
+    }
     val dependencyInfo = remember(context) {
         lazy {
             context.resources.openRawResource(R.raw.dependencies).use { dependenciesStr ->
@@ -126,6 +137,7 @@ fun FlickBoardParent(
     CompositionLocalProvider(
         LocalEmojiTrie provides emojiTrie,
         LocalEmojiDb provides emojiDb,
+        LocalEmojiChecker provides emojiChecker,
         LocalDependencyInfo provides dependencyInfo,
         LocalZalgoManager provides zalgoManager,
         LocalZalgoDatabase provides zalgoDatabase,
