@@ -283,13 +283,30 @@ sealed class Action {
         override fun shift(locale: Locale): Action = copy(shift = true)
     }
 
-    data class Enter(val shift: Boolean = false) : Action() {
-        override fun visual(keyboardState: KeyboardState): ActionVisual =
-            ActionVisual.Icon(R.drawable.baseline_keyboard_return_24)
+    data class Enter(
+        val shift: Boolean = false,
+        val secondary: Boolean = false
+    ) : Action() {
+        override fun visual(keyboardState: KeyboardState): ActionVisual = when {
+            secondary -> when (keyboardState.enterOverride?.mode) {
+                EnterActionOverride.Mode.Secondary -> keyboardState.enterOverride.visual
+                else -> ActionVisual.None
+            }
 
-        override val title: String = "Enter"
-        override val description: String =
-            "Sends an enter event, either executing the action or inserting a newline."
+            keyboardState.enterOverride?.mode == EnterActionOverride.Mode.Replace ->
+                keyboardState.enterOverride.visual
+
+            else -> ActionVisual.Icon(R.drawable.baseline_keyboard_return_24)
+        }
+
+        override val title: String = when {
+            secondary -> "Enter (secondary)"
+            else -> "Enter"
+        }
+        override val description: String = when {
+            secondary -> "Perform the special enter action, if the app requests that it should secondary."
+            else -> "Sends an enter event, either executing the action or inserting a newline."
+        }
 
         override fun shift(locale: Locale): Action = copy(shift = true)
     }

@@ -98,7 +98,6 @@ fun Key(
     onAction: OnAction?,
     keyboardState: KeyboardState,
     modifier: Modifier = Modifier,
-    enterVisualOverride: ActionVisual? = null,
     keyPointerTrailListener: State<KeyPointerTrailListener?> = remember { mutableStateOf(null) },
     layoutTextDirection: TextDirection,
     allowFastActions: Boolean = true,
@@ -258,7 +257,6 @@ fun Key(
                     }
                     RenderActionVisual(
                         action,
-                        enterVisualOverride = enterVisualOverride,
                         keyboardState = keyboardState,
                         colour = keyboardTheme.keyIndicatorColour,
                         activeColour = keyboardTheme.activeKeyIndicatorColour,
@@ -277,7 +275,6 @@ fun Key(
         lastActionTaken?.let {
             KeyActionTakenIndicator(
                 action = it.action,
-                enterVisualOverride = enterVisualOverride,
                 keyboardState = it.keyboardState,
                 shape = shape,
                 colour = keyboardTheme.lastActionColour,
@@ -295,7 +292,6 @@ class TakenAction(val action: Action, val keyboardState: KeyboardState)
 @Composable
 fun KeyActionTakenIndicator(
     action: Action,
-    enterVisualOverride: ActionVisual?,
     keyboardState: KeyboardState,
     shape: Shape,
     colour: Color,
@@ -307,7 +303,6 @@ fun KeyActionTakenIndicator(
         Box(Modifier.fillMaxSize()) {
             RenderActionVisual(
                 action = action.withHidden(false),
-                enterVisualOverride = enterVisualOverride,
                 keyboardState = keyboardState,
                 modifier = Modifier.align(Alignment.Center),
                 colour = colour,
@@ -322,7 +317,6 @@ fun KeyActionTakenIndicator(
 @Composable
 fun RenderActionVisual(
     action: Action,
-    enterVisualOverride: ActionVisual?,
     keyboardState: KeyboardState,
     colour: Color,
     activeColour: Color,
@@ -330,10 +324,6 @@ fun RenderActionVisual(
     modifier: Modifier = Modifier,
     tint: ActionTint = action.tint(keyboardState.modifiers),
 ) {
-    val actionVisualOverride = when (action) {
-        is Action.Enter -> enterVisualOverride
-        else -> null
-    }
     val usedColour = animateColorAsState(
         when (tint) {
             ActionTint.Normal -> colour
@@ -342,7 +332,7 @@ fun RenderActionVisual(
         },
         label = "key colour",
     )
-    when (val actionVisual = actionVisualOverride ?: action.visual(keyboardState)) {
+    when (val actionVisual = action.visual(keyboardState)) {
         is ActionVisual.Label -> {
             BoxWithConstraints(modifier.padding(horizontal = 2.dp)) {
                 val density = LocalDensity.current
@@ -725,7 +715,6 @@ fun KeyActionTakenPreview() {
             Box(Modifier.size(100.dp)) {
                 KeyActionTakenIndicator(
                     action = Action.Text("A"),
-                    enterVisualOverride = null,
                     keyboardState = KeyboardState.ShowAll,
                     colour = MaterialTheme.colorScheme.onTertiary,
                     surfaceColour = MaterialTheme.colorScheme.tertiary,
@@ -737,7 +726,6 @@ fun KeyActionTakenPreview() {
             Box(Modifier.size(100.dp)) {
                 KeyActionTakenIndicator(
                     action = Action.Text("{"),
-                    enterVisualOverride = null,
                     keyboardState = KeyboardState.ShowAll,
                     colour = MaterialTheme.colorScheme.onTertiary,
                     surfaceColour = MaterialTheme.colorScheme.tertiary,

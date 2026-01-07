@@ -83,6 +83,7 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.model.ActionVisual
+import se.nullable.flickboard.model.EnterActionOverride
 import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.clipboard.ClipboardHistoryViewer
@@ -417,36 +418,41 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                                 modifier = Modifier.fillMaxWidth(),
                                                                 onAction = onAction,
                                                                 onModifierStateUpdated = inputSession::updateModifierState,
-                                                                enterVisualOverride = inputSession.editorInfo?.let { editorInfo ->
-                                                                    editorInfo.actionLabel?.toString()
-                                                                        ?.let(ActionVisual::Label)
-                                                                        ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
-                                                                            EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
-                                                                                "GO",
-                                                                            )
+                                                                enterActionOverride = inputSession.editorInfo?.let { editorInfo ->
+                                                                    EnterActionOverride(
+                                                                        mode = EnterActionOverride.Mode.fromEditorInfo(
+                                                                            editorInfo,
+                                                                        ),
+                                                                        visual = editorInfo.actionLabel?.toString()
+                                                                            ?.let(ActionVisual::Label)
+                                                                            ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
+                                                                                EditorInfo.IME_ACTION_GO -> ActionVisual.Label(
+                                                                                    "GO",
+                                                                                )
 
-                                                                            EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
-                                                                                R.drawable.baseline_search_24,
-                                                                            )
+                                                                                EditorInfo.IME_ACTION_SEARCH -> ActionVisual.Icon(
+                                                                                    R.drawable.baseline_search_24,
+                                                                                )
 
-                                                                            EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
-                                                                                R.drawable.baseline_send_24,
-                                                                            )
+                                                                                EditorInfo.IME_ACTION_SEND -> ActionVisual.Icon(
+                                                                                    R.drawable.baseline_send_24,
+                                                                                )
 
-                                                                            EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
-                                                                                R.drawable.baseline_done_24,
-                                                                            )
-                                                                            /* Not using the next/prev icons since they can be confused with the jump left/right icons */
-                                                                            EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
-                                                                                "NEXT",
-                                                                            )
+                                                                                EditorInfo.IME_ACTION_DONE -> ActionVisual.Icon(
+                                                                                    R.drawable.baseline_done_24,
+                                                                                )
+                                                                                /* Not using the next/prev icons since they can be confused with the jump left/right icons */
+                                                                                EditorInfo.IME_ACTION_NEXT -> ActionVisual.Label(
+                                                                                    "NEXT",
+                                                                                )
 
-                                                                            EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
-                                                                                "PREV",
-                                                                            )
+                                                                                EditorInfo.IME_ACTION_PREVIOUS -> ActionVisual.Label(
+                                                                                    "PREV",
+                                                                                )
 
-                                                                            else -> null
-                                                                        }
+                                                                                else -> return@let null
+                                                                            },
+                                                                    )
                                                                 },
                                                                 overrideEnabledLayers = when (inputSession.editorInfo?.let { it.inputType and InputType.TYPE_MASK_CLASS }) {
                                                                     InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE -> EnabledLayers.Numbers

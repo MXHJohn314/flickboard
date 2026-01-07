@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.CaseChangeDirection
+import se.nullable.flickboard.model.EnterActionOverride
 import se.nullable.flickboard.model.FastActionType
 import se.nullable.flickboard.model.ModifierState
 import se.nullable.flickboard.model.SearchDirection
@@ -424,11 +425,15 @@ class InputSession(
 
                 is Action.Enter -> {
                     val imeOptions = editorInfo?.imeOptions ?: 0
-                    if (activeModifiers.useRawKeyEvent ||
-                        activeModifiers.shift.isShift ||
-                        action.shift ||
-                        imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION != 0
-                    ) {
+                    val overrideMode = editorInfo?.let(EnterActionOverride.Mode::fromEditorInfo)
+                    val isNewline = when {
+                        action.secondary -> false
+                        else -> activeModifiers.useRawKeyEvent ||
+                                activeModifiers.shift.isShift ||
+                                action.shift ||
+                                overrideMode != EnterActionOverride.Mode.Replace
+                    }
+                    if (isNewline) {
                         typeText(
                             "\n",
                             forceRawKeyEvent = activeModifiers.shift.isShift || action.shift,
@@ -438,12 +443,7 @@ class InputSession(
                         inputConnection.performEditorAction(
                             when {
                                 editorInfo?.actionLabel != null -> editorInfo.actionId
-                                else -> imeOptions and
-                                        (EditorInfo.IME_ACTION_DONE or
-                                                EditorInfo.IME_ACTION_GO or
-                                                EditorInfo.IME_ACTION_NEXT or
-                                                EditorInfo.IME_ACTION_SEARCH or
-                                                EditorInfo.IME_ACTION_SEND)
+                                else -> imeOptions and EditorInfo.IME_MASK_ACTION
                             },
                         )
                     }

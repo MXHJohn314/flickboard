@@ -38,7 +38,7 @@ import androidx.core.content.edit
 import kotlinx.coroutines.delay
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.ActionClass
-import se.nullable.flickboard.model.ActionVisual
+import se.nullable.flickboard.model.EnterActionOverride
 import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.KeyboardState
@@ -79,7 +79,7 @@ fun Keyboard(
     layout: Layout,
     onAction: OnAction?,
     modifier: Modifier = Modifier,
-    enterVisualOverride: ActionVisual? = null,
+    enterActionOverride: EnterActionOverride? = null,
     onModifierStateUpdated: (ModifierState) -> Unit = {},
     showAllModifiers: Boolean = false,
     overrideEnabledLayers: EnabledLayers? = null,
@@ -126,7 +126,7 @@ fun Keyboard(
     val keyboardState = KeyboardState(
         modifiers = modifierState.takeUnless { showAllModifiers },
         modifierSettings = appSettings.modifierSettings,
-        hasEnterOverride = enterVisualOverride != null,
+        enterOverride = enterActionOverride,
         enabledLayers = enabledLayers.value,
     )
     val layoutState = rememberUpdatedState(layout)
@@ -423,7 +423,6 @@ fun Keyboard(
                                     .onGloballyPositioned {
                                         keyPosition.value = it.positionInRoot() - globalPosition
                                     },
-                                enterVisualOverride = enterVisualOverride,
                                 keyPointerTrailListener = keyPointerTrailListener,
                                 layoutTextDirection = layout.textDirection,
                                 allowFastActions = allowFastActions,
@@ -441,7 +440,7 @@ fun Keyboard(
 fun ConfiguredKeyboard(
     onAction: OnAction?,
     modifier: Modifier = Modifier,
-    enterVisualOverride: ActionVisual? = null,
+    enterActionOverride: EnterActionOverride? = null,
     onModifierStateUpdated: (ModifierState) -> Unit = {},
     overrideEnabledLayers: EnabledLayers? = null,
     allowFastActions: Boolean = true,
@@ -456,7 +455,7 @@ fun ConfiguredKeyboard(
             ?: EN_MESSAGEASE,
         onAction = onAction,
         modifier = modifier,
-        enterVisualOverride = enterVisualOverride,
+        enterActionOverride = enterActionOverride,
         onModifierStateUpdated = onModifierStateUpdated,
         overrideEnabledLayers = overrideEnabledLayers,
         allowFastActions = allowFastActions,

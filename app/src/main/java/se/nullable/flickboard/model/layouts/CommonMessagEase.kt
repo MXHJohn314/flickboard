@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.CaseChangeDirection
 import se.nullable.flickboard.model.Direction
+import se.nullable.flickboard.model.EnterActionOverride
 import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.KeyboardState
 import se.nullable.flickboard.model.Layer
@@ -214,12 +215,13 @@ val CONTROL_MESSAGEASE_LAYER =
                 KeyM(
                     actions = mapOf(
                         Direction.CENTER to Action.Enter(),
+                        Direction.RIGHT to Action.Enter(secondary = true),
                         Direction.TOP_LEFT to Action.OpenEmojiKeyboard(),
                         // Always enters a new line, rather than triggering special actions
                         Direction.TOP to Action.Text(
                             "\n",
                             visualOverride = Action.Enter().visual(KeyboardState.ShowAll),
-                            hidden = { state -> !state.hasEnterOverride },
+                            hidden = { state -> state.enterOverride?.mode != EnterActionOverride.Mode.Replace },
                         ),
                         Direction.TOP_RIGHT to Action.OpenEmojiKeyboard(),
                         Direction.BOTTOM to Action.ToggleZalgo,

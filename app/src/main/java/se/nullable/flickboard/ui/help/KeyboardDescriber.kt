@@ -39,6 +39,7 @@ import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.ActionTint
 import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.model.Direction
+import se.nullable.flickboard.model.EnterActionOverride
 import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.KeyboardState
@@ -134,6 +135,10 @@ fun KeyboardDescriber(modifier: Modifier = Modifier, initialAction: Action? = nu
             allowFastActions = false,
             allowHideSettings = false,
             highlightedAction = selectedActionStack.firstOrNull()?.first,
+            enterActionOverride = EnterActionOverride(
+                mode = EnterActionOverride.Mode.Secondary,
+                visual = ActionVisual.Icon(R.drawable.baseline_done_24),
+            ),
         )
     }
 }
@@ -168,7 +173,6 @@ fun ActionDescription(
                 }
                 RenderActionVisual(
                     action.withHidden(false),
-                    enterVisualOverride = null,
                     keyboardState = KeyboardState.ShowAll,
                     modifier = Modifier
                         .height(48.dp)

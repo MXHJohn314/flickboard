@@ -1,7 +1,9 @@
 package se.nullable.flickboard.model
 
 import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
 import androidx.compose.runtime.State
+import se.nullable.flickboard.R
 import se.nullable.flickboard.ui.settings.EnabledLayers
 import se.nullable.flickboard.util.times
 
@@ -53,21 +55,45 @@ data class ModifierSettings(val stickyModifiers: State<Boolean>)
 data class KeyboardState(
     val modifiers: ModifierState?,
     val modifierSettings: ModifierSettings?,
-    val hasEnterOverride: Boolean,
+    val enterOverride: EnterActionOverride?,
     val enabledLayers: EnabledLayers,
 ) {
     companion object {
         val Default = KeyboardState(
             modifiers = ModifierState(),
             modifierSettings = null,
-            hasEnterOverride = false,
+            enterOverride = null,
             enabledLayers = EnabledLayers.Letters,
         )
         val ShowAll = KeyboardState(
             modifiers = null,
             modifierSettings = null,
-            hasEnterOverride = false,
+            enterOverride = EnterActionOverride(
+                EnterActionOverride.Mode.Secondary,
+                visual = ActionVisual.Icon(R.drawable.baseline_done_24),
+            ),
             enabledLayers = EnabledLayers.Letters,
         )
+    }
+}
+
+data class EnterActionOverride(val mode: Mode, val visual: ActionVisual) {
+    enum class Mode {
+        /**
+         * Override replaces the regular enter button.
+         */
+        Replace,
+
+        /**
+         * Override appears as a secondary enter button.
+         */
+        Secondary;
+
+        companion object {
+            fun fromEditorInfo(editorInfo: EditorInfo): Mode = when {
+                editorInfo.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION != 0 -> Secondary
+                else -> Replace
+            }
+        }
     }
 }
