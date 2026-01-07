@@ -141,10 +141,16 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
             TutorialKeyStep(
                 content = {
                     Text("Typing (edge)", style = Typography.titleMedium)
+                    Text("Unlike most other keyboards, FlickBoard keys have multiple characters on them.")
                     Text("To type a character at the edge of a key, swipe in that direction.")
                     Text("Try swiping towards the right from the key, to type a b!")
                 },
-                key = KeyM(actions = mapOf(Direction.RIGHT to Action.Text("b"))),
+                key = KeyM(
+                    actions = mapOf(
+                        Direction.CENTER to Action.Text("o"),
+                        Direction.RIGHT to Action.Text("b"),
+                    ),
+                ),
                 desiredGesture = Gesture.Flick(
                     direction = Direction.RIGHT,
                     longHold = false,
@@ -161,7 +167,13 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
                     Text("Characters can also appear at a corner of the key.")
                     Text("Try swiping towards the bottom-left from key, to type a g!")
                 },
-                key = KeyM(actions = mapOf(Direction.BOTTOM_LEFT to Action.Text("g"))),
+                key = KeyM(
+                    actions = mapOf(
+                        Direction.CENTER to Action.Text("o"),
+                        Direction.RIGHT to Action.Text("b"),
+                        Direction.BOTTOM_LEFT to Action.Text("g"),
+                    ),
+                ),
                 desiredGesture = Gesture.Flick(
                     direction = Direction.BOTTOM_LEFT,
                     longHold = false,
@@ -175,7 +187,7 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
             TutorialKeyStep(
                 content = {
                     Text("Upper-case", style = Typography.titleMedium)
-                    Text("To type an upper-case character in the middle of a key, draw a circle.")
+                    Text("To type an upper-case character in the middle of a key, draw a circle, starting on the key.")
                     Text("Try typing an upper-case O now!")
                 },
                 key = fullOKey,
@@ -240,7 +252,7 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.Bottom,
                 modifier = Modifier
                     .padding(top = 16.dp)
-                    .height(192.dp),
+                    .height(312.dp),
             ) {
                 Card {
                     pages[it](pagerState)
