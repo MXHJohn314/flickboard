@@ -422,7 +422,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                                     EnterActionOverride(
                                                                         mode = EnterActionOverride.Mode.fromEditorInfo(
                                                                             editorInfo,
-                                                                        ),
+                                                                        ) ?: return@let null,
                                                                         visual = editorInfo.actionLabel?.toString()
                                                                             ?.let(ActionVisual::Label)
                                                                             ?: when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {

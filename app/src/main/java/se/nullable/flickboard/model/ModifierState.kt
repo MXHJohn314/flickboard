@@ -90,7 +90,8 @@ data class EnterActionOverride(val mode: Mode, val visual: ActionVisual) {
         Secondary;
 
         companion object {
-            fun fromEditorInfo(editorInfo: EditorInfo): Mode = when {
+            fun fromEditorInfo(editorInfo: EditorInfo): Mode? = when {
+                editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION == EditorInfo.IME_ACTION_NONE -> null
                 editorInfo.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION != 0 -> Secondary
                 else -> Replace
             }
