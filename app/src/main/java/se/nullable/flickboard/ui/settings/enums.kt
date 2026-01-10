@@ -15,10 +15,10 @@ import se.nullable.flickboard.model.layouts.ES_CA_MESSAGEASE
 import se.nullable.flickboard.model.layouts.ES_MESSAGEASE
 import se.nullable.flickboard.model.layouts.FA_MESSAGEASE
 import se.nullable.flickboard.model.layouts.FA_THUMBKEY
+import se.nullable.flickboard.model.layouts.FR_EN_FRAPPEFLUIDE
 import se.nullable.flickboard.model.layouts.FR_EXT_MESSAGEASE
 import se.nullable.flickboard.model.layouts.FR_MESSAGEASE
 import se.nullable.flickboard.model.layouts.FR_PUNC_MESSAGEASE
-import se.nullable.flickboard.model.layouts.FREN_FRAPPEFLUIDE 
 import se.nullable.flickboard.model.layouts.HEB_MESSAGEASE
 import se.nullable.flickboard.model.layouts.HU_DT_MESSAGEASE
 import se.nullable.flickboard.model.layouts.HU_MESSAGEASE
@@ -141,7 +141,7 @@ enum class LetterLayerOption(override val label: String, val layout: Layout) : L
     French("French (MessagEase)", FR_MESSAGEASE),
     FrenchExt("French (Extended MessagEase)", FR_EXT_MESSAGEASE),
     FrenchPunc("French (Punctuation MessagEase)", FR_PUNC_MESSAGEASE),
-    FrenchFrappeFluide("French English Frappefluide", FREN_FRAPPEFLUIDE),
+    FrenchEnglishFrappeFluide("French & English (Frappefluide)", FR_EN_FRAPPEFLUIDE),
     German("German (MessagEase)", DE_MESSAGEASE),
     GermanEnglish("German & English (MessagEase-style)", EN_DE_MESSAGEASE),
     GermanEsperanto("German & Esperanto (MessagEase-style)", DE_EO_MESSAGEASE),
