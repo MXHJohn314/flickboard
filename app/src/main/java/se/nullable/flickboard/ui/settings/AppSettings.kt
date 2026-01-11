@@ -325,7 +325,7 @@ class AppSettings(val ctx: SettingsContext) {
         key = "keyboardMarginBottomPortrait",
         label = "Keyboard bottom margin (portrait)",
         defaultValue = 0F,
-        range = 0F..100F,
+        range = 0F..250F,
         ctx = ctx,
     )
 
