@@ -2,7 +2,7 @@
 
 (Logo by @MisterE123)
 
-[![Discord](https://img.shields.io/discord/1207841722327896104?logo=discord&logoColor=white&label=chat%20on%20discord)](https://discord.gg/tVp8MGaeUr) [![RB shield](https://shields.rbtlog.dev/simple/se.nullable.flickboard)](https://shields.rbtlog.dev/se.nullable.flickboard)
+[![Zulip](https://img.shields.io/badge/chat%20on-zulip-brightgreen)](https://zulip.flickboard.natkr.com/) [![RB shield](https://shields.rbtlog.dev/simple/se.nullable.flickboard)](https://shields.rbtlog.dev/se.nullable.flickboard)
 
 FlickBoard is a keyboard for Android that doesn't try to correct or predict you.
 It doesn't have an opinion on the correct spelling or tone. It certainly doesn't use any AI.
