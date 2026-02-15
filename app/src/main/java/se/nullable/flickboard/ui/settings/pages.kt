@@ -180,9 +180,9 @@ fun SettingsHomePage(
                     label = "Credits",
                 )
                 MenuPageUriLink(
-                    uri = "https://discord.gg/tVp8MGaeUr",
+                    uri = "https://zulip.flickboard.natkr.com",
                     icon = painterResource(R.drawable.baseline_chat_24),
-                    label = "Discuss on Discord",
+                    label = "Discuss on Zulip",
                 )
                 MenuPageUriLink(
                     uri = "https://codeberg.org/natkr/flickboard",
