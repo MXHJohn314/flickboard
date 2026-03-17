@@ -533,11 +533,23 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             //   prevented from dismissing the IME.
             val onBackInvokedDispatcher = window.onBackInvokedDispatcher
             onBackPressedDispatcher.setOnBackInvokedDispatcher(onBackInvokedDispatcher)
-            onBackInvokedDispatcher.registerOnBackInvokedCallback(
-                OnBackInvokedDispatcher.PRIORITY_DEFAULT + 1,
-                // Cache the callback, since Android has a habit of using weakmaps for callbacks
-                onBackInvokedDispatcherWrapper.value,
-            )
+            // On APIs TIRAMISU (33) thru VANILLA_ICE_CREAM (35), we need to register our own callback
+            // to still get back events while the keyboard window itself is focused.
+            // (While nested inputs are active.)
+            // However, on BAKLAVA+ (36) this works out of the box, but the extra back handler
+            // callback now appears to prevent back events from being delivered while the IME is
+            // *unfocused* for the first window that the IME is used in after being launched. (#415)
+            // (Note: There also seems to be a timing component involved for the BAKLAVA issue...
+            // running a Thread.sleep(2000) on the main thread seems to "fix" the symptoms,
+            // but putting the registration behind an equivalent off-thread delay instead makes it
+            // appear even more consistently.)
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+                onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                    OnBackInvokedDispatcher.PRIORITY_DEFAULT + 1,
+                    // Cache the callback, since Android has a habit of using weakmaps for callbacks
+                    onBackInvokedDispatcherWrapper.value,
+                )
+            }
         }
 
         // Normally, InputMethodService.onKeyDown (and co.) callbacks are only called for key events
