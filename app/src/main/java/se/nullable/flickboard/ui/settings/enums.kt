@@ -3,6 +3,8 @@ package se.nullable.flickboard.ui.settings
 import se.nullable.flickboard.model.Layer
 import se.nullable.flickboard.model.Layout
 import se.nullable.flickboard.model.layouts.AR_MESSAGEASE
+import se.nullable.flickboard.model.layouts.BG_HLONRNO
+import se.nullable.flickboard.model.layouts.BG_THUMBKEY
 import se.nullable.flickboard.model.layouts.DA_MESSAGEASE
 import se.nullable.flickboard.model.layouts.DE_EO_MESSAGEASE
 import se.nullable.flickboard.model.layouts.DE_MESSAGEASE
@@ -134,6 +136,8 @@ enum class InvertSwipeDelete(
 
 enum class LetterLayerOption(override val label: String, val layout: Layout) : Labeled {
     Arabic("Arabic (MessagEase)", AR_MESSAGEASE),
+    BulgarianHlonrno("Bulgarian (hlonrno)", BG_HLONRNO),
+    BulgarianThumbKey("Bulgarian (Thumb-Key)", BG_THUMBKEY),
     Danish("Danish (MessagEase)", DA_MESSAGEASE),
     English("English (MessagEase)", EN_MESSAGEASE),
     EnglishThumbKey("English (Thumb-Key)", EN_THUMBKEY),
