@@ -394,10 +394,19 @@ class InputSession(
                                     // a working requestCursorUpdates
                                     lastTyped = null
                                 } else {
-                                    inputConnection.deleteSurroundingText(
-                                        if (action.direction == SearchDirection.Backwards) length else 0,
-                                        if (action.direction == SearchDirection.Forwards) length else 0,
-                                    )
+                                    if (length == 0) {
+                                        sendKeyPressEvents(
+                                            keyCode = when (action.direction) {
+                                                SearchDirection.Backwards -> KeyEvent.KEYCODE_DEL
+                                                SearchDirection.Forwards -> KeyEvent.KEYCODE_FORWARD_DEL
+                                            },
+                                        )
+                                    } else {
+                                        inputConnection.deleteSurroundingText(
+                                            if (action.direction == SearchDirection.Backwards) length else 0,
+                                            if (action.direction == SearchDirection.Forwards) length else 0,
+                                        )
+                                    }
                                 }
                             }
 
