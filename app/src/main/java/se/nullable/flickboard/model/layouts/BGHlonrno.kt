@@ -9,7 +9,7 @@ import se.nullable.flickboard.model.Layer
 import se.nullable.flickboard.model.Layout
 import se.nullable.flickboard.ui.KeyboardLayoutPreview
 
-val BG_CUSTOM_MAIN_LAYER = Layer(
+val BG_HLONRNO_MAIN_LAYER = Layer(
     keyRows = listOf(
         listOf(
             KeyM(
@@ -90,19 +90,19 @@ val BG_CUSTOM_MAIN_LAYER = Layer(
     ),
 )
 
-val BG_CUSTOM = Layout(
-    mainLayer = BG_CUSTOM_MAIN_LAYER,
+val BG_HLONRNO = Layout(
+    mainLayer = BG_HLONRNO_MAIN_LAYER,
     controlLayer = CONTROL_MESSAGEASE_LAYER,
 )
 
 @Composable
 @Preview
-fun BgCustomKeyboardPreview() {
-    KeyboardLayoutPreview(layout = Layout(BG_CUSTOM_MAIN_LAYER))
+private fun BgHlonrnoKeyboardPreview() {
+    KeyboardLayoutPreview(layout = Layout(BG_HLONRNO_MAIN_LAYER))
 }
 
 @Composable
 @Preview
-fun BgCustomFullKeyboardPReview() {
-    KeyboardLayoutPreview(layout = BG_CUSTOM, showAllModifiers = true)
+private fun BgHlonrnoFullKeyboardPReview() {
+    KeyboardLayoutPreview(layout = BG_HLONRNO, showAllModifiers = true)
 }
