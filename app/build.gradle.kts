@@ -84,7 +84,6 @@ android {
             isShrinkResources = false
         }
     }
-//    testBuildType = "unsignedRelease"
     flavorDimensions += "purpose"
     productFlavors {
         create("plain") {
