@@ -379,34 +379,42 @@ class InputSession(
                                     coalesce = true,
                                 )
                                 val lastTypedComposed = lastTyped?.combiner
-                                if (action.direction == SearchDirection.Backwards && lastTypedComposed != null) {
-                                    inputConnection.beginBatchEdit()
-                                    inputConnection.deleteSurroundingText(
-                                        lastTypedComposed.combinedReplacement.length,
-                                        0,
-                                    )
-                                    inputConnection.commitText(
-                                        lastTypedComposed.original,
-                                        1,
-                                    )
-                                    inputConnection.endBatchEdit()
-                                    // Clear last-typed data even if we're in a context without
-                                    // a working requestCursorUpdates
-                                    lastTyped = null
-                                } else {
-                                    if (length == 0) {
-                                        sendKeyPressEvents(
-                                            keyCode = when (action.direction) {
-                                                SearchDirection.Backwards -> KeyEvent.KEYCODE_DEL
-                                                SearchDirection.Forwards -> KeyEvent.KEYCODE_FORWARD_DEL
-                                            },
-                                        )
-                                    } else {
+                                when {
+                                    // Unmerge composed text if that was the previous action taken.
+                                    // For example: normally a¨ would get merged into ä,
+                                    // so a¨<del> allows the user to type a literal a¨.
+                                    lastTypedComposed != null &&
+                                            action.direction == SearchDirection.Backwards -> {
+                                        inputConnection.beginBatchEdit()
                                         inputConnection.deleteSurroundingText(
-                                            if (action.direction == SearchDirection.Backwards) length else 0,
-                                            if (action.direction == SearchDirection.Forwards) length else 0,
+                                            lastTypedComposed.combinedReplacement.length,
+                                            0,
                                         )
+                                        inputConnection.commitText(
+                                            lastTypedComposed.original,
+                                            1,
+                                        )
+                                        inputConnection.endBatchEdit()
+                                        // Clear last-typed data even if we're in a context without
+                                        // a working requestCursorUpdates
+                                        lastTyped = null
                                     }
+
+                                    // If we can't find any text to delete, send a literal key event
+                                    // to the app, in case it has anything useful to do with it.
+                                    // (such as deleting a row of a list.)
+                                    length == 0 -> sendKeyPressEvents(
+                                        keyCode = when (action.direction) {
+                                            SearchDirection.Backwards -> KeyEvent.KEYCODE_DEL
+                                            SearchDirection.Forwards -> KeyEvent.KEYCODE_FORWARD_DEL
+                                        },
+                                    )
+
+                                    // Otherwise (normally!) delete the text we found.
+                                    else -> inputConnection.deleteSurroundingText(
+                                        if (action.direction == SearchDirection.Backwards) length else 0,
+                                        if (action.direction == SearchDirection.Forwards) length else 0,
+                                    )
                                 }
                             }
 
