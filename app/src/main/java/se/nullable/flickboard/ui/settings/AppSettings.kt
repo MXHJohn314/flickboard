@@ -263,6 +263,7 @@ class AppSettings(val ctx: SettingsContext) {
     val showLetters = Setting.Bool(
         key = "showLetters",
         label = "Show letters",
+        description = "Can also be toggled by swiping up from spacebar",
         defaultValue = true,
         ctx = ctx,
     )
@@ -270,6 +271,7 @@ class AppSettings(val ctx: SettingsContext) {
     val showSymbols = Setting.Bool(
         key = "showSymbols",
         label = "Show symbols",
+        description = "Can also be toggled by swiping up-then-down from spacebar",
         defaultValue = true,
         ctx = ctx,
     )
@@ -279,7 +281,6 @@ class AppSettings(val ctx: SettingsContext) {
         label = "Enable toggle show symbols/letters gestures",
         defaultValue = true,
         ctx = ctx,
-        description = "To use, swipe up from spacebar",
     )
 
     val showNumbers = Setting.Bool(

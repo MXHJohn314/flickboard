@@ -672,7 +672,7 @@ sealed class Action {
 
     data object ToggleShowSymbols : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
-            ActionVisual.None
+            ActionVisual.Icon(R.drawable.toggle_show_symbols)
 
         override val title: String = "Toggle Show Symbols"
         override val description: String = "Toggles whether or not symbols are shown."
@@ -682,7 +682,7 @@ sealed class Action {
 
     data object ToggleShowLetters : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
-            ActionVisual.None
+            ActionVisual.Icon(R.drawable.toggle_show_letters)
 
         override val title: String = "Toggle Show Letters"
         override val description: String = "Toggles whether or not letters are shown."
