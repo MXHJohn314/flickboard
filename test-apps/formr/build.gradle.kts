@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "se.nullable.flickboard.formr"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "se.nullable.flickboard.formr"
