@@ -32,7 +32,7 @@ val BG_HLONRNO_MAIN_LAYER = Layer(
                     Direction.TOP_LEFT to Action.Text("ю"),
                     Direction.TOP_RIGHT to Action.Text("э"),
                     Direction.BOTTOM_LEFT to Action.Text("з"),
-                    Direction.BOTTOM_RIGHT to Action.Text("ы"),
+                    Direction.RIGHT to Action.Text("ы"),
                 )
             ),
         ),
@@ -41,7 +41,7 @@ val BG_HLONRNO_MAIN_LAYER = Layer(
                 actions = mapOf(
                     Direction.CENTER to Action.Text("о"),
                     Direction.TOP to Action.Text("х"),
-                    Direction.LEFT to Action.Text("п"),
+                    Direction.RIGHT to Action.Text("п"),
                 )
             ),
             KeyM(
@@ -60,7 +60,7 @@ val BG_HLONRNO_MAIN_LAYER = Layer(
             KeyM(
                 actions = mapOf(
                     Direction.CENTER to Action.Text("р"),
-                    Direction.RIGHT to Action.Text("ч"),
+                    Direction.LEFT to Action.Text("ч"),
                 )
             ),
         ),
