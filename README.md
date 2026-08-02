@@ -19,7 +19,7 @@ FlickBoard is inspired by [MessagEase] and [Thumb-Key].
 
 ## How do I install it?
 
-| <a href="https://android.izzysoft.de/repo/apk/se.nullable.flickboard"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid"/></a> | <a href="https://f-droid.org/packages/se.nullable.flickboard"><img src="https://f-droid.org/badge/get-it-on.svg" alt="Get it on F-Droid"></a> | <a href="https://play.google.com/store/apps/details?id=se.nullable.flickboard"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play"/></a> |
+| <a href="https://android.izzysoft.de/repo/apk/se.nullable.flickboard"><img src="vendor/badges/izzyondroid.png" alt="Get it on IzzyOnDroid"/></a> | <a href="https://f-droid.org/packages/se.nullable.flickboard"><img src="vendor/badges/fdroid.svg" alt="Get it on F-Droid"></a> | <a href="https://play.google.com/store/apps/details?id=se.nullable.flickboard"><img src="vendor/badges/play.png" alt="Get it on Google Play"/></a> |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 The latest release builds are also available
