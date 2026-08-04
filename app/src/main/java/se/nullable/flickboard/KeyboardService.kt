@@ -335,7 +335,10 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                         }
                                                     }
                                                 }
-                                            Surface(color = LocalKeyboardTheme.current.surfaceColour) {
+                                            Surface(
+                                                Modifier.fillMaxWidth(),
+                                                color = LocalKeyboardTheme.current.surfaceColour,
+                                            ) {
                                                 Row(
                                                     Modifier.horizontalScroll(rememberScrollState()),
                                                     verticalAlignment = Alignment.CenterVertically,
