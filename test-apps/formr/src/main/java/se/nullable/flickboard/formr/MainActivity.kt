@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Scaffold
@@ -28,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
@@ -60,7 +63,9 @@ class MainActivity : ComponentActivity() {
                             Column(
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(innerPadding),
+                                    .padding(innerPadding)
+                                    .safeDrawingPadding()
+                                    .verticalScroll(rememberScrollState()),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 Text("Welcome to Formr!")
@@ -131,6 +136,15 @@ class MainActivity : ComponentActivity() {
                                     interactionSource = sendIs,
                                     enabled = !loginMutex.isLocked,
                                 ) { Text("Log in") }
+
+                                repeat(10) {
+                                    Text("Lorem")
+                                    Text("Ipsum")
+                                    Text("Dolor")
+                                    Text("Sit")
+                                    Text("Amet")
+                                }
+                                Text("Fin")
                             }
                         }
                         composable("main") {
