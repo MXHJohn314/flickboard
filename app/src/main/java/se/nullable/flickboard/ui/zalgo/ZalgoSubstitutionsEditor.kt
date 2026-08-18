@@ -387,7 +387,7 @@ fun ZalgoSubstitutionEditor(
 ) {
     val edited = remember { mutableStateOf(substitution) }
     val validFrom = edited.value.from.length == 2
-    val fromFocusRequester = FocusRequester()
+    val fromFocusRequester = remember { FocusRequester() }
     Column(modifier) {
         TextField(
             edited.value.from,
