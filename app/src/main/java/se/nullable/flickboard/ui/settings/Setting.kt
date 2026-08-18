@@ -41,9 +41,22 @@ class SettingsContext(
 
     class Editor(val reader: SettingsContext, val prefsEditor: SharedPreferences.Editor)
 
+    /**
+     * Applies [f] to this [SettingsContext]'s state.
+     */
     inline fun edit(f: (Editor) -> Unit) {
         prefs.edit { f(Editor(this@SettingsContext, this)) }
     }
+
+    /**
+     * Returns a new [SettingsContext] where [f] has been applied.
+     *
+     * [edit]s to the new [SettingsContext] are also not propagated to the parent [SettingsContext]
+     * (or otherwise persisted).
+     */
+    inline fun mock(f: (Editor) -> Unit): SettingsContext =
+        SettingsContext(MockedSharedPreferences(prefs), coroutineScope, appDatabase)
+            .also { it.edit(f) }
 
     companion object {
         /**

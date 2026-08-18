@@ -57,7 +57,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.edit
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.R
 import se.nullable.flickboard.ui.ColourPicker
@@ -425,19 +424,13 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
                                     )
                                     optionSelectionControl(state.value, option)
                                 }
-                                val prefs = remember(appSettings, state, option) {
-                                    MockedSharedPreferences(appSettings.ctx.prefs)
-                                        .also { mock ->
-                                            mock.edit {
-                                                writePreviewSettings(
-                                                    SettingsContext.Editor(appSettings.ctx, this),
-                                                    option,
-                                                )
-                                            }
-                                        }
+                                val mocked = remember(appSettings.ctx, state, option) {
+                                    appSettings.ctx.mock {
+                                        writePreviewSettings(it, option)
+                                    }
                                 }
                                 FlickBoardParent(
-                                    prefs = prefs,
+                                    prefs = mocked.prefs,
                                     displayLimits =
                                         DisplayLimits.calculateCurrent().let {
                                             it.copy(isLandscape = previewForceLandscape || it.isLandscape)
