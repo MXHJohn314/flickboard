@@ -72,9 +72,9 @@ class AppSettings(val ctx: SettingsContext) {
         defaultValue = listOf(LetterLayerOption.English),
         options = LetterLayerOption.entries,
         tryEnumValueOfT = ::tryEnumValueOf,
-        writePreviewSettings = { readPrefs, prefs ->
-            if (enabledLayers.readFrom(readPrefs) == EnabledLayers.Numbers) {
-                enabledLayers.writeTo(prefs, EnabledLayers.Letters)
+        writePreviewSettings = { ctx ->
+            if (enabledLayers.readFrom(ctx.reader) == EnabledLayers.Numbers) {
+                enabledLayers.writeTo(ctx, EnabledLayers.Letters)
             }
         },
     )
@@ -93,8 +93,8 @@ class AppSettings(val ctx: SettingsContext) {
         defaultValue = LetterLayerOption.English,
         options = LetterLayerOption.entries,
         tryEnumValueOfT = ::tryEnumValueOf,
-        writePreviewSettings = { _, prefs ->
-            enabledLayers.writeTo(prefs, EnabledLayers.DoubleLetters)
+        writePreviewSettings = { ctx ->
+            enabledLayers.writeTo(ctx, EnabledLayers.DoubleLetters)
         },
     )
 
@@ -104,9 +104,9 @@ class AppSettings(val ctx: SettingsContext) {
         defaultValue = NumericLayerOption.Phone,
         options = NumericLayerOption.entries,
         tryEnumValueOfT = ::tryEnumValueOf,
-        writePreviewSettings = { readPrefs, prefs ->
-            if (enabledLayers.readFrom(readPrefs) == EnabledLayers.Letters) {
-                enabledLayers.writeTo(prefs, EnabledLayers.Numbers)
+        writePreviewSettings = { ctx ->
+            if (enabledLayers.readFrom(ctx.reader) == EnabledLayers.Letters) {
+                enabledLayers.writeTo(ctx, EnabledLayers.Numbers)
             }
         },
     )
@@ -669,10 +669,10 @@ class AppSettings(val ctx: SettingsContext) {
         label = "Remember recent emojis",
         defaultValue = false,
         description = "History is only saved locally, and will not be shared.",
-        onChange = {
+        onChange = { ctx, enabled ->
             // Reset history on disable
-            if (!it) {
-                ctx[emojiHistory].currentValue = ""
+            if (!enabled) {
+                emojiHistory.resetIn(ctx)
             }
         },
     )
@@ -684,11 +684,11 @@ class AppSettings(val ctx: SettingsContext) {
         description = "History is only saved locally, and will not be shared.\n" +
                 "Clipboard entries marked as \"sensitive\" will not be stored," +
                 " but this requires the sharing app to know that it is sensitive.",
-        onChange = {
+        onChange = { ctx, enabled ->
             // Reset history on disable
-            if (!it) {
-                ctx.coroutineScope.launch {
-                    ctx.appDatabase.value.clipboardEntryDao().clearUnpinned()
+            if (!enabled) {
+                ctx.reader.coroutineScope.launch {
+                    ctx.reader.appDatabase.value.clipboardEntryDao().clearUnpinned()
                 }
             }
         },

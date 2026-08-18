@@ -64,6 +64,7 @@ import se.nullable.flickboard.ui.settings.Handedness
 import se.nullable.flickboard.ui.settings.LayoutType
 import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.settings.MockedSharedPreferences
+import se.nullable.flickboard.ui.settings.SettingsContext
 import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.userImagePainter
@@ -508,7 +509,10 @@ fun PlayKeyboardPreview() {
             AppSettingsProvider(
                 prefs = MockedSharedPreferences(appSettings.ctx.prefs).also {
                     it.edit {
-                        appSettings.keyHeight.writeTo(this, 128F)
+                        appSettings.keyHeight.writeTo(
+                            SettingsContext.Editor(appSettings.ctx, this),
+                            128F,
+                        )
                     }
                 },
             ) {

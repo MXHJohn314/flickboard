@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.edit
 import se.nullable.flickboard.R
 import se.nullable.flickboard.ui.settings.LocalAppSettings
 
@@ -52,7 +51,7 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                         appSettings.all.forEach { section ->
                             section.settings.forEach { setting ->
                                 json.name(setting.key)
-                                setting.exportToJson(appSettings.ctx.prefs, json)
+                                setting.exportToJson(appSettings.ctx, json)
                             }
                         }
                         json.endObject()
@@ -70,8 +69,7 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                     .flatMap { it.settings }
                     .associateBy { it.key }
                 try {
-                    appSettings.ctx.prefs.edit {
-                        val editPrefs = this
+                    appSettings.ctx.edit { editPrefs ->
                         JsonReader(context.contentResolver.openInputStream(uri)!!.bufferedReader())
                             .use { json ->
                                 json.beginObject()

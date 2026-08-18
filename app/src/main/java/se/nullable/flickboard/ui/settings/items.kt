@@ -1,6 +1,5 @@
 package se.nullable.flickboard.ui.settings
 
-import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -172,9 +171,9 @@ fun <T : Labeled> EnumListSetting(meta: SettingMeta.EnumList<T>) {
         optionIsSelected = List<T>::contains,
         onOptionSelected = { toggleOption(it) },
         collapseOnOptionSelected = false,
-        writePreviewSettings = { readPrefs, prefs, option ->
-            meta.writePreviewSettings(readPrefs, prefs)
-            meta.writeTo(prefs, listOf(option))
+        writePreviewSettings = { ctx, option ->
+            meta.writePreviewSettings(ctx)
+            meta.writeTo(ctx, listOf(option))
         },
         previewOverride = null,
         previewForceLandscape = false,
@@ -198,9 +197,9 @@ fun <T : Labeled> EnumSetting(meta: SettingMeta.Enum<T>) {
             optionIsSelected = { selected, option -> option == selected },
             onOptionSelected = { state.value = it },
             collapseOnOptionSelected = true,
-            writePreviewSettings = { readPrefs, prefs, option ->
-                meta.writePreviewSettings(readPrefs, prefs)
-                meta.writeTo(prefs, option)
+            writePreviewSettings = { ctx, option ->
+                meta.writePreviewSettings(ctx)
+                meta.writeTo(ctx, option)
             },
             previewOverride = meta.previewOverride,
             previewForceLandscape = meta.previewForceLandscape,
@@ -353,7 +352,7 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
     optionIsSelected: (V, T) -> Boolean,
     onOptionSelected: (T) -> Unit,
     collapseOnOptionSelected: Boolean,
-    writePreviewSettings: (SharedPreferences, SharedPreferences.Editor, T) -> Unit,
+    writePreviewSettings: (SettingsContext.Editor, T) -> Unit,
     previewOverride: (@Composable (T) -> Unit)?,
     previewForceLandscape: Boolean,
 ) {
@@ -428,7 +427,14 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
                                 }
                                 val prefs = remember(appSettings, state, option) {
                                     MockedSharedPreferences(appSettings.ctx.prefs)
-                                        .also { it.edit { writePreviewSettings(it, this, option) } }
+                                        .also { mock ->
+                                            mock.edit {
+                                                writePreviewSettings(
+                                                    SettingsContext.Editor(appSettings.ctx, this),
+                                                    option,
+                                                )
+                                            }
+                                        }
                                 }
                                 FlickBoardParent(
                                     prefs = prefs,
