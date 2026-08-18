@@ -66,8 +66,10 @@ import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.DisplayLimits
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.LocalDisplayLimits
+import se.nullable.flickboard.ui.util.ResettableState
 import se.nullable.flickboard.ui.util.ScalingMode
 import se.nullable.flickboard.ui.util.loadBitmap
+import se.nullable.flickboard.ui.util.modify
 import java.io.FileOutputStream
 import kotlin.random.Random
 
@@ -75,18 +77,17 @@ private const val LOG_TAG = "settings.items"
 
 @Composable
 fun BoolSetting(meta: SettingMeta.Bool) {
-    val setting = localAppSetting(meta)
-    val state = setting.state
+    val state = localAppSetting(meta)
     Box(
         modifier = Modifier.clickable {
-            setting.currentValue = !state.value
+            state.modify { !it }
         },
     ) {
         SettingRow {
             SettingLabel(meta)
             Switch(
                 checked = state.value,
-                onCheckedChange = { setting.currentValue = it },
+                onCheckedChange = { state.value = it },
             )
         }
     }
@@ -94,8 +95,7 @@ fun BoolSetting(meta: SettingMeta.Bool) {
 
 @Composable
 fun TextSetting(meta: SettingMeta.Text) {
-    val setting = localAppSetting(meta)
-    val state = setting.state
+    val state = localAppSetting(meta)
     SettingRow {
         Column {
             Row(
@@ -108,11 +108,11 @@ fun TextSetting(meta: SettingMeta.Text) {
             Row {
                 TextField(
                     value = state.value,
-                    onValueChange = { setting.currentValue = it },
+                    onValueChange = { state.value = it },
                     placeholder = { meta.placeholder?.let { Text(it) } },
                     modifier = Modifier.weight(1F),
                 )
-                IconButton(onClick = { setting.resetToDefault() }) {
+                IconButton(onClick = { state.resetToDefault() }) {
                     Icon(painterResource(R.drawable.baseline_clear_24), "Reset to default")
                 }
             }
@@ -122,8 +122,7 @@ fun TextSetting(meta: SettingMeta.Text) {
 
 @Composable
 fun FloatSliderSetting(meta: SettingMeta.FloatSlider) {
-    val setting = localAppSetting(meta)
-    val state = setting.state
+    val state = localAppSetting(meta)
     SettingRow {
         Column {
             Row(
@@ -137,11 +136,11 @@ fun FloatSliderSetting(meta: SettingMeta.FloatSlider) {
             Row {
                 Slider(
                     value = state.value,
-                    onValueChange = { setting.currentValue = it },
+                    onValueChange = { state.value = it },
                     valueRange = meta.range,
                     modifier = Modifier.weight(1F),
                 )
-                IconButton(onClick = { setting.resetToDefault() }) {
+                IconButton(onClick = { state.resetToDefault() }) {
                     Icon(painterResource(R.drawable.baseline_clear_24), "Reset to default")
                 }
             }
@@ -151,9 +150,9 @@ fun FloatSliderSetting(meta: SettingMeta.FloatSlider) {
 
 @Composable
 fun <T : Labeled> EnumListSetting(meta: SettingMeta.EnumList<T>) {
-    val setting = localAppSetting(meta)
+    val state = localAppSetting(meta)
     fun toggleOption(option: T, add: Boolean? = null) {
-        setting.modify { old ->
+        state.modify { old ->
             when {
                 add ?: !old.contains(option) -> old + option
                 else -> old - option
@@ -161,7 +160,7 @@ fun <T : Labeled> EnumListSetting(meta: SettingMeta.EnumList<T>) {
         }
     }
     BaseEnumSetting(
-        meta, setting,
+        meta, state,
         valueLabel = { it.singleOrNull()?.label ?: "${it.size} enabled" },
         options = meta.options,
         optionSelectionControl = { selected, option ->
@@ -184,20 +183,20 @@ fun <T : Labeled> EnumListSetting(meta: SettingMeta.EnumList<T>) {
 
 @Composable
 fun <T : Labeled> EnumSetting(meta: SettingMeta.Enum<T>) {
-    val setting = localAppSetting(meta)
+    val state = localAppSetting(meta)
     if (meta.options.size > 1) {
         BaseEnumSetting(
-            meta, setting,
+            meta, state,
             valueLabel = { it.label },
             options = meta.options,
             optionSelectionControl = { selected, option ->
                 RadioButton(
                     selected = selected == option,
-                    onClick = { setting.currentValue = option },
+                    onClick = { state.value = option },
                 )
             },
             optionIsSelected = { selected, option -> option == selected },
-            onOptionSelected = { setting.currentValue = it },
+            onOptionSelected = { state.value = it },
             collapseOnOptionSelected = true,
             writePreviewSettings = { readPrefs, prefs, option ->
                 meta.writePreviewSettings(readPrefs, prefs)
@@ -211,7 +210,7 @@ fun <T : Labeled> EnumSetting(meta: SettingMeta.Enum<T>) {
 
 @Composable
 fun ImageSetting(meta: SettingMeta.Image) {
-    val setting = localAppSetting(meta)
+    val state = localAppSetting(meta)
     val context = LocalContext.current
     val displayLimits = LocalDisplayLimits.current
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
@@ -267,7 +266,7 @@ fun ImageSetting(meta: SettingMeta.Image) {
                 .fragment(Random.Default.nextLong().toString())
                 .build()
         }
-        setting.currentValue = uri
+        state.value = uri
     }
     SettingRow {
         Row(
@@ -286,7 +285,7 @@ fun ImageSetting(meta: SettingMeta.Image) {
                 ) {
                     Icon(painterResource(R.drawable.baseline_image_search_24), "Set image")
                 }
-                IconButton(onClick = { setting.currentValue = null }) {
+                IconButton(onClick = { state.value = null }) {
                     Icon(painterResource(R.drawable.baseline_clear_24), "Clear")
                 }
             }
@@ -296,8 +295,7 @@ fun ImageSetting(meta: SettingMeta.Image) {
 
 @Composable
 fun ColourSetting(meta: SettingMeta.Colour) {
-    val setting = localAppSetting(meta)
-    val state = setting.state
+    val state = localAppSetting(meta)
     val expanded = remember { mutableStateOf(false) }
     SettingRow {
         Column {
@@ -327,14 +325,14 @@ fun ColourSetting(meta: SettingMeta.Colour) {
                     ) {
                         Icon(painterResource(R.drawable.baseline_color_lens_24), "Set colour")
                     }
-                    IconButton(onClick = { setting.currentValue = null }) {
+                    IconButton(onClick = { state.value = null }) {
                         Icon(painterResource(R.drawable.baseline_clear_24), "Clear")
                     }
                 }
             }
             AnimatedVisibility(expanded.value, Modifier.align(Alignment.CenterHorizontally)) {
                 ColourPicker(
-                    onColourSelected = { setting.currentValue = it },
+                    onColourSelected = { state.value = it },
                     Modifier
                         .sizeIn(maxHeight = 200.dp)
                         .padding(horizontal = 16.dp),
@@ -348,7 +346,7 @@ fun ColourSetting(meta: SettingMeta.Colour) {
 @Composable
 fun <T : Labeled, V : Any> BaseEnumSetting(
     meta: SettingMeta<V>,
-    setting: Setting<V>,
+    state: ResettableState<V>,
     valueLabel: (V) -> String,
     options: List<T>,
     optionSelectionControl: @Composable (V, T) -> Unit,
@@ -373,7 +371,7 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
         SettingRow {
             SettingLabel(meta)
             Row {
-                Text(valueLabel(setting.state.value))
+                Text(valueLabel(state.value))
                 val angle: Float by animateFloatAsState(
                     when {
                         expanded -> 180F
@@ -396,7 +394,7 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
                 ) {
                     items(options, key = { it.toString() }) { option ->
                         val appSettings = LocalAppSettings.current
-                        val isSelected = optionIsSelected(setting.state.value, option)
+                        val isSelected = optionIsSelected(state.value, option)
                         val select = {
                             onOptionSelected(option)
                             if (collapseOnOptionSelected) {
@@ -426,9 +424,9 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
                                         fontSize = 16.sp,
                                         modifier = Modifier.weight(1F),
                                     )
-                                    optionSelectionControl(setting.state.value, option)
+                                    optionSelectionControl(state.value, option)
                                 }
-                                val prefs = remember(appSettings, setting, option) {
+                                val prefs = remember(appSettings, state, option) {
                                     MockedSharedPreferences(appSettings.ctx.prefs)
                                         .also { it.edit { writePreviewSettings(it, this, option) } }
                                 }

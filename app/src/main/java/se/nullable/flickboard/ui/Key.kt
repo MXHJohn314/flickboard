@@ -356,7 +356,7 @@ fun RenderActionVisual(
                             TextDirection.LeftToRight -> androidx.compose.ui.text.style.TextDirection.Ltr
                             TextDirection.RightToLeft ->
                                 when {
-                                    localAppSetting { it.noReverseRtlBrackets }.state.value ->
+                                    localAppSetting { it.noReverseRtlBrackets }.value ->
                                         androidx.compose.ui.text.style.TextDirection.Content
 
                                     else ->

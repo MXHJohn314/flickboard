@@ -18,6 +18,7 @@ import se.nullable.flickboard.model.ModifierSettings
 import se.nullable.flickboard.ui.DisplayLimits
 import se.nullable.flickboard.ui.LocalAppDatabase
 import se.nullable.flickboard.ui.LocalDisplayLimits
+import se.nullable.flickboard.ui.util.ResettableState
 import se.nullable.flickboard.ui.util.isSamsungDevice
 import se.nullable.flickboard.util.MaterialToneMode
 import se.nullable.flickboard.util.PiF
@@ -45,14 +46,15 @@ fun AppSettingsProvider(prefs: SharedPreferences? = null, content: @Composable (
 }
 
 @Composable
-fun <T> localAppSetting(meta: SettingProjection<T>): Setting<T> =
+fun <T> localAppSetting(meta: SettingProjection<T>): ResettableState<T> =
     localAppSetting { meta }
 
 @Composable
-inline fun <T> localAppSetting(meta: (AppSettings) -> SettingProjection<T>): Setting<T> = run {
-    val appSettings = LocalAppSettings.current
-    appSettings.ctx[meta(appSettings)]
-}
+inline fun <T> localAppSetting(meta: (AppSettings) -> SettingProjection<T>): ResettableState<T> =
+    run {
+        val appSettings = LocalAppSettings.current
+        appSettings.ctx[meta(appSettings)].state
+    }
 
 @Suppress("MemberVisibilityCanBePrivate")
 class AppSettings(val ctx: SettingsContext) {

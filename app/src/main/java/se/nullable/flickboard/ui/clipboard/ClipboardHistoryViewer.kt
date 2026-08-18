@@ -57,10 +57,10 @@ fun ClipboardHistoryViewer(
 ) {
     val appSettings = LocalAppSettings.current
     val settingsCtx = appSettings.ctx
-    val clipboardHistoryEnabled = localAppSetting { it.saveClipboardHistory }.state
-    val showPinned = localAppSetting { it.clipboardHistoryShowPinned }.state
-    val showHistory = localAppSetting { it.clipboardHistoryShowHistory }.state
-    val showTips = localAppSetting { it.clipboardHistoryShowTips }.state
+    val clipboardHistoryEnabled = localAppSetting { it.saveClipboardHistory }
+    val showPinned = localAppSetting { it.clipboardHistoryShowPinned }
+    val showHistory = localAppSetting { it.clipboardHistoryShowHistory }
+    val showTips = localAppSetting { it.clipboardHistoryShowTips }
 
     val coroutineScope = rememberCoroutineScope()
     val entryDao = LocalAppDatabase.current.value.clipboardEntryDao()

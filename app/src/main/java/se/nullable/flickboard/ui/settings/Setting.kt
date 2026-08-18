@@ -7,7 +7,6 @@ import android.util.JsonReader
 import android.util.JsonToken
 import android.util.JsonWriter
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -21,6 +20,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.shareIn
 import se.nullable.flickboard.model.AppDatabase
+import se.nullable.flickboard.ui.util.ResettableState
 import se.nullable.flickboard.util.Boxed
 import se.nullable.flickboard.util.orNull
 import se.nullable.flickboard.util.tryEnumValueOf
@@ -103,9 +103,25 @@ class Setting<T>(
             replay = 1,
         )
 
-    val state: State<T>
+    val state: ResettableState<T>
         @Composable
-        get() = watch.collectAsState(initial = cachedValue)
+        get() = run {
+            val collector = watch.collectAsState(initial = cachedValue)
+            object : ResettableState<T> {
+                override var value: T
+                    get() = collector.value
+                    set(value) {
+                        currentValue = value
+                    }
+
+                override fun resetToDefault() {
+                    this@Setting.resetToDefault()
+                }
+
+                override fun component1(): T = value
+                override fun component2(): (T) -> Unit = { value = it }
+            }
+        }
 }
 
 interface SettingProjection<T> {

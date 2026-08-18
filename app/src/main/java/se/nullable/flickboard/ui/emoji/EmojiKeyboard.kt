@@ -77,8 +77,8 @@ fun EmojiKeyboard(
     navigateUp: () -> Unit,
     defaultTab: EmojiTab? = null,
 ) {
-    val saveHistory = localAppSetting { it.saveEmojiHistory }.state
-    val emojiHistory = localAppSetting { it.emojiHistory }.state
+    val saveHistory = localAppSetting { it.saveEmojiHistory }
+    val emojiHistory = localAppSetting { it.emojiHistory }
     val emojis = emojiList()
     val searchQuery = remember { mutableStateOf("") }
     val selectedTab = remember(emojis) {
@@ -266,8 +266,8 @@ fun EmojiVariant(
     emojiTextModifier: Modifier,
 ) {
     val appSettings = LocalAppSettings.current
-    val saveHistory = localAppSetting { it.saveEmojiHistory }.state
-    val emojiHistory = localAppSetting { it.emojiHistory }.state
+    val saveHistory = localAppSetting { it.saveEmojiHistory }
+    val emojiHistory = localAppSetting { it.emojiHistory }
     Box(
         Modifier
             .combinedClickable(onLongClick = onLongClick) {

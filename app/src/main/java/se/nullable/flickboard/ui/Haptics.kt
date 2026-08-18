@@ -20,9 +20,9 @@ interface Haptics {
             @Composable
             get() = run {
                 when {
-                    localAppSetting { it.enableCustomHaptics }.state.value -> {
+                    localAppSetting { it.enableCustomHaptics }.value -> {
                         val context = LocalContext.current
-                        val durationMs = localAppSetting { it.customHapticsDuration }.state.value
+                        val durationMs = localAppSetting { it.customHapticsDuration }.value
                         remember(context, durationMs) {
                             AndroidCustomHaptics(context, durationMs = durationMs.toLong())
                         }

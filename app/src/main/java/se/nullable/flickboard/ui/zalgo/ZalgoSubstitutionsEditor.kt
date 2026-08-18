@@ -87,7 +87,7 @@ fun ZalgoSubstitutionsEditor(
                 title = { Text("Zalgo Macros") },
                 navigationIcon = { navigationIcon() },
                 actions = {
-                    IconButton({ composingNewId.modify { this ?: UUID.randomUUID() } }) {
+                    IconButton({ composingNewId.modify { it ?: UUID.randomUUID() } }) {
                         Icon(
                             painterResource(R.drawable.baseline_add_24),
                             contentDescription = "New",
@@ -391,7 +391,7 @@ fun ZalgoSubstitutionEditor(
     Column(modifier) {
         TextField(
             edited.value.from,
-            onValueChange = { edited.modify { copy(from = it) } },
+            onValueChange = { edited.modify { old -> old.copy(from = it) } },
             label = { Text("Macro (must be 2 characters)") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -402,7 +402,7 @@ fun ZalgoSubstitutionEditor(
         )
         TextField(
             edited.value.to,
-            onValueChange = { edited.modify { copy(to = it) } },
+            onValueChange = { edited.modify { old -> old.copy(to = it) } },
             label = { Text("Replacement") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,

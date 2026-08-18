@@ -25,7 +25,7 @@ fun KeyLabelGrid(
     cornerRoundness: Float = 0F,
     content: @Composable KeyLabelGridScope.() -> Unit = {}
 ) {
-    val centerBias = localAppSetting { it.actionVisualBiasCenter }.state.value
+    val centerBias = localAppSetting { it.actionVisualBiasCenter }.value
     Layout(
         content = { KeyLabelGridScope().content() },
         modifier = modifier,

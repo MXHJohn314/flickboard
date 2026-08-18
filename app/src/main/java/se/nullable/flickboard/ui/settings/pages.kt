@@ -59,6 +59,7 @@ import se.nullable.flickboard.ui.MenuPageUriLink
 import se.nullable.flickboard.ui.excludeFromBottomInset
 import se.nullable.flickboard.ui.help.OnboardingPrompt
 import se.nullable.flickboard.ui.theme.Title
+import se.nullable.flickboard.ui.util.modify
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -239,7 +240,6 @@ fun SettingsKeyboardPreview(
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val enable = localAppSetting { it.enableKeyboardPreview }
-    val enableState = enable.state
     with(sharedTransitionScope) {
         Box {
             Column {
@@ -287,7 +287,7 @@ fun SettingsKeyboardPreview(
                                 )
                                 val hideIconAngle = animateFloatAsState(
                                     when {
-                                        enableState.value -> 0F
+                                        enable.value -> 0F
                                         else -> 180F
                                     },
                                     label = "hideIconAngle",
@@ -295,7 +295,7 @@ fun SettingsKeyboardPreview(
                                 Icon(
                                     painterResource(R.drawable.baseline_arrow_drop_down_24),
                                     when {
-                                        enableState.value -> "hide"
+                                        enable.value -> "hide"
                                         else -> "show"
                                     },
                                     Modifier
@@ -307,7 +307,7 @@ fun SettingsKeyboardPreview(
                     }
                 }
                 AnimatedVisibility(
-                    enableState.value,
+                    enable.value,
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                 ) {

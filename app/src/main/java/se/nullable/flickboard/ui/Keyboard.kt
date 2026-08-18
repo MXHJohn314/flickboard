@@ -449,9 +449,9 @@ fun ConfiguredKeyboard(
     allowHideSettings: Boolean = true,
     highlightedAction: Action? = null,
 ) {
-    val enabledLetterLayers = localAppSetting { it.letterLayers }.state.value
+    val enabledLetterLayers = localAppSetting { it.letterLayers }.value
     Keyboard(
-        layout = enabledLetterLayers.getOrNull(localAppSetting { it.activeLetterLayerIndex }.state.value)?.layout
+        layout = enabledLetterLayers.getOrNull(localAppSetting { it.activeLetterLayerIndex }.value)?.layout
             ?: enabledLetterLayers.firstOrNull()?.layout
             ?: EN_MESSAGEASE,
         onAction = onAction,

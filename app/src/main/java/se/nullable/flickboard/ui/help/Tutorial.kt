@@ -80,7 +80,6 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
     val pages = listOf<@Composable (PagerState) -> Unit>(
         { pager ->
             val handedness = localAppSetting { it.handedness }
-            val handednessState = handedness.state
             Column(Modifier.padding(8.dp)) {
                 Text("Personalization", style = Typography.titleMedium)
                 Text("Which side is your dominant hand?")
@@ -95,9 +94,9 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
                         Column(
                             Modifier
                                 .selectable(
-                                    selected = handednessState.value == option,
+                                    selected = handedness.value == option,
                                     onClick = {
-                                        handedness.currentValue = option
+                                        handedness.value = option
                                         pager.animateScrollToNextPage()
                                     },
                                     role = Role.RadioButton,
@@ -109,7 +108,7 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
                         ) {
                             Row {
                                 RadioButton(
-                                    selected = handednessState.value == option,
+                                    selected = handedness.value == option,
                                     onClick = null,
                                 )
                                 Text(option.label, Modifier)
@@ -301,7 +300,7 @@ fun TutorialKeyStep(
 ) {
     val normalizedKey = key.copy(shift = key.autoShift(Locale.ENGLISH))
     val desiredAction = desiredGesture.resolveAction(normalizedKey)
-    val handedness = localAppSetting { it.handedness }.state
+    val handedness = localAppSetting { it.handedness }
 
     @Composable
     fun RowScope.WrappedContent() {
