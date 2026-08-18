@@ -83,11 +83,13 @@ fun FlickBoardTheme(
         typography = Typography,
     ) {
         val settings = LocalAppSettings.current
-        val keyColour = settings.keyColour.state
-        val keyColourChroma = settings.keyColourChroma.state
-        val toneMode = settings.keyColourTone.state
+        val settingsCtx = settings.ctx
+        val keyColour = settingsCtx[settings.keyColour].state
+        val keyColourChroma = settingsCtx[settings.keyColourChroma].state
+        val toneMode = settingsCtx[settings.keyColourTone].state
         val toneConfig = toneMode.value.config
-        val visualFeedbackInvertColourScheme = settings.visualFeedbackInvertColourScheme.state
+        val visualFeedbackInvertColourScheme =
+            settingsCtx[settings.visualFeedbackInvertColourScheme].state
         val keySurfaceColour = keyColour.value?.toAccentContainer(
             chroma = keyColourChroma.value,
             toneConfig,

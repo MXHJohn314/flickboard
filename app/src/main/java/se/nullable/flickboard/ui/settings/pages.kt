@@ -217,14 +217,14 @@ fun SettingsSectionPage(
         ) {
             section.settings.forEach { setting ->
                 when (setting) {
-                    is Setting.Bool -> BoolSetting(setting)
-                    is Setting.Integer -> {} // Not rendered right now, implement if used anywhere
-                    is Setting.Text -> TextSetting(setting)
-                    is Setting.FloatSlider -> FloatSliderSetting(setting)
-                    is Setting.EnumList<*> -> EnumListSetting(setting)
-                    is Setting.Enum -> EnumSetting(setting)
-                    is Setting.Image -> ImageSetting(setting)
-                    is Setting.Colour -> ColourSetting(setting)
+                    is SettingMeta.Bool -> BoolSetting(setting)
+                    is SettingMeta.Integer -> {} // Not rendered right now, implement if used anywhere
+                    is SettingMeta.Text -> TextSetting(setting)
+                    is SettingMeta.FloatSlider -> FloatSliderSetting(setting)
+                    is SettingMeta.EnumList<*> -> EnumListSetting(setting)
+                    is SettingMeta.Enum -> EnumSetting(setting)
+                    is SettingMeta.Image -> ImageSetting(setting)
+                    is SettingMeta.Colour -> ColourSetting(setting)
                 }
             }
         }
@@ -238,7 +238,7 @@ fun SettingsKeyboardPreview(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
-    val enable = LocalAppSettings.current.enableKeyboardPreview
+    val enable = localAppSetting { it.enableKeyboardPreview }
     val enableState = enable.state
     with(sharedTransitionScope) {
         Box {
@@ -250,7 +250,7 @@ fun SettingsKeyboardPreview(
                         .clickable {
                             when {
                                 realKeyboardVisible -> softwareKeyboardController?.hide()
-                                else -> enable.currentValue = !enable.currentValue
+                                else -> enable.modify { !it }
                             }
                         }
                         .sharedElement(

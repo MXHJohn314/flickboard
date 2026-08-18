@@ -74,7 +74,8 @@ import kotlin.random.Random
 private const val LOG_TAG = "settings.items"
 
 @Composable
-fun BoolSetting(setting: Setting.Bool) {
+fun BoolSetting(meta: SettingMeta.Bool) {
+    val setting = localAppSetting(meta)
     val state = setting.state
     Box(
         modifier = Modifier.clickable {
@@ -82,7 +83,7 @@ fun BoolSetting(setting: Setting.Bool) {
         },
     ) {
         SettingRow {
-            SettingLabel(setting)
+            SettingLabel(meta)
             Switch(
                 checked = state.value,
                 onCheckedChange = { setting.currentValue = it },
@@ -92,7 +93,8 @@ fun BoolSetting(setting: Setting.Bool) {
 }
 
 @Composable
-fun TextSetting(setting: Setting.Text) {
+fun TextSetting(meta: SettingMeta.Text) {
+    val setting = localAppSetting(meta)
     val state = setting.state
     SettingRow {
         Column {
@@ -101,13 +103,13 @@ fun TextSetting(setting: Setting.Text) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                SettingLabel(setting)
+                SettingLabel(meta)
             }
             Row {
                 TextField(
                     value = state.value,
                     onValueChange = { setting.currentValue = it },
-                    placeholder = { setting.placeholder?.let { Text(it) } },
+                    placeholder = { meta.placeholder?.let { Text(it) } },
                     modifier = Modifier.weight(1F),
                 )
                 IconButton(onClick = { setting.resetToDefault() }) {
@@ -119,7 +121,8 @@ fun TextSetting(setting: Setting.Text) {
 }
 
 @Composable
-fun FloatSliderSetting(setting: Setting.FloatSlider) {
+fun FloatSliderSetting(meta: SettingMeta.FloatSlider) {
+    val setting = localAppSetting(meta)
     val state = setting.state
     SettingRow {
         Column {
@@ -128,14 +131,14 @@ fun FloatSliderSetting(setting: Setting.FloatSlider) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                SettingLabel(setting)
-                Text(text = setting.render(state.value))
+                SettingLabel(meta)
+                Text(text = meta.render(state.value))
             }
             Row {
                 Slider(
                     value = state.value,
                     onValueChange = { setting.currentValue = it },
-                    valueRange = setting.range,
+                    valueRange = meta.range,
                     modifier = Modifier.weight(1F),
                 )
                 IconButton(onClick = { setting.resetToDefault() }) {
@@ -147,18 +150,20 @@ fun FloatSliderSetting(setting: Setting.FloatSlider) {
 }
 
 @Composable
-fun <T : Labeled> EnumListSetting(setting: Setting.EnumList<T>) {
+fun <T : Labeled> EnumListSetting(meta: SettingMeta.EnumList<T>) {
+    val setting = localAppSetting(meta)
     fun toggleOption(option: T, add: Boolean? = null) {
-        val old = setting.currentValue
-        setting.currentValue = when {
-            add ?: !old.contains(option) -> old + option
-            else -> old - option
+        setting.modify { old ->
+            when {
+                add ?: !old.contains(option) -> old + option
+                else -> old - option
+            }
         }
     }
     BaseEnumSetting(
-        setting,
+        meta, setting,
         valueLabel = { it.singleOrNull()?.label ?: "${it.size} enabled" },
-        options = setting.options,
+        options = meta.options,
         optionSelectionControl = { selected, option ->
             Switch(
                 checked = selected.contains(option),
@@ -169,8 +174,8 @@ fun <T : Labeled> EnumListSetting(setting: Setting.EnumList<T>) {
         onOptionSelected = { toggleOption(it) },
         collapseOnOptionSelected = false,
         writePreviewSettings = { readPrefs, prefs, option ->
-            setting.writePreviewSettings(readPrefs, prefs)
-            setting.writeTo(prefs, listOf(option))
+            meta.writePreviewSettings(readPrefs, prefs)
+            meta.writeTo(prefs, listOf(option))
         },
         previewOverride = null,
         previewForceLandscape = false,
@@ -178,12 +183,13 @@ fun <T : Labeled> EnumListSetting(setting: Setting.EnumList<T>) {
 }
 
 @Composable
-fun <T : Labeled> EnumSetting(setting: Setting.Enum<T>) {
-    if (setting.options.size > 1) {
+fun <T : Labeled> EnumSetting(meta: SettingMeta.Enum<T>) {
+    val setting = localAppSetting(meta)
+    if (meta.options.size > 1) {
         BaseEnumSetting(
-            setting,
+            meta, setting,
             valueLabel = { it.label },
-            options = setting.options,
+            options = meta.options,
             optionSelectionControl = { selected, option ->
                 RadioButton(
                     selected = selected == option,
@@ -194,30 +200,31 @@ fun <T : Labeled> EnumSetting(setting: Setting.Enum<T>) {
             onOptionSelected = { setting.currentValue = it },
             collapseOnOptionSelected = true,
             writePreviewSettings = { readPrefs, prefs, option ->
-                setting.writePreviewSettings(readPrefs, prefs)
-                setting.writeTo(prefs, option)
+                meta.writePreviewSettings(readPrefs, prefs)
+                meta.writeTo(prefs, option)
             },
-            previewOverride = setting.previewOverride,
-            previewForceLandscape = setting.previewForceLandscape,
+            previewOverride = meta.previewOverride,
+            previewForceLandscape = meta.previewForceLandscape,
         )
     }
 }
 
 @Composable
-fun ImageSetting(setting: Setting.Image) {
+fun ImageSetting(meta: SettingMeta.Image) {
+    val setting = localAppSetting(meta)
     val context = LocalContext.current
     val displayLimits = LocalDisplayLimits.current
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
         var uri = it
         if (uri != null) {
-            val cachedFile = context.filesDir.resolve(setting.cacheFileName)
+            val cachedFile = context.filesDir.resolve(meta.cacheFileName)
             // Copy image to ensure that that it'll stay present,
             // and that we will keep permission to access it.
             // takePersistableUriPermission is not always granted
             // by all implementations.
             // This also lets us pre-scale the image to something that makes sense for the device.
             val successfullyCompressed = when {
-                else -> when (setting.scalingTarget) {
+                else -> when (meta.scalingTarget) {
                     ImageScalingTarget.Original -> false
 
                     ImageScalingTarget.DeviceDisplay -> when {
@@ -268,7 +275,7 @@ fun ImageSetting(setting: Setting.Image) {
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            SettingLabel(setting)
+            SettingLabel(meta)
             Row {
                 IconButton(
                     onClick = {
@@ -288,7 +295,8 @@ fun ImageSetting(setting: Setting.Image) {
 }
 
 @Composable
-fun ColourSetting(setting: Setting.Colour) {
+fun ColourSetting(meta: SettingMeta.Colour) {
+    val setting = localAppSetting(meta)
     val state = setting.state
     val expanded = remember { mutableStateOf(false) }
     SettingRow {
@@ -298,7 +306,7 @@ fun ColourSetting(setting: Setting.Colour) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                SettingLabel(setting)
+                SettingLabel(meta)
                 Row {
                     state.value?.let {
                         // Not actually a button, but we want to share the same sizing...
@@ -339,6 +347,7 @@ fun ColourSetting(setting: Setting.Colour) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T : Labeled, V : Any> BaseEnumSetting(
+    meta: SettingMeta<V>,
     setting: Setting<V>,
     valueLabel: (V) -> String,
     options: List<T>,
@@ -362,7 +371,7 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
     }
     Box(Modifier.clickable { expanded = true }) {
         SettingRow {
-            SettingLabel(setting)
+            SettingLabel(meta)
             Row {
                 Text(valueLabel(setting.state.value))
                 val angle: Float by animateFloatAsState(
@@ -461,7 +470,7 @@ fun SettingRow(content: @Composable RowScope.() -> Unit) {
 }
 
 @Composable
-fun RowScope.SettingLabel(setting: Setting<*>) {
+fun RowScope.SettingLabel(setting: SettingMeta<*>) {
     Column(
         Modifier
             .weight(1f, false)

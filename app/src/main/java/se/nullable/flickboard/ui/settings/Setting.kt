@@ -24,6 +24,7 @@ import se.nullable.flickboard.model.AppDatabase
 import se.nullable.flickboard.util.Boxed
 import se.nullable.flickboard.util.orNull
 import se.nullable.flickboard.util.tryEnumValueOf
+import java.util.WeakHashMap
 import kotlin.math.roundToInt
 
 class SettingsContext(
@@ -31,6 +32,13 @@ class SettingsContext(
     val coroutineScope: CoroutineScope,
     val appDatabase: Lazy<AppDatabase>,
 ) {
+    private val settingCache = WeakHashMap<SettingProjection<*>, Setting<*>>()
+    operator fun <T> get(meta: SettingProjection<T>): Setting<T> = run {
+        val setting = settingCache.computeIfAbsent(meta) { Setting(meta, this) }
+        @Suppress("UNCHECKED_CAST")
+        setting as Setting<T>
+    }
+
     companion object {
         /**
          * Do not use in a composable context! Use [LocalAppSettings] instead!
@@ -43,65 +51,20 @@ class SettingsContext(
     }
 }
 
-abstract class SettingProjection<T> {
-    abstract var currentValue: T
+class Setting<T>(
+    val meta: SettingProjection<T>,
+    private val ctx: SettingsContext
+) {
+    var currentValue: T
+        get() = meta.readFrom(ctx.prefs)
+        set(value) = ctx.prefs.edit { meta.writeTo(this, value) }
 
     inline fun modify(f: (T) -> T) {
         currentValue = f(currentValue)
     }
 
-    inline fun tryModify(f: (T) -> Boxed<T>?): Boolean {
-        currentValue = (f(currentValue) ?: return false).value
-        return true
-    }
-
-    fun <U : Any> tryMap(
-        get: (T) -> U?,
-        set: (T, U) -> T?,
-    ): SettingProjection<U?> = let { base ->
-        object : SettingProjection<U?>() {
-            override var currentValue: U?
-                get() = get(base.currentValue)
-                set(value) {
-                    base.tryModify { oldBase ->
-                        set(
-                            oldBase,
-                            (value ?: return@tryModify null),
-                        )?.let(::Boxed)
-                    }
-                }
-        }
-    }
-}
-
-sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>() {
-    abstract val key: String
-    abstract val label: String
-    abstract val description: String?
-
-    override var currentValue: T
-        get() = readFrom(ctx.prefs)
-        set(value) = ctx.prefs.edit { writeTo(this, value) }
-
     fun resetToDefault() {
-        ctx.prefs.edit { resetIn(this) }
-    }
-
-    abstract fun readFrom(prefs: SharedPreferences): T
-    abstract fun writeTo(prefs: SharedPreferences.Editor, value: T)
-    fun resetIn(prefs: SharedPreferences.Editor) {
-        prefs.remove(key)
-    }
-
-    abstract fun readFromJson(json: JsonReader): T?
-    abstract fun writeToJson(json: JsonWriter, value: T)
-
-    fun exportToJson(prefs: SharedPreferences, json: JsonWriter) {
-        writeToJson(json, readFrom(prefs))
-    }
-
-    fun importFromJson(prefs: SharedPreferences.Editor, json: JsonReader) {
-        readFromJson(json)?.let { writeTo(prefs, it) }
+        ctx.prefs.edit { meta.resetIn(this) }
     }
 
     private var lastCachedValue: Boxed<T>? = null
@@ -120,7 +83,7 @@ sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>
         // register and unregister. Otherwise no strong reference is held to the listener,
         // meaning that the registration can be "lost" on any garbage collection.
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            if (key == this@Setting.key) {
+            if (meta.observesKey(key)) {
                 val v = currentValue
                 lastCachedValue = Boxed(v)
                 trySendBlocking(v)
@@ -143,15 +106,63 @@ sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>
     val state: State<T>
         @Composable
         get() = watch.collectAsState(initial = cachedValue)
+}
+
+interface SettingProjection<T> {
+    fun observesKey(key: String?): Boolean
+    fun readFrom(prefs: SharedPreferences): T
+    fun writeTo(prefs: SharedPreferences.Editor, value: T)
+    fun resetIn(prefs: SharedPreferences.Editor)
+
+    fun <U : Any> tryMap(
+        get: (T) -> U?,
+        set: (U) -> T?,
+    ): SettingProjection<U?> = let { base ->
+        object : SettingProjection<U?> {
+            override fun observesKey(key: String?): Boolean = base.observesKey(key)
+
+            override fun readFrom(prefs: SharedPreferences): U? =
+                get(base.readFrom(prefs))
+
+            override fun writeTo(prefs: SharedPreferences.Editor, value: U?) {
+                base.writeTo(prefs, set(value ?: return) ?: return)
+            }
+
+            override fun resetIn(prefs: SharedPreferences.Editor) {
+                base.resetIn(prefs)
+            }
+        }
+    }
+}
+
+sealed class SettingMeta<T> : SettingProjection<T> {
+    abstract val key: String
+    abstract val label: String
+    abstract val description: String?
+
+    override fun observesKey(key: String?): Boolean = key == this.key
+    override fun resetIn(prefs: SharedPreferences.Editor) {
+        prefs.remove(key)
+    }
+
+    abstract fun readFromJson(json: JsonReader): T?
+    abstract fun writeToJson(json: JsonWriter, value: T)
+
+    fun exportToJson(prefs: SharedPreferences, json: JsonWriter) {
+        writeToJson(json, readFrom(prefs))
+    }
+
+    fun importFromJson(prefs: SharedPreferences.Editor, json: JsonReader) {
+        readFromJson(json)?.let { writeTo(prefs, it) }
+    }
 
     class Bool(
         override val key: String,
         override val label: String,
         val defaultValue: Boolean,
-        ctx: SettingsContext,
         override val description: String? = null,
         val onChange: (Boolean) -> Unit = {},
-    ) : Setting<Boolean>(ctx) {
+    ) : SettingMeta<Boolean>() {
         override fun readFrom(prefs: SharedPreferences): Boolean =
             prefs.getBoolean(key, defaultValue)
 
@@ -170,9 +181,8 @@ sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>
         override val key: String,
         override val label: String,
         val defaultValue: Int,
-        ctx: SettingsContext,
         override val description: String? = null,
-    ) : Setting<Int>(ctx) {
+    ) : SettingMeta<Int>() {
         override fun readFrom(prefs: SharedPreferences): Int = prefs.getInt(key, defaultValue)
         override fun writeTo(prefs: SharedPreferences.Editor, value: Int) {
             prefs.putInt(key, value)
@@ -188,10 +198,9 @@ sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>
         override val key: String,
         override val label: String,
         val defaultValue: String,
-        ctx: SettingsContext,
         override val description: String? = null,
         val placeholder: String? = null,
-    ) : Setting<String>(ctx) {
+    ) : SettingMeta<String>() {
         override fun readFrom(prefs: SharedPreferences): String =
             prefs.getString(key, defaultValue) ?: defaultValue
 
@@ -210,10 +219,9 @@ sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>
         override val label: String,
         val defaultValue: Float,
         val range: ClosedFloatingPointRange<Float>,
-        ctx: SettingsContext,
         override val description: String? = null,
         val render: (Float) -> String = { it.roundToInt().toString() },
-    ) : Setting<Float>(ctx) {
+    ) : SettingMeta<Float>() {
         override fun readFrom(prefs: SharedPreferences): Float = prefs.getFloat(key, defaultValue)
         override fun writeTo(prefs: SharedPreferences.Editor, value: Float) {
             prefs.putFloat(key, value.coerceIn(range))
@@ -237,10 +245,9 @@ sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>
         val options: List<T>,
         /** Should be [tryEnumValueOf] */
         val tryEnumValueOfT: (String) -> T?,
-        ctx: SettingsContext,
         override val description: String? = null,
         val writePreviewSettings: (SharedPreferences, SharedPreferences.Editor) -> Unit = { _, _ -> },
-    ) : Setting<List<T>>(ctx) {
+    ) : SettingMeta<List<T>>() {
         override fun readFrom(prefs: SharedPreferences): List<T> =
             prefs.getString(key, null)
                 ?.split(',')
@@ -275,12 +282,11 @@ sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>
         val options: List<T>,
         /** Should be [tryEnumValueOf]<T> */
         val tryEnumValueOfT: (String) -> T?,
-        ctx: SettingsContext,
         override val description: String? = null,
         val writePreviewSettings: (SharedPreferences, SharedPreferences.Editor) -> Unit = { _, _ -> },
         val previewOverride: (@Composable (T) -> Unit)? = null,
         val previewForceLandscape: Boolean = false,
-    ) : Setting<T>(ctx) {
+    ) : SettingMeta<T>() {
         override fun readFrom(prefs: SharedPreferences): T =
             prefs.getString(key, null)?.let(tryEnumValueOfT) ?: defaultValue
 
@@ -297,11 +303,10 @@ sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>
     class Image(
         override val key: String,
         override val label: String,
-        ctx: SettingsContext,
         val cacheFileName: String,
         val scalingTarget: ImageScalingTarget,
         override val description: String? = null,
-    ) : Setting<Uri?>(ctx) {
+    ) : SettingMeta<Uri?>() {
         override fun readFrom(prefs: SharedPreferences): Uri? =
             prefs.getString(key, null)?.let(Uri::parse)
 
@@ -320,9 +325,8 @@ sealed class Setting<T>(private val ctx: SettingsContext) : SettingProjection<T>
     class Colour(
         override val key: String,
         override val label: String,
-        ctx: SettingsContext,
         override val description: String? = null,
-    ) : Setting<Color?>(ctx) {
+    ) : SettingMeta<Color?>() {
         override fun readFrom(prefs: SharedPreferences): Color? =
             prefs.getInt(key, 0).takeUnless { it == 0 }?.let { Color(it) }
 

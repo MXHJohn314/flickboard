@@ -64,6 +64,7 @@ import se.nullable.flickboard.ui.settings.Handedness
 import se.nullable.flickboard.ui.settings.LayoutType
 import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.settings.MockedSharedPreferences
+import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.userImagePainter
 
@@ -88,6 +89,7 @@ fun Keyboard(
     highlightedAction: Action? = null,
 ) {
     val appSettings = LocalAppSettings.current
+    val settingsCtx = appSettings.ctx
     val enabledLayersForCurrentOrientation = appSettings.enabledLayersForCurrentOrientation
     val overrideEnabledLayersState = rememberUpdatedState(overrideEnabledLayers)
     val enabledLayers = remember {
@@ -98,27 +100,27 @@ fun Keyboard(
             }
         }
     }
-    val landscapeSplit = appSettings.landscapeSplit.state
-    val landscapeControlSection = appSettings.landscapeControlSection.state
-    val numericLayer = appSettings.numericLayer.state
-    val secondaryLetterLayer = appSettings.secondaryLetterLayer.state
-    val handedness = appSettings.handedness.state
-    val invertSwipeDelete = appSettings.invertSwipeDelete.state
-    val backgroundOpacity = appSettings.backgroundOpacity.state
-    val enablePointerTrail = appSettings.enablePointerTrail.state
+    val landscapeSplit = settingsCtx[appSettings.landscapeSplit].state
+    val landscapeControlSection = settingsCtx[appSettings.landscapeControlSection].state
+    val numericLayer = settingsCtx[appSettings.numericLayer].state
+    val secondaryLetterLayer = settingsCtx[appSettings.secondaryLetterLayer].state
+    val handedness = settingsCtx[appSettings.handedness].state
+    val invertSwipeDelete = settingsCtx[appSettings.invertSwipeDelete].state
+    val backgroundOpacity = settingsCtx[appSettings.backgroundOpacity].state
+    val enablePointerTrail = settingsCtx[appSettings.enablePointerTrail].state
     val shownActionClasses = when {
         allowHideSettings -> appSettings.shownActionClasses
         else -> remember { derivedStateOf { ActionClass.entries.toSet() } }
     }
-    val enableHiddenActions = appSettings.enableHiddenActions.state
-    val enableAdvancedModifiers = appSettings.enableAdvancedModifiers.state
+    val enableHiddenActions = settingsCtx[appSettings.enableHiddenActions].state
+    val enableAdvancedModifiers = settingsCtx[appSettings.enableAdvancedModifiers].state
     val modifierSettings = appSettings.modifierSettings
-    val enableToggleShowSymbols = appSettings.enableToggleShowSymbolsGesture.state
-    val keyGap = appSettings.keyGap.state
-    val backgroundImage = appSettings.backgroundImage.state
-    val keyboardMargin = appSettings.keyboardMargin.state
-    val keyboardMarginBottomPortrait = appSettings.keyboardMarginBottomPortrait.state
-    val noReverseRtlBrackets = appSettings.noReverseRtlBrackets.state
+    val enableToggleShowSymbols = settingsCtx[appSettings.enableToggleShowSymbolsGesture].state
+    val keyGap = settingsCtx[appSettings.keyGap].state
+    val backgroundImage = settingsCtx[appSettings.backgroundImage].state
+    val keyboardMargin = settingsCtx[appSettings.keyboardMargin].state
+    val keyboardMarginBottomPortrait = settingsCtx[appSettings.keyboardMarginBottomPortrait].state
+    val noReverseRtlBrackets = settingsCtx[appSettings.noReverseRtlBrackets].state
     var modifierState: ModifierState by remember { mutableStateOf(ModifierState()) }
     LaunchedEffect(modifierState) {
         onModifierStateUpdated(modifierState)
@@ -447,10 +449,9 @@ fun ConfiguredKeyboard(
     allowHideSettings: Boolean = true,
     highlightedAction: Action? = null,
 ) {
-    val appSettings = LocalAppSettings.current
-    val enabledLetterLayers = appSettings.letterLayers.state.value
+    val enabledLetterLayers = localAppSetting { it.letterLayers }.state.value
     Keyboard(
-        layout = enabledLetterLayers.getOrNull(appSettings.activeLetterLayerIndex.state.value)?.layout
+        layout = enabledLetterLayers.getOrNull(localAppSetting { it.activeLetterLayerIndex }.state.value)?.layout
             ?: enabledLetterLayers.firstOrNull()?.layout
             ?: EN_MESSAGEASE,
         onAction = onAction,

@@ -42,6 +42,7 @@ import se.nullable.flickboard.model.clipboard.clipboardHistorySize
 import se.nullable.flickboard.ui.LocalAppDatabase
 import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.theme.PageTitle
 import se.nullable.flickboard.ui.util.collapsibleListHeader
 import se.nullable.flickboard.ui.util.items
@@ -55,10 +56,11 @@ fun ClipboardHistoryViewer(
     navigateUp: () -> Unit,
 ) {
     val appSettings = LocalAppSettings.current
-    val clipboardHistoryEnabled = appSettings.saveClipboardHistory.state
-    val showPinned = appSettings.clipboardHistoryShowPinned.state
-    val showHistory = appSettings.clipboardHistoryShowHistory.state
-    val showTips = appSettings.clipboardHistoryShowTips.state
+    val settingsCtx = appSettings.ctx
+    val clipboardHistoryEnabled = localAppSetting { it.saveClipboardHistory }.state
+    val showPinned = localAppSetting { it.clipboardHistoryShowPinned }.state
+    val showHistory = localAppSetting { it.clipboardHistoryShowHistory }.state
+    val showTips = localAppSetting { it.clipboardHistoryShowTips }.state
 
     val coroutineScope = rememberCoroutineScope()
     val entryDao = LocalAppDatabase.current.value.clipboardEntryDao()
@@ -177,7 +179,7 @@ fun ClipboardHistoryViewer(
                     collapsibleListHeader(
                         "Pinned",
                         expanded = showPinned.value,
-                        onSetExpanded = appSettings.clipboardHistoryShowPinned::currentValue::set,
+                        onSetExpanded = settingsCtx[appSettings.clipboardHistoryShowPinned]::currentValue::set,
                     )
                 }
 
@@ -207,7 +209,7 @@ fun ClipboardHistoryViewer(
                 collapsibleListHeader(
                     "History",
                     expanded = showHistory.value,
-                    onSetExpanded = appSettings.clipboardHistoryShowHistory::currentValue::set,
+                    onSetExpanded = settingsCtx[appSettings.clipboardHistoryShowHistory]::currentValue::set,
                 )
 
                 if (showHistory.value) {
@@ -245,7 +247,7 @@ fun ClipboardHistoryViewer(
                 collapsibleListHeader(
                     "Tips",
                     expanded = showTips.value,
-                    onSetExpanded = appSettings.clipboardHistoryShowTips::currentValue::set,
+                    onSetExpanded = settingsCtx[appSettings.clipboardHistoryShowTips]::currentValue::set,
                 )
                 if (showTips.value) {
                     val tips = listOf(

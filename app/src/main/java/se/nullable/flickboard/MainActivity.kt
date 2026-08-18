@@ -81,6 +81,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Column {
                             val appSettings = LocalAppSettings.current
+                            val settingsCtx = appSettings.ctx
                             SharedTransitionLayout {
                                 NavHost(
                                     navController = navController,
@@ -92,7 +93,8 @@ class MainActivity : ComponentActivity() {
                                 ) {
                                     composable<MainActivityNav.Tutorial> {
                                         val onFinish: () -> Unit = {
-                                            appSettings.hasCompletedTutorial.currentValue = true
+                                            settingsCtx[appSettings.hasCompletedTutorial]
+                                                .currentValue = true
                                             when {
                                                 // navigateUp() when the stack is empty causes an uncomfortable flash of white
                                                 // so navigate to the start destination explicitly instead
@@ -126,7 +128,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                     composable<MainActivityNav.SettingsMain> {
                                         val hasCompletedTutorial =
-                                            appSettings.hasCompletedTutorial.state.value
+                                            settingsCtx[appSettings.hasCompletedTutorial].state.value
                                         LaunchedEffect(hasCompletedTutorial) {
                                             // Flavor depends on build variant
                                             @Suppress("KotlinConstantConditions")

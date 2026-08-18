@@ -14,7 +14,7 @@ import se.nullable.flickboard.ui.settings.AppSettings
 import java.time.Instant
 
 suspend fun clipboardTracker(appSettings: AppSettings, context: Context) {
-    appSettings.saveClipboardHistory.watch.collectLatest { enabled ->
+    appSettings.ctx[appSettings.saveClipboardHistory].watch.collectLatest { enabled ->
         if (enabled) {
             val clipboardManager = context.getSystemService<ClipboardManager>() ?: run {
                 Log.e("clipboardTracker", "Could not obtain ClipboardManager")

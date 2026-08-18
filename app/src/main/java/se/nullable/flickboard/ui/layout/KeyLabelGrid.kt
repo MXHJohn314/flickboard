@@ -8,7 +8,7 @@ import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import se.nullable.flickboard.model.Direction
-import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.util.times
 import kotlin.math.sqrt
 
@@ -25,7 +25,7 @@ fun KeyLabelGrid(
     cornerRoundness: Float = 0F,
     content: @Composable KeyLabelGridScope.() -> Unit = {}
 ) {
-    val centerBias = LocalAppSettings.current.actionVisualBiasCenter.state.value
+    val centerBias = localAppSetting { it.actionVisualBiasCenter }.state.value
     Layout(
         content = { KeyLabelGridScope().content() },
         modifier = modifier,

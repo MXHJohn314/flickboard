@@ -122,9 +122,10 @@ fun ZalgoSubstitutionList(
     modifier: Modifier = Modifier,
 ) {
     val appSettings = LocalAppSettings.current
-    val showCustom = appSettings.zalgoSubstitutionsShowCustom.state
-    val showDefault = appSettings.zalgoSubstitutionsShowDefault.state
-    val showTips = appSettings.zalgoSubstitutionsShowTips.state
+    val settingsCtx = appSettings.ctx
+    val showCustom = settingsCtx[appSettings.zalgoSubstitutionsShowCustom].state
+    val showDefault = settingsCtx[appSettings.zalgoSubstitutionsShowDefault].state
+    val showTips = settingsCtx[appSettings.zalgoSubstitutionsShowTips].state
 
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
@@ -163,7 +164,9 @@ fun ZalgoSubstitutionList(
         collapsibleListHeader(
             "Custom",
             expanded = showCustom.value,
-            onSetExpanded = { appSettings.zalgoSubstitutionsShowCustom.currentValue = it },
+            onSetExpanded = {
+                settingsCtx[appSettings.zalgoSubstitutionsShowCustom].currentValue = it
+            },
         )
 
         if (composingNewId != null) {
@@ -209,7 +212,9 @@ fun ZalgoSubstitutionList(
         collapsibleListHeader(
             "Built-in",
             expanded = showDefault.value,
-            onSetExpanded = { appSettings.zalgoSubstitutionsShowDefault.currentValue = it },
+            onSetExpanded = {
+                settingsCtx[appSettings.zalgoSubstitutionsShowDefault].currentValue = it
+            },
         )
 
         if (showDefault.value) {
@@ -226,7 +231,9 @@ fun ZalgoSubstitutionList(
         collapsibleListHeader(
             "Tips",
             expanded = showTips.value,
-            onSetExpanded = { appSettings.zalgoSubstitutionsShowTips.currentValue = it },
+            onSetExpanded = {
+                settingsCtx[appSettings.zalgoSubstitutionsShowTips].currentValue = it
+            },
         )
 
         if (showTips.value) {
