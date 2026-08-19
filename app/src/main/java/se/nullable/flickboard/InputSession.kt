@@ -34,6 +34,7 @@ import se.nullable.flickboard.ui.LocalZalgoDatabase
 import se.nullable.flickboard.ui.OnAction
 import se.nullable.flickboard.ui.settings.EnabledLayers
 import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.LocalSettingsContext
 import se.nullable.flickboard.ui.voice.getVoiceInputId
 import se.nullable.flickboard.util.AndroidKeycodeMapper
 import se.nullable.flickboard.util.LastTypedData
@@ -209,7 +210,7 @@ class InputSession(
     ): OnAction {
         val context = LocalContext.current
         val appSettings = LocalAppSettings.current
-        val settingsCtx = appSettings.ctx
+        val settingsCtx = LocalSettingsContext.current
         val periodOnDoubleSpace = settingsCtx[appSettings.periodOnDoubleSpace].state
         val disabledDeadkeys = settingsCtx[appSettings.disabledDeadkeys].state
         val displayLimits = LocalDisplayLimits.current
@@ -721,7 +722,10 @@ class InputSession(
 
                 Action.ToggleActiveLayer -> {
                     val enabledLayers =
-                        appSettings.enabledLayersProjectionForOrientation(displayLimits)
+                        appSettings.enabledLayersProjectionForOrientation(
+                            settingsCtx,
+                            displayLimits,
+                        )
 
                     settingsCtx[appSettings.handedness].modify { !it }
 
@@ -746,7 +750,12 @@ class InputSession(
                 }
 
                 Action.ToggleNumbersLayer -> {
-                    settingsCtx[appSettings.enabledLayersProjectionForOrientation(displayLimits)]
+                    settingsCtx[
+                        appSettings.enabledLayersProjectionForOrientation(
+                            settingsCtx,
+                            displayLimits,
+                        ),
+                    ]
                         .modify { old -> old?.toggleNumbers }
                 }
 

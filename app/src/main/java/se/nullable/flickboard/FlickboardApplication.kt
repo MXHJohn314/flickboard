@@ -15,15 +15,13 @@ class FlickboardApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         runBlocking {
-            val appSettings = AppSettings(
-                SettingsContext(
-                    SettingsContext.appPrefsForContext(this@FlickboardApplication),
-                    this@runBlocking,
-                    appDatabase,
-                ),
+            val settingsCtx = SettingsContext(
+                SettingsContext.appPrefsForContext(this@FlickboardApplication),
+                this@runBlocking,
+                appDatabase,
             )
-            appSettings.ctx.edit {
-                appSettings.migrateSettings(it)
+            settingsCtx.edit {
+                AppSettings.migrateSettings(it)
             }
         }
         EmojiCompat.init(BundledEmojiCompatConfig(this))

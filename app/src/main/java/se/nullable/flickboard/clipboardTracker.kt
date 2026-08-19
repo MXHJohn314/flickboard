@@ -11,16 +11,17 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.model.clipboard.ClipboardEntry
 import se.nullable.flickboard.ui.settings.AppSettings
+import se.nullable.flickboard.ui.settings.SettingsContext
 import java.time.Instant
 
-suspend fun clipboardTracker(appSettings: AppSettings, context: Context) {
-    appSettings.ctx[appSettings.saveClipboardHistory].watch.collectLatest { enabled ->
+suspend fun clipboardTracker(settingsCtx: SettingsContext, context: Context) {
+    settingsCtx[AppSettings.saveClipboardHistory].watch.collectLatest { enabled ->
         if (enabled) {
             val clipboardManager = context.getSystemService<ClipboardManager>() ?: run {
                 Log.e("clipboardTracker", "Could not obtain ClipboardManager")
                 return@collectLatest
             }
-            val entryDao = appSettings.ctx.appDatabase.value.clipboardEntryDao()
+            val entryDao = settingsCtx.appDatabase.value.clipboardEntryDao()
             coroutineScope {
                 val listener = ClipboardManager.OnPrimaryClipChangedListener {
                     val clipData =

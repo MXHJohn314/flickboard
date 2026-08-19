@@ -62,6 +62,7 @@ import se.nullable.flickboard.ui.settings.EnabledLayers
 import se.nullable.flickboard.ui.settings.Handedness
 import se.nullable.flickboard.ui.settings.LayoutType
 import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.LocalSettingsContext
 import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.userImagePainter
@@ -87,7 +88,7 @@ fun Keyboard(
     highlightedAction: Action? = null,
 ) {
     val appSettings = LocalAppSettings.current
-    val settingsCtx = appSettings.ctx
+    val settingsCtx = LocalSettingsContext.current
     val enabledLayersForCurrentOrientation = appSettings.enabledLayersForCurrentOrientation
     val overrideEnabledLayersState = rememberUpdatedState(overrideEnabledLayers)
     val enabledLayers = remember {
@@ -503,8 +504,9 @@ fun PlayKeyboardPreview() {
     FlickBoardParent {
         Surface {
             val appSettings = LocalAppSettings.current
+            val settingsCtx = LocalSettingsContext.current
             AppSettingsProvider(
-                prefs = appSettings.ctx.mock {
+                prefs = settingsCtx.mock {
                     appSettings.keyHeight.writeTo(it, 128F)
                 }.prefs,
             ) {

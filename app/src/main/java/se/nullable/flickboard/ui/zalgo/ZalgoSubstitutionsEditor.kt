@@ -57,7 +57,7 @@ import se.nullable.flickboard.R
 import se.nullable.flickboard.model.zalgo.ZalgoSubstitution
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.LocalZalgoManager
-import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.util.PreviewLayoutDirectionProvider
 import se.nullable.flickboard.ui.util.collapsibleListHeader
 import se.nullable.flickboard.ui.util.modify
@@ -121,11 +121,9 @@ fun ZalgoSubstitutionList(
     closeNew: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val appSettings = LocalAppSettings.current
-    val settingsCtx = appSettings.ctx
-    val showCustom = settingsCtx[appSettings.zalgoSubstitutionsShowCustom].state
-    val showDefault = settingsCtx[appSettings.zalgoSubstitutionsShowDefault].state
-    val showTips = settingsCtx[appSettings.zalgoSubstitutionsShowTips].state
+    val showCustom = localAppSetting { it.zalgoSubstitutionsShowCustom }
+    val showDefault = localAppSetting { it.zalgoSubstitutionsShowDefault }
+    val showTips = localAppSetting { it.zalgoSubstitutionsShowTips }
 
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
@@ -164,9 +162,7 @@ fun ZalgoSubstitutionList(
         collapsibleListHeader(
             "Custom",
             expanded = showCustom.value,
-            onSetExpanded = {
-                settingsCtx[appSettings.zalgoSubstitutionsShowCustom].currentValue = it
-            },
+            onSetExpanded = { showCustom.value = it },
         )
 
         if (composingNewId != null) {
@@ -212,9 +208,7 @@ fun ZalgoSubstitutionList(
         collapsibleListHeader(
             "Built-in",
             expanded = showDefault.value,
-            onSetExpanded = {
-                settingsCtx[appSettings.zalgoSubstitutionsShowDefault].currentValue = it
-            },
+            onSetExpanded = { showDefault.value = it },
         )
 
         if (showDefault.value) {
@@ -231,9 +225,7 @@ fun ZalgoSubstitutionList(
         collapsibleListHeader(
             "Tips",
             expanded = showTips.value,
-            onSetExpanded = {
-                settingsCtx[appSettings.zalgoSubstitutionsShowTips].currentValue = it
-            },
+            onSetExpanded = { showTips.value = it },
         )
 
         if (showTips.value) {

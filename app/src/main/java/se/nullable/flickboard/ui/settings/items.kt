@@ -391,7 +391,7 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
                         .consumeWindowInsets(WindowInsets.safeContent),
                 ) {
                     items(options, key = { it.toString() }) { option ->
-                        val appSettings = LocalAppSettings.current
+                        val settingsCtx = LocalSettingsContext.current
                         val isSelected = optionIsSelected(state.value, option)
                         val select = {
                             onOptionSelected(option)
@@ -424,8 +424,8 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
                                     )
                                     optionSelectionControl(state.value, option)
                                 }
-                                val mocked = remember(appSettings.ctx, state, option) {
-                                    appSettings.ctx.mock {
+                                val mocked = remember(settingsCtx, state, option) {
+                                    settingsCtx.mock {
                                         writePreviewSettings(it, option)
                                     }
                                 }

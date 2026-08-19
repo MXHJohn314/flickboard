@@ -77,6 +77,7 @@ import se.nullable.flickboard.model.TextDirection
 import se.nullable.flickboard.ui.layout.KeyLabelGrid
 import se.nullable.flickboard.ui.settings.GestureRecognizer
 import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.LocalSettingsContext
 import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.util.angle
@@ -110,7 +111,7 @@ fun Key(
     }
 
     val settings = LocalAppSettings.current
-    val settingsCtx = settings.ctx
+    val settingsCtx = LocalSettingsContext.current
     val actionVisualScale = settingsCtx[settings.actionVisualScale].state
     val scale = settings.currentScale
     val keyHeight = settingsCtx[settings.keyHeight].state.value * scale

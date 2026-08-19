@@ -18,6 +18,7 @@ import se.nullable.flickboard.model.ModifierSettings
 import se.nullable.flickboard.ui.DisplayLimits
 import se.nullable.flickboard.ui.LocalAppDatabase
 import se.nullable.flickboard.ui.LocalDisplayLimits
+import se.nullable.flickboard.ui.settings.AppSettings.enabledLayersForCurrentOrientation
 import se.nullable.flickboard.ui.util.ResettableState
 import se.nullable.flickboard.ui.util.isSamsungDevice
 import se.nullable.flickboard.util.MaterialToneMode
@@ -29,17 +30,19 @@ import kotlin.math.roundToInt
 val LocalAppSettings = staticCompositionLocalOf<AppSettings> {
     error("Tried to use LocalAppSettings without an AppSettingsProvider")
 }
+val LocalSettingsContext = staticCompositionLocalOf<SettingsContext> {
+    error("Tried to use LocalSettingsContext without an AppSettingsProvider")
+}
 
 @Composable
 fun AppSettingsProvider(prefs: SharedPreferences? = null, content: @Composable () -> Unit) {
     CompositionLocalProvider(
-        LocalAppSettings provides AppSettings(
-            SettingsContext(
-                prefs = prefs ?: SettingsContext.appPrefsForContext(LocalContext.current),
-                coroutineScope = rememberCoroutineScope(),
-                appDatabase = LocalAppDatabase.current,
-            ),
+        LocalSettingsContext provides SettingsContext(
+            prefs = prefs ?: SettingsContext.appPrefsForContext(LocalContext.current),
+            coroutineScope = rememberCoroutineScope(),
+            appDatabase = LocalAppDatabase.current,
         ),
+        LocalAppSettings provides AppSettings,
     ) {
         content()
     }
@@ -51,13 +54,10 @@ fun <T> localAppSetting(meta: SettingProjection<T>): ResettableState<T> =
 
 @Composable
 inline fun <T> localAppSetting(meta: (AppSettings) -> SettingProjection<T>): ResettableState<T> =
-    run {
-        val appSettings = LocalAppSettings.current
-        appSettings.ctx[meta(appSettings)].state
-    }
+    LocalSettingsContext.current[meta(LocalAppSettings.current)].state
 
 @Suppress("MemberVisibilityCanBePrivate")
-class AppSettings(val ctx: SettingsContext) {
+object AppSettings {
     val settingsVersion = SettingMeta.Integer(
         key = "settingsVersion",
         label = "Settings format version",
@@ -187,7 +187,10 @@ class AppSettings(val ctx: SettingsContext) {
      * [Setting.currentValue] may be null if the projection is outdated. Note that this
      * is *not exhaustive*.
      */
-    fun enabledLayersProjectionForOrientation(displayLimits: DisplayLimits?): SettingProjection<EnabledLayers?> =
+    fun enabledLayersProjectionForOrientation(
+        ctx: SettingsContext,
+        displayLimits: DisplayLimits?
+    ): SettingProjection<EnabledLayers?> =
         run {
             val landscapeSetting =
                 enabledLayersLandscape.tryMap(
@@ -210,8 +213,8 @@ class AppSettings(val ctx: SettingsContext) {
     val enabledLayersForCurrentOrientation: State<EnabledLayers>
         @Composable get() = when {
             LocalDisplayLimits.current?.isLandscape == true -> {
-                val landscape = ctx[enabledLayersLandscape].state
-                val portrait = ctx[enabledLayers].state
+                val landscape = localAppSetting(enabledLayersLandscape)
+                val portrait = localAppSetting(enabledLayers)
                 remember {
                     derivedStateOf {
                         when (val landscapeValue = landscape.value) {
@@ -222,7 +225,7 @@ class AppSettings(val ctx: SettingsContext) {
                 }
             }
 
-            else -> ctx[enabledLayers].state
+            else -> localAppSetting(enabledLayers)
         }
 
     val handedness = SettingMeta.Enum(
@@ -294,14 +297,18 @@ class AppSettings(val ctx: SettingsContext) {
 
     val currentLocation: Float
         @Composable get() = when {
-            LocalDisplayLimits.current?.isLandscape ?: false -> ctx[landscapeLocation].state.value
-            else -> ctx[portraitLocation].state.value
+            LocalDisplayLimits.current?.isLandscape
+                ?: false -> localAppSetting(landscapeLocation).value
+
+            else -> localAppSetting(portraitLocation).value
         }
 
     val currentScale: Float
         @Composable get() = when {
-            LocalDisplayLimits.current?.isLandscape ?: false -> ctx[landscapeScale].state.value
-            else -> ctx[portraitScale].state.value
+            LocalDisplayLimits.current?.isLandscape
+                ?: false -> localAppSetting(landscapeScale).value
+
+            else -> localAppSetting(portraitScale).value
         }
 
     val showLetters = SettingMeta.Bool(
@@ -332,9 +339,9 @@ class AppSettings(val ctx: SettingsContext) {
 
     val shownActionClasses: State<Set<ActionClass>>
         @Composable get() {
-            val showLetters = ctx[showLetters].state
-            val showSymbols = ctx[showSymbols].state
-            val showNumbers = ctx[showNumbers].state
+            val showLetters = localAppSetting(showLetters)
+            val showSymbols = localAppSetting(showSymbols)
+            val showNumbers = localAppSetting(showNumbers)
             return remember {
                 derivedStateOf {
                     setOfNotNull(
@@ -494,7 +501,7 @@ class AppSettings(val ctx: SettingsContext) {
 
     val modifierSettings: ModifierSettings
         @Composable
-        get() = ModifierSettings(stickyModifiers = ctx[stickyModifiers].state)
+        get() = ModifierSettings(stickyModifiers = localAppSetting(stickyModifiers))
 
     val periodOnDoubleSpace = SettingMeta.Bool(
         key = "periodOnDoubleSpace",

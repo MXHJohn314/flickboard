@@ -23,11 +23,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import se.nullable.flickboard.R
 import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.LocalSettingsContext
 
 @Composable
 fun BetaMenu(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val appSettings = LocalAppSettings.current
+    val settingsCtx = LocalSettingsContext.current
     Column(modifier) {
         val itemModifier = Modifier.padding(8.dp)
         Text(
@@ -50,9 +52,9 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                         json.beginObject()
                         appSettings.all.forEach { section ->
                             section.settings.forEach { setting ->
-                                if (setting.isSet(appSettings.ctx)) {
+                                if (setting.isSet(settingsCtx)) {
                                     json.name(setting.key)
-                                    setting.exportToJson(appSettings.ctx, json)
+                                    setting.exportToJson(settingsCtx, json)
                                 }
                             }
                         }
@@ -71,7 +73,7 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                     .flatMap { it.settings }
                     .associateBy { it.key }
                 try {
-                    appSettings.ctx.edit { editPrefs ->
+                    settingsCtx.edit { editPrefs ->
                         editPrefs.prefsEditor.clear()
                         JsonReader(context.contentResolver.openInputStream(uri)!!.bufferedReader())
                             .use { json ->
@@ -93,7 +95,7 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                                 json.endObject()
                             }
                     }
-                    appSettings.ctx.edit { appSettings.migrateSettings(it) }
+                    settingsCtx.edit { appSettings.migrateSettings(it) }
                 } catch (err: Exception) {
                     Log.w("BetaMenu", "Import failed", err)
                     Toast.makeText(context, "Import failed", Toast.LENGTH_SHORT).show()

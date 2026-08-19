@@ -91,7 +91,6 @@ import se.nullable.flickboard.ui.emoji.EmojiKeyboard
 import se.nullable.flickboard.ui.emoji.EmojiTab
 import se.nullable.flickboard.ui.layout.BottomUpColumn
 import se.nullable.flickboard.ui.layout.constrainSizeToView
-import se.nullable.flickboard.ui.settings.AppSettings
 import se.nullable.flickboard.ui.settings.EnabledLayers
 import se.nullable.flickboard.ui.settings.SettingsContext
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
@@ -571,17 +570,15 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         lifecycleScope.launch {
             // Background jobs (which should be active even while composables are not) cannot
             // access the composable context.
-            val backgroundAppSettings = AppSettings(
-                SettingsContext(
-                    prefs = SettingsContext.appPrefsForContext(
-                        context = this@KeyboardService,
-                    ),
-                    coroutineScope = this,
-                    appDatabase = (application as FlickboardApplication).appDatabase,
+            val backgroundSettingsCtx = SettingsContext(
+                prefs = SettingsContext.appPrefsForContext(
+                    context = this@KeyboardService,
                 ),
+                coroutineScope = this,
+                appDatabase = (application as FlickboardApplication).appDatabase,
             )
             clipboardTracker(
-                appSettings = backgroundAppSettings,
+                settingsCtx = backgroundSettingsCtx,
                 context = this@KeyboardService,
             )
         }

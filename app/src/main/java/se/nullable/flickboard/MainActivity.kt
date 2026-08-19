@@ -46,6 +46,7 @@ import se.nullable.flickboard.ui.consumeExcludedInsets
 import se.nullable.flickboard.ui.help.KeyboardDescriber
 import se.nullable.flickboard.ui.help.TutorialPage
 import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.LocalSettingsContext
 import se.nullable.flickboard.ui.settings.SettingsHomePage
 import se.nullable.flickboard.ui.settings.SettingsSectionPage
 import se.nullable.flickboard.ui.theme.Transition
@@ -81,7 +82,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Column {
                             val appSettings = LocalAppSettings.current
-                            val settingsCtx = appSettings.ctx
+                            val settingsCtx = LocalSettingsContext.current
                             SharedTransitionLayout {
                                 NavHost(
                                     navController = navController,
