@@ -65,7 +65,7 @@ import se.nullable.flickboard.ui.LocalEmojiChecker
 import se.nullable.flickboard.ui.LocalEmojiDb
 import se.nullable.flickboard.ui.LocalEmojiTrie
 import se.nullable.flickboard.ui.OnAction
-import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.util.defaultFocus
 import se.nullable.flickboard.util.unique
 import androidx.emoji2.emojipicker.R as Emoji2R
@@ -76,9 +76,8 @@ fun EmojiKeyboard(
     navigateUp: () -> Unit,
     defaultTab: EmojiTab? = null,
 ) {
-    val appSettings = LocalAppSettings.current
-    val saveHistory = appSettings.saveEmojiHistory.state
-    val emojiHistory = appSettings.emojiHistory.state
+    val saveHistory = localAppSetting { it.saveEmojiHistory }
+    val emojiHistory = localAppSetting { it.emojiHistory }
     val emojis = emojiList()
     val searchQuery = remember { mutableStateOf("") }
     val selectedTab = remember(emojis) {
@@ -265,14 +264,13 @@ fun EmojiVariant(
     emojiTextStyle: TextStyle,
     emojiTextModifier: Modifier,
 ) {
-    val appSettings = LocalAppSettings.current
-    val saveHistory = appSettings.saveEmojiHistory.state
-    val emojiHistory = appSettings.emojiHistory.state
+    val saveHistory = localAppSetting { it.saveEmojiHistory }
+    val emojiHistory = localAppSetting { it.emojiHistory }
     Box(
         Modifier
             .combinedClickable(onLongClick = onLongClick) {
                 if (saveHistory.value) {
-                    appSettings.emojiHistory.currentValue =
+                    emojiHistory.value =
                         "$variant\n${
                             emojiHistory.value
                                 // Remove duplicates

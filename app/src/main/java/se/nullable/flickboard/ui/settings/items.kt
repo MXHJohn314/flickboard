@@ -1,6 +1,5 @@
 package se.nullable.flickboard.ui.settings
 
-import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -58,7 +57,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.edit
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.R
 import se.nullable.flickboard.ui.ColourPicker
@@ -66,34 +64,36 @@ import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.DisplayLimits
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.LocalDisplayLimits
+import se.nullable.flickboard.ui.util.ResettableState
 import se.nullable.flickboard.ui.util.ScalingMode
 import se.nullable.flickboard.ui.util.loadBitmap
+import se.nullable.flickboard.ui.util.modify
 import java.io.FileOutputStream
 import kotlin.random.Random
 
 private const val LOG_TAG = "settings.items"
 
 @Composable
-fun BoolSetting(setting: Setting.Bool) {
-    val state = setting.state
+fun BoolSetting(meta: SettingMeta.Bool) {
+    val state = localAppSetting(meta)
     Box(
         modifier = Modifier.clickable {
-            setting.currentValue = !state.value
+            state.modify { !it }
         },
     ) {
         SettingRow {
-            SettingLabel(setting)
+            SettingLabel(meta)
             Switch(
                 checked = state.value,
-                onCheckedChange = { setting.currentValue = it },
+                onCheckedChange = { state.value = it },
             )
         }
     }
 }
 
 @Composable
-fun TextSetting(setting: Setting.Text) {
-    val state = setting.state
+fun TextSetting(meta: SettingMeta.Text) {
+    val state = localAppSetting(meta)
     SettingRow {
         Column {
             Row(
@@ -101,16 +101,16 @@ fun TextSetting(setting: Setting.Text) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                SettingLabel(setting)
+                SettingLabel(meta)
             }
             Row {
                 TextField(
                     value = state.value,
-                    onValueChange = { setting.currentValue = it },
-                    placeholder = { setting.placeholder?.let { Text(it) } },
+                    onValueChange = { state.value = it },
+                    placeholder = { meta.placeholder?.let { Text(it) } },
                     modifier = Modifier.weight(1F),
                 )
-                IconButton(onClick = { setting.resetToDefault() }) {
+                IconButton(onClick = { state.resetToDefault() }) {
                     Icon(painterResource(R.drawable.baseline_clear_24), "Reset to default")
                 }
             }
@@ -119,8 +119,8 @@ fun TextSetting(setting: Setting.Text) {
 }
 
 @Composable
-fun FloatSliderSetting(setting: Setting.FloatSlider) {
-    val state = setting.state
+fun FloatSliderSetting(meta: SettingMeta.FloatSlider) {
+    val state = localAppSetting(meta)
     SettingRow {
         Column {
             Row(
@@ -128,17 +128,17 @@ fun FloatSliderSetting(setting: Setting.FloatSlider) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                SettingLabel(setting)
-                Text(text = setting.render(state.value))
+                SettingLabel(meta)
+                Text(text = meta.render(state.value))
             }
             Row {
                 Slider(
                     value = state.value,
-                    onValueChange = { setting.currentValue = it },
-                    valueRange = setting.range,
+                    onValueChange = { state.value = it },
+                    valueRange = meta.range,
                     modifier = Modifier.weight(1F),
                 )
-                IconButton(onClick = { setting.resetToDefault() }) {
+                IconButton(onClick = { state.resetToDefault() }) {
                     Icon(painterResource(R.drawable.baseline_clear_24), "Reset to default")
                 }
             }
@@ -147,18 +147,20 @@ fun FloatSliderSetting(setting: Setting.FloatSlider) {
 }
 
 @Composable
-fun <T : Labeled> EnumListSetting(setting: Setting.EnumList<T>) {
+fun <T : Labeled> EnumListSetting(meta: SettingMeta.EnumList<T>) {
+    val state = localAppSetting(meta)
     fun toggleOption(option: T, add: Boolean? = null) {
-        val old = setting.currentValue
-        setting.currentValue = when {
-            add ?: !old.contains(option) -> old + option
-            else -> old - option
+        state.modify { old ->
+            when {
+                add ?: !old.contains(option) -> old + option
+                else -> old - option
+            }
         }
     }
     BaseEnumSetting(
-        setting,
+        meta, state,
         valueLabel = { it.singleOrNull()?.label ?: "${it.size} enabled" },
-        options = setting.options,
+        options = meta.options,
         optionSelectionControl = { selected, option ->
             Switch(
                 checked = selected.contains(option),
@@ -168,9 +170,9 @@ fun <T : Labeled> EnumListSetting(setting: Setting.EnumList<T>) {
         optionIsSelected = List<T>::contains,
         onOptionSelected = { toggleOption(it) },
         collapseOnOptionSelected = false,
-        writePreviewSettings = { readPrefs, prefs, option ->
-            setting.writePreviewSettings(readPrefs, prefs)
-            setting.writeTo(prefs, listOf(option))
+        writePreviewSettings = { ctx, option ->
+            meta.writePreviewSettings(ctx)
+            meta.writeTo(ctx, listOf(option))
         },
         previewOverride = null,
         previewForceLandscape = false,
@@ -178,46 +180,48 @@ fun <T : Labeled> EnumListSetting(setting: Setting.EnumList<T>) {
 }
 
 @Composable
-fun <T : Labeled> EnumSetting(setting: Setting.Enum<T>) {
-    if (setting.options.size > 1) {
+fun <T : Labeled> EnumSetting(meta: SettingMeta.Enum<T>) {
+    val state = localAppSetting(meta)
+    if (meta.options.size > 1) {
         BaseEnumSetting(
-            setting,
+            meta, state,
             valueLabel = { it.label },
-            options = setting.options,
+            options = meta.options,
             optionSelectionControl = { selected, option ->
                 RadioButton(
                     selected = selected == option,
-                    onClick = { setting.currentValue = option },
+                    onClick = { state.value = option },
                 )
             },
             optionIsSelected = { selected, option -> option == selected },
-            onOptionSelected = { setting.currentValue = it },
+            onOptionSelected = { state.value = it },
             collapseOnOptionSelected = true,
-            writePreviewSettings = { readPrefs, prefs, option ->
-                setting.writePreviewSettings(readPrefs, prefs)
-                setting.writeTo(prefs, option)
+            writePreviewSettings = { ctx, option ->
+                meta.writePreviewSettings(ctx)
+                meta.writeTo(ctx, option)
             },
-            previewOverride = setting.previewOverride,
-            previewForceLandscape = setting.previewForceLandscape,
+            previewOverride = meta.previewOverride,
+            previewForceLandscape = meta.previewForceLandscape,
         )
     }
 }
 
 @Composable
-fun ImageSetting(setting: Setting.Image) {
+fun ImageSetting(meta: SettingMeta.Image) {
+    val state = localAppSetting(meta)
     val context = LocalContext.current
     val displayLimits = LocalDisplayLimits.current
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
         var uri = it
         if (uri != null) {
-            val cachedFile = context.filesDir.resolve(setting.cacheFileName)
+            val cachedFile = context.filesDir.resolve(meta.cacheFileName)
             // Copy image to ensure that that it'll stay present,
             // and that we will keep permission to access it.
             // takePersistableUriPermission is not always granted
             // by all implementations.
             // This also lets us pre-scale the image to something that makes sense for the device.
             val successfullyCompressed = when {
-                else -> when (setting.scalingTarget) {
+                else -> when (meta.scalingTarget) {
                     ImageScalingTarget.Original -> false
 
                     ImageScalingTarget.DeviceDisplay -> when {
@@ -260,7 +264,7 @@ fun ImageSetting(setting: Setting.Image) {
                 .fragment(Random.Default.nextLong().toString())
                 .build()
         }
-        setting.currentValue = uri
+        state.value = uri
     }
     SettingRow {
         Row(
@@ -268,7 +272,7 @@ fun ImageSetting(setting: Setting.Image) {
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            SettingLabel(setting)
+            SettingLabel(meta)
             Row {
                 IconButton(
                     onClick = {
@@ -279,7 +283,7 @@ fun ImageSetting(setting: Setting.Image) {
                 ) {
                     Icon(painterResource(R.drawable.baseline_image_search_24), "Set image")
                 }
-                IconButton(onClick = { setting.currentValue = null }) {
+                IconButton(onClick = { state.value = null }) {
                     Icon(painterResource(R.drawable.baseline_clear_24), "Clear")
                 }
             }
@@ -288,8 +292,8 @@ fun ImageSetting(setting: Setting.Image) {
 }
 
 @Composable
-fun ColourSetting(setting: Setting.Colour) {
-    val state = setting.state
+fun ColourSetting(meta: SettingMeta.Colour) {
+    val state = localAppSetting(meta)
     val expanded = remember { mutableStateOf(false) }
     SettingRow {
         Column {
@@ -298,7 +302,7 @@ fun ColourSetting(setting: Setting.Colour) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                SettingLabel(setting)
+                SettingLabel(meta)
                 Row {
                     state.value?.let {
                         // Not actually a button, but we want to share the same sizing...
@@ -319,14 +323,14 @@ fun ColourSetting(setting: Setting.Colour) {
                     ) {
                         Icon(painterResource(R.drawable.baseline_color_lens_24), "Set colour")
                     }
-                    IconButton(onClick = { setting.currentValue = null }) {
+                    IconButton(onClick = { state.value = null }) {
                         Icon(painterResource(R.drawable.baseline_clear_24), "Clear")
                     }
                 }
             }
             AnimatedVisibility(expanded.value, Modifier.align(Alignment.CenterHorizontally)) {
                 ColourPicker(
-                    onColourSelected = { setting.currentValue = it },
+                    onColourSelected = { state.value = it },
                     Modifier
                         .sizeIn(maxHeight = 200.dp)
                         .padding(horizontal = 16.dp),
@@ -339,14 +343,15 @@ fun ColourSetting(setting: Setting.Colour) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T : Labeled, V : Any> BaseEnumSetting(
-    setting: Setting<V>,
+    meta: SettingMeta<V>,
+    state: ResettableState<V>,
     valueLabel: (V) -> String,
     options: List<T>,
     optionSelectionControl: @Composable (V, T) -> Unit,
     optionIsSelected: (V, T) -> Boolean,
     onOptionSelected: (T) -> Unit,
     collapseOnOptionSelected: Boolean,
-    writePreviewSettings: (SharedPreferences, SharedPreferences.Editor, T) -> Unit,
+    writePreviewSettings: (SettingsContext.Editor, T) -> Unit,
     previewOverride: (@Composable (T) -> Unit)?,
     previewForceLandscape: Boolean,
 ) {
@@ -362,9 +367,9 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
     }
     Box(Modifier.clickable { expanded = true }) {
         SettingRow {
-            SettingLabel(setting)
+            SettingLabel(meta)
             Row {
-                Text(valueLabel(setting.state.value))
+                Text(valueLabel(state.value))
                 val angle: Float by animateFloatAsState(
                     when {
                         expanded -> 180F
@@ -386,8 +391,8 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
                         .consumeWindowInsets(WindowInsets.safeContent),
                 ) {
                     items(options, key = { it.toString() }) { option ->
-                        val appSettings = LocalAppSettings.current
-                        val isSelected = optionIsSelected(setting.state.value, option)
+                        val settingsCtx = LocalSettingsContext.current
+                        val isSelected = optionIsSelected(state.value, option)
                         val select = {
                             onOptionSelected(option)
                             if (collapseOnOptionSelected) {
@@ -417,14 +422,15 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
                                         fontSize = 16.sp,
                                         modifier = Modifier.weight(1F),
                                     )
-                                    optionSelectionControl(setting.state.value, option)
+                                    optionSelectionControl(state.value, option)
                                 }
-                                val prefs = remember(appSettings, setting, option) {
-                                    MockedSharedPreferences(appSettings.ctx.prefs)
-                                        .also { it.edit { writePreviewSettings(it, this, option) } }
+                                val mocked = remember(settingsCtx, state, option) {
+                                    settingsCtx.mock {
+                                        writePreviewSettings(it, option)
+                                    }
                                 }
                                 FlickBoardParent(
-                                    prefs = prefs,
+                                    prefs = mocked.prefs,
                                     displayLimits =
                                         DisplayLimits.calculateCurrent().let {
                                             it.copy(isLandscape = previewForceLandscape || it.isLandscape)
@@ -461,7 +467,7 @@ fun SettingRow(content: @Composable RowScope.() -> Unit) {
 }
 
 @Composable
-fun RowScope.SettingLabel(setting: Setting<*>) {
+fun RowScope.SettingLabel(setting: SettingMeta<*>) {
     Column(
         Modifier
             .weight(1f, false)

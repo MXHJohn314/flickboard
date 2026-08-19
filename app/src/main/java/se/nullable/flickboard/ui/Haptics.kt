@@ -10,7 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.content.getSystemService
-import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.localAppSetting
 
 interface Haptics {
     fun vibrate(reason: HapticFeedbackReason)
@@ -19,11 +19,10 @@ interface Haptics {
         val get: Haptics
             @Composable
             get() = run {
-                val appSettings = LocalAppSettings.current
                 when {
-                    appSettings.enableCustomHaptics.state.value -> {
+                    localAppSetting { it.enableCustomHaptics }.value -> {
                         val context = LocalContext.current
-                        val durationMs = appSettings.customHapticsDuration.state.value
+                        val durationMs = localAppSetting { it.customHapticsDuration }.value
                         remember(context, durationMs) {
                             AndroidCustomHaptics(context, durationMs = durationMs.toLong())
                         }

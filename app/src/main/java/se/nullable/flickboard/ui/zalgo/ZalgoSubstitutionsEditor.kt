@@ -57,7 +57,7 @@ import se.nullable.flickboard.R
 import se.nullable.flickboard.model.zalgo.ZalgoSubstitution
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.LocalZalgoManager
-import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.util.PreviewLayoutDirectionProvider
 import se.nullable.flickboard.ui.util.collapsibleListHeader
 import se.nullable.flickboard.ui.util.modify
@@ -87,7 +87,7 @@ fun ZalgoSubstitutionsEditor(
                 title = { Text("Zalgo Macros") },
                 navigationIcon = { navigationIcon() },
                 actions = {
-                    IconButton({ composingNewId.modify { this ?: UUID.randomUUID() } }) {
+                    IconButton({ composingNewId.modify { it ?: UUID.randomUUID() } }) {
                         Icon(
                             painterResource(R.drawable.baseline_add_24),
                             contentDescription = "New",
@@ -121,10 +121,9 @@ fun ZalgoSubstitutionList(
     closeNew: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val appSettings = LocalAppSettings.current
-    val showCustom = appSettings.zalgoSubstitutionsShowCustom.state
-    val showDefault = appSettings.zalgoSubstitutionsShowDefault.state
-    val showTips = appSettings.zalgoSubstitutionsShowTips.state
+    val showCustom = localAppSetting { it.zalgoSubstitutionsShowCustom }
+    val showDefault = localAppSetting { it.zalgoSubstitutionsShowDefault }
+    val showTips = localAppSetting { it.zalgoSubstitutionsShowTips }
 
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
@@ -163,7 +162,7 @@ fun ZalgoSubstitutionList(
         collapsibleListHeader(
             "Custom",
             expanded = showCustom.value,
-            onSetExpanded = { appSettings.zalgoSubstitutionsShowCustom.currentValue = it },
+            onSetExpanded = { showCustom.value = it },
         )
 
         if (composingNewId != null) {
@@ -209,7 +208,7 @@ fun ZalgoSubstitutionList(
         collapsibleListHeader(
             "Built-in",
             expanded = showDefault.value,
-            onSetExpanded = { appSettings.zalgoSubstitutionsShowDefault.currentValue = it },
+            onSetExpanded = { showDefault.value = it },
         )
 
         if (showDefault.value) {
@@ -226,7 +225,7 @@ fun ZalgoSubstitutionList(
         collapsibleListHeader(
             "Tips",
             expanded = showTips.value,
-            onSetExpanded = { appSettings.zalgoSubstitutionsShowTips.currentValue = it },
+            onSetExpanded = { showTips.value = it },
         )
 
         if (showTips.value) {
@@ -380,11 +379,11 @@ fun ZalgoSubstitutionEditor(
 ) {
     val edited = remember { mutableStateOf(substitution) }
     val validFrom = edited.value.from.length == 2
-    val fromFocusRequester = FocusRequester()
+    val fromFocusRequester = remember { FocusRequester() }
     Column(modifier) {
         TextField(
             edited.value.from,
-            onValueChange = { edited.modify { copy(from = it) } },
+            onValueChange = { edited.modify { old -> old.copy(from = it) } },
             label = { Text("Macro (must be 2 characters)") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -395,7 +394,7 @@ fun ZalgoSubstitutionEditor(
         )
         TextField(
             edited.value.to,
-            onValueChange = { edited.modify { copy(to = it) } },
+            onValueChange = { edited.modify { old -> old.copy(to = it) } },
             label = { Text("Replacement") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,

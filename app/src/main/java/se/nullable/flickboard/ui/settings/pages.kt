@@ -59,6 +59,7 @@ import se.nullable.flickboard.ui.MenuPageUriLink
 import se.nullable.flickboard.ui.excludeFromBottomInset
 import se.nullable.flickboard.ui.help.OnboardingPrompt
 import se.nullable.flickboard.ui.theme.Title
+import se.nullable.flickboard.ui.util.modify
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -73,7 +74,6 @@ fun SettingsHomePage(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier
 ) {
-    val appSettings = LocalAppSettings.current
     val tryText = remember {
         mutableStateOf("")
     }
@@ -100,12 +100,14 @@ fun SettingsHomePage(
             item {
                 Title("Settings")
             }
-            items(appSettings.all, key = { it.key }) { section ->
-                MenuPageLink(
-                    onClick = { onNavigateToSection(section) },
-                    icon = painterResource(section.icon),
-                    label = section.label,
-                )
+            items(AppSettings.all, key = { it.key }) { section ->
+                if (!section.hidden) {
+                    MenuPageLink(
+                        onClick = { onNavigateToSection(section) },
+                        icon = painterResource(section.icon),
+                        label = section.label,
+                    )
+                }
             }
             item {
                 MenuPageLink(
@@ -217,14 +219,14 @@ fun SettingsSectionPage(
         ) {
             section.settings.forEach { setting ->
                 when (setting) {
-                    is Setting.Bool -> BoolSetting(setting)
-                    is Setting.Integer -> {} // Not rendered right now, implement if used anywhere
-                    is Setting.Text -> TextSetting(setting)
-                    is Setting.FloatSlider -> FloatSliderSetting(setting)
-                    is Setting.EnumList<*> -> EnumListSetting(setting)
-                    is Setting.Enum -> EnumSetting(setting)
-                    is Setting.Image -> ImageSetting(setting)
-                    is Setting.Colour -> ColourSetting(setting)
+                    is SettingMeta.Bool -> BoolSetting(setting)
+                    is SettingMeta.Integer -> {} // Not rendered right now, implement if used anywhere
+                    is SettingMeta.Text -> TextSetting(setting)
+                    is SettingMeta.FloatSlider -> FloatSliderSetting(setting)
+                    is SettingMeta.EnumList<*> -> EnumListSetting(setting)
+                    is SettingMeta.Enum -> EnumSetting(setting)
+                    is SettingMeta.Image -> ImageSetting(setting)
+                    is SettingMeta.Colour -> ColourSetting(setting)
                 }
             }
         }
@@ -238,8 +240,7 @@ fun SettingsKeyboardPreview(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
-    val enable = LocalAppSettings.current.enableKeyboardPreview
-    val enableState = enable.state
+    val enable = localAppSetting { it.enableKeyboardPreview }
     with(sharedTransitionScope) {
         Box {
             Column {
@@ -250,7 +251,7 @@ fun SettingsKeyboardPreview(
                         .clickable {
                             when {
                                 realKeyboardVisible -> softwareKeyboardController?.hide()
-                                else -> enable.currentValue = !enable.currentValue
+                                else -> enable.modify { !it }
                             }
                         }
                         .sharedElement(
@@ -287,7 +288,7 @@ fun SettingsKeyboardPreview(
                                 )
                                 val hideIconAngle = animateFloatAsState(
                                     when {
-                                        enableState.value -> 0F
+                                        enable.value -> 0F
                                         else -> 180F
                                     },
                                     label = "hideIconAngle",
@@ -295,7 +296,7 @@ fun SettingsKeyboardPreview(
                                 Icon(
                                     painterResource(R.drawable.baseline_arrow_drop_down_24),
                                     when {
-                                        enableState.value -> "hide"
+                                        enable.value -> "hide"
                                         else -> "show"
                                     },
                                     Modifier
@@ -307,7 +308,7 @@ fun SettingsKeyboardPreview(
                     }
                 }
                 AnimatedVisibility(
-                    enableState.value,
+                    enable.value,
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                 ) {
@@ -377,7 +378,7 @@ private fun SettingsSectionPagePreview() {
             SharedTransitionLayout {
                 AnimatedVisibility(true) {
                     SettingsSectionPage(
-                        LocalAppSettings.current.all[0],
+                        AppSettings.all[0],
                         this@SharedTransitionLayout,
                         this@AnimatedVisibility,
                         Modifier.width(1000.dp),
