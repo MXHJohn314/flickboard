@@ -1,8 +1,8 @@
 package se.nullable.flickboard.ui.layout
 
 import androidx.compose.animation.core.SpringSpec
-import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
@@ -19,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -51,6 +50,11 @@ fun SwipeToOptionsBox(
         allowSwipeGesture -> Modifier.anchoredDraggable(
             state.draggableState,
             Orientation.Horizontal,
+            flingBehavior = AnchoredDraggableDefaults.flingBehavior(
+                state.draggableState,
+                positionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold,
+                animationSpec = SpringSpec(),
+            ),
         )
 
         else -> Modifier
@@ -67,28 +71,14 @@ fun SwipeToOptionsBox(
 
 @Composable
 fun rememberSwipeToOptionsBoxState(): SwipeToOptionsBoxState = run {
-    val density = LocalDensity.current
-    val positionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold
-    remember(density, positionalThreshold) {
-        SwipeToOptionsBoxState(
-            density = density,
-            positionalThreshold = positionalThreshold,
-        )
+    remember {
+        SwipeToOptionsBoxState()
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-class SwipeToOptionsBoxState(
-    density: Density,
-    positionalThreshold: (totalDistance: Float) -> Float,
-) {
-    internal val draggableState = AnchoredDraggableState(
-        initialValue = SwipeToDismissBoxValue.Settled,
-        positionalThreshold = positionalThreshold,
-        velocityThreshold = { with(density) { dismissVelocityThreshold.toPx() } },
-        snapAnimationSpec = SpringSpec(),
-        decayAnimationSpec = exponentialDecay(),
-    )
+class SwipeToOptionsBoxState {
+    internal val draggableState = AnchoredDraggableState(SwipeToDismissBoxValue.Settled)
 
     fun updateAnchors(widthPx: Float) {
         draggableState.updateAnchors(
@@ -133,7 +123,3 @@ class SwipeToOptionsBoxState(
         draggableState.animateTo(SwipeToDismissBoxValue.Settled)
     }
 }
-
-// Private property in SwipeToDismissBox.kt,
-// doesn't have to be exact but it's nice to try to match them...
-private val dismissVelocityThreshold = 125.dp
