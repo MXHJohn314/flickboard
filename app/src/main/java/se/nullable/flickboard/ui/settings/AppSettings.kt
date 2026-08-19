@@ -58,7 +58,57 @@ inline fun <T> localAppSetting(meta: (AppSettings) -> SettingProjection<T>): Res
 
 @Suppress("MemberVisibilityCanBePrivate")
 class AppSettings(val ctx: SettingsContext) {
-    // Intentionally not rendered
+    val settingsVersion = SettingMeta.Integer(
+        key = "settingsVersion",
+        label = "Settings format version",
+        // This should always stay at 0 to
+        defaultValue = 0,
+    )
+
+    /**
+     * Attempt to upgrade settings from older versions.
+     *
+     * Always call this in its own [SettingsContext.edit] transaction,
+     * since it needs to be able to see the latest old values.
+     */
+    fun migrateSettings(ctx: SettingsContext.Editor) {
+        val oldVersion = settingsVersion.readFrom(ctx.reader)
+
+        if (oldVersion <= 0) {
+            fun modifierBehaviourOptionFromIsDigit(isDigit: Boolean) = when {
+                isDigit -> ModifierBehaviourOption.Digit
+                else -> ModifierBehaviourOption.Shift
+            }
+            if (digitOnClockwiseCircle.isSet(ctx.reader)
+                // clockwiseCircleBehaviour was added before the settings migration system,
+                // so we need to still respect manual changes made in between
+                && !clockwiseCircleBehaviour.isSet(ctx.reader)
+            ) {
+                clockwiseCircleBehaviour.writeTo(
+                    ctx,
+                    modifierBehaviourOptionFromIsDigit(digitOnClockwiseCircle.readFrom(ctx.reader)),
+                )
+            }
+            digitOnClockwiseCircle.resetIn(ctx)
+            if (digitOnCounterClockwiseCircle.isSet(ctx.reader)
+                // counterClockwiseCircleBehaviour was added before the settings migration system,
+                // so we need to still respect manual changes made in between
+                && !counterClockwiseCircleBehaviour.isSet(ctx.reader)
+            ) {
+                counterClockwiseCircleBehaviour.writeTo(
+                    ctx,
+                    modifierBehaviourOptionFromIsDigit(digitOnCounterClockwiseCircle.readFrom(ctx.reader)),
+                )
+            }
+            digitOnCounterClockwiseCircle.resetIn(ctx)
+        }
+
+        val currentVersion = 1
+        if (oldVersion != currentVersion) {
+            settingsVersion.writeTo(ctx, currentVersion)
+        }
+    }
+
     val hasCompletedTutorial = SettingMeta.Bool(
         key = "hasCompletedTutorial",
         label = "Has completed tutorial",
@@ -79,7 +129,6 @@ class AppSettings(val ctx: SettingsContext) {
         },
     )
 
-    // Intentionally not surfaced as a settings option
     val activeLetterLayerIndex = SettingMeta.Integer(
         key = "activeLetterLayerIndex",
         label = "Active letter layer index",
@@ -469,11 +518,7 @@ class AppSettings(val ctx: SettingsContext) {
     val clockwiseCircleBehaviour = SettingMeta.Enum(
         key = "clockwiseCircleBehaviour",
         label = "Clockwise circle behaviour",
-        defaultValue = when {
-            // Migration from the old format, okay since nobody should be writing to it anymore
-            ctx[digitOnClockwiseCircle].currentValue -> ModifierBehaviourOption.Digit
-            else -> ModifierBehaviourOption.Shift
-        },
+        defaultValue = ModifierBehaviourOption.Shift,
         options = ModifierBehaviourOption.entries,
         tryEnumValueOfT = { tryEnumValueOf<ModifierBehaviourOption>(it) },
         previewOverride = {},
@@ -482,11 +527,7 @@ class AppSettings(val ctx: SettingsContext) {
     val counterClockwiseCircleBehaviour = SettingMeta.Enum(
         key = "counterClockwiseCircleBehaviour",
         label = "Counter-clockwise circle behaviour",
-        defaultValue = when {
-            // Migration from the old format, okay since nobody should be writing to it anymore
-            ctx[digitOnCounterClockwiseCircle].currentValue -> ModifierBehaviourOption.Digit
-            else -> ModifierBehaviourOption.Shift
-        },
+        defaultValue = ModifierBehaviourOption.Shift,
         options = ModifierBehaviourOption.entries,
         tryEnumValueOfT = { tryEnumValueOf<ModifierBehaviourOption>(it) },
         previewOverride = {},
@@ -732,6 +773,22 @@ class AppSettings(val ctx: SettingsContext) {
     val all =
         listOf(
             SettingsSection(
+                key = "system", label = "System", icon = R.drawable.baseline_warning_24,
+                hidden = true,
+                settings = listOf(
+                    settingsVersion,
+                    hasCompletedTutorial,
+                    activeLetterLayerIndex,
+                ),
+            ),
+            SettingsSection(
+                key = "deprecated", label = "Deprecated", icon = R.drawable.baseline_warning_24,
+                hidden = true,
+                settings = listOf(
+                    digitOnClockwiseCircle, digitOnCounterClockwiseCircle,
+                ),
+            ),
+            SettingsSection(
                 key = "layout", label = "Layout", icon = R.drawable.baseline_apps_24,
                 settings = listOf(
                     letterLayers,
@@ -836,6 +893,7 @@ data class SettingsSection(
     val key: String,
     val label: String,
     val icon: Int,
-    val settings: List<SettingMeta<*>>
+    val settings: List<SettingMeta<*>>,
+    val hidden: Boolean = false,
 )
 

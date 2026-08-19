@@ -93,6 +93,7 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                                 json.endObject()
                             }
                     }
+                    appSettings.ctx.edit { appSettings.migrateSettings(it) }
                 } catch (err: Exception) {
                     Log.w("BetaMenu", "Import failed", err)
                     Toast.makeText(context, "Import failed", Toast.LENGTH_SHORT).show()

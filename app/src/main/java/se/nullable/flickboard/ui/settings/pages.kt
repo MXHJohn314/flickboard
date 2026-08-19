@@ -102,11 +102,13 @@ fun SettingsHomePage(
                 Title("Settings")
             }
             items(appSettings.all, key = { it.key }) { section ->
-                MenuPageLink(
-                    onClick = { onNavigateToSection(section) },
-                    icon = painterResource(section.icon),
-                    label = section.label,
-                )
+                if (!section.hidden) {
+                    MenuPageLink(
+                        onClick = { onNavigateToSection(section) },
+                        icon = painterResource(section.icon),
+                        label = section.label,
+                    )
+                }
             }
             item {
                 MenuPageLink(
