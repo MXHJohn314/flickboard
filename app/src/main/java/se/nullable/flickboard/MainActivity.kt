@@ -45,7 +45,7 @@ import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.consumeExcludedInsets
 import se.nullable.flickboard.ui.help.KeyboardDescriber
 import se.nullable.flickboard.ui.help.TutorialPage
-import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.AppSettings
 import se.nullable.flickboard.ui.settings.LocalSettingsContext
 import se.nullable.flickboard.ui.settings.SettingsHomePage
 import se.nullable.flickboard.ui.settings.SettingsSectionPage
@@ -81,7 +81,6 @@ class MainActivity : ComponentActivity() {
                             .windowInsetsPadding(WindowInsets.safeDrawing),
                     ) {
                         Column {
-                            val appSettings = LocalAppSettings.current
                             val settingsCtx = LocalSettingsContext.current
                             SharedTransitionLayout {
                                 NavHost(
@@ -94,7 +93,7 @@ class MainActivity : ComponentActivity() {
                                 ) {
                                     composable<MainActivityNav.Tutorial> {
                                         val onFinish: () -> Unit = {
-                                            settingsCtx[appSettings.hasCompletedTutorial]
+                                            settingsCtx[AppSettings.hasCompletedTutorial]
                                                 .currentValue = true
                                             when {
                                                 // navigateUp() when the stack is empty causes an uncomfortable flash of white
@@ -129,7 +128,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                     composable<MainActivityNav.SettingsMain> {
                                         val hasCompletedTutorial =
-                                            settingsCtx[appSettings.hasCompletedTutorial].state.value
+                                            settingsCtx[AppSettings.hasCompletedTutorial].state.value
                                         LaunchedEffect(hasCompletedTutorial) {
                                             // Flavor depends on build variant
                                             @Suppress("KotlinConstantConditions")
@@ -228,7 +227,7 @@ class MainActivity : ComponentActivity() {
                                         val route =
                                             backStackEntry.toRoute<MainActivityNav.SettingsSection>()
                                         val settingsSection =
-                                            appSettings.all.find { it.key == route.sectionKey }
+                                            AppSettings.all.find { it.key == route.sectionKey }
                                                 ?: throw Exception("No settings section with key ${route.sectionKey}")
                                         Scaffold(
                                             topBar = {

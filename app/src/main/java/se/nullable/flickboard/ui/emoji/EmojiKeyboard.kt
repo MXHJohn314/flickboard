@@ -65,8 +65,6 @@ import se.nullable.flickboard.ui.LocalEmojiChecker
 import se.nullable.flickboard.ui.LocalEmojiDb
 import se.nullable.flickboard.ui.LocalEmojiTrie
 import se.nullable.flickboard.ui.OnAction
-import se.nullable.flickboard.ui.settings.LocalAppSettings
-import se.nullable.flickboard.ui.settings.LocalSettingsContext
 import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.util.defaultFocus
 import se.nullable.flickboard.util.unique
@@ -266,15 +264,13 @@ fun EmojiVariant(
     emojiTextStyle: TextStyle,
     emojiTextModifier: Modifier,
 ) {
-    val appSettings = LocalAppSettings.current
-    val settingsCtx = LocalSettingsContext.current
     val saveHistory = localAppSetting { it.saveEmojiHistory }
     val emojiHistory = localAppSetting { it.emojiHistory }
     Box(
         Modifier
             .combinedClickable(onLongClick = onLongClick) {
                 if (saveHistory.value) {
-                    settingsCtx[appSettings.emojiHistory].currentValue =
+                    emojiHistory.value =
                         "$variant\n${
                             emojiHistory.value
                                 // Remove duplicates

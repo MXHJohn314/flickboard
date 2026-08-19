@@ -75,8 +75,8 @@ import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.KeyboardState
 import se.nullable.flickboard.model.TextDirection
 import se.nullable.flickboard.ui.layout.KeyLabelGrid
+import se.nullable.flickboard.ui.settings.AppSettings
 import se.nullable.flickboard.ui.settings.GestureRecognizer
-import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.settings.LocalSettingsContext
 import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
@@ -110,36 +110,35 @@ fun Key(
         return
     }
 
-    val settings = LocalAppSettings.current
     val settingsCtx = LocalSettingsContext.current
-    val actionVisualScale = settingsCtx[settings.actionVisualScale].state
-    val scale = settings.currentScale
-    val keyHeight = settingsCtx[settings.keyHeight].state.value * scale
-    val keyRoundness = settingsCtx[settings.keyRoundness].state
-    val keyOutline = settingsCtx[settings.keyOutline].state
-    val keyOpacity = settingsCtx[settings.keyOpacity].state
-    val enableFastActions = settingsCtx[settings.enableFastActions].state
-    val clockwiseCircleBehaviour = settingsCtx[settings.clockwiseCircleBehaviour].state
+    val actionVisualScale = settingsCtx[AppSettings.actionVisualScale].state
+    val scale = AppSettings.currentScale
+    val keyHeight = settingsCtx[AppSettings.keyHeight].state.value * scale
+    val keyRoundness = settingsCtx[AppSettings.keyRoundness].state
+    val keyOutline = settingsCtx[AppSettings.keyOutline].state
+    val keyOpacity = settingsCtx[AppSettings.keyOpacity].state
+    val enableFastActions = settingsCtx[AppSettings.enableFastActions].state
+    val clockwiseCircleBehaviour = settingsCtx[AppSettings.clockwiseCircleBehaviour].state
     val counterClockwiseCircleBehaviour =
-        settingsCtx[settings.counterClockwiseCircleBehaviour].state
-    val longHoldBehaviour = settingsCtx[settings.longHoldBehaviour].state
-    val swipeThreshold = settingsCtx[settings.swipeThreshold].state
-    val fastSwipeThreshold = settingsCtx[settings.fastSwipeThreshold].state
-    val enableLongSwipes = settingsCtx[settings.enableLongSwipes].state
-    val longHoldThresholdMillis = settingsCtx[settings.longHoldThresholdMillis].state
-    val longSwipeThreshold = settingsCtx[settings.longSwipeThreshold].state
-    val gestureRecognizer = settingsCtx[settings.gestureRecognizer].state
-    val circleJaggednessThreshold = settingsCtx[settings.circleJaggednessThreshold].state
-    val circleDiscontinuityThreshold = settingsCtx[settings.circleDiscontinuityThreshold].state
-    val circleAngleThreshold = settingsCtx[settings.circleAngleThreshold].state
+        settingsCtx[AppSettings.counterClockwiseCircleBehaviour].state
+    val longHoldBehaviour = settingsCtx[AppSettings.longHoldBehaviour].state
+    val swipeThreshold = settingsCtx[AppSettings.swipeThreshold].state
+    val fastSwipeThreshold = settingsCtx[AppSettings.fastSwipeThreshold].state
+    val enableLongSwipes = settingsCtx[AppSettings.enableLongSwipes].state
+    val longHoldThresholdMillis = settingsCtx[AppSettings.longHoldThresholdMillis].state
+    val longSwipeThreshold = settingsCtx[AppSettings.longSwipeThreshold].state
+    val gestureRecognizer = settingsCtx[AppSettings.gestureRecognizer].state
+    val circleJaggednessThreshold = settingsCtx[AppSettings.circleJaggednessThreshold].state
+    val circleDiscontinuityThreshold = settingsCtx[AppSettings.circleDiscontinuityThreshold].state
+    val circleAngleThreshold = settingsCtx[AppSettings.circleAngleThreshold].state
     val enableHapticFeedbackOnGestureStart =
-        settingsCtx[settings.enableHapticFeedbackOnGestureStart].state
+        settingsCtx[AppSettings.enableHapticFeedbackOnGestureStart].state
     val enableHapticFeedbackOnGestureSuccess =
-        settingsCtx[settings.enableHapticFeedbackOnGestureSuccess].state
-    val enableVisualFeedback = settingsCtx[settings.enableVisualFeedback].state
-    val dropLastGesturePoint = settingsCtx[settings.dropLastGesturePoint].state
-    val ignoreJumpsLongerThanPx = settingsCtx[settings.ignoreJumpsLongerThanPx].state
-    val flicksMustBeLongerThanSeconds = settingsCtx[settings.flicksMustBeLongerThanSeconds].state
+        settingsCtx[AppSettings.enableHapticFeedbackOnGestureSuccess].state
+    val enableVisualFeedback = settingsCtx[AppSettings.enableVisualFeedback].state
+    val dropLastGesturePoint = settingsCtx[AppSettings.dropLastGesturePoint].state
+    val ignoreJumpsLongerThanPx = settingsCtx[AppSettings.ignoreJumpsLongerThanPx].state
+    val flicksMustBeLongerThanSeconds = settingsCtx[AppSettings.flicksMustBeLongerThanSeconds].state
     val keyboardTheme = LocalKeyboardTheme.current
     val currentKeyboardState = rememberUpdatedState(keyboardState)
     var lastActionTaken: TakenAction? by remember { mutableStateOf(null, neverEqualPolicy()) }

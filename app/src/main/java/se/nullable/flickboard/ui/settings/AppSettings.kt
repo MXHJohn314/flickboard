@@ -27,9 +27,6 @@ import se.nullable.flickboard.util.tryEnumValueOf
 import java.util.Locale
 import kotlin.math.roundToInt
 
-val LocalAppSettings = staticCompositionLocalOf<AppSettings> {
-    error("Tried to use LocalAppSettings without an AppSettingsProvider")
-}
 val LocalSettingsContext = staticCompositionLocalOf<SettingsContext> {
     error("Tried to use LocalSettingsContext without an AppSettingsProvider")
 }
@@ -42,7 +39,6 @@ fun AppSettingsProvider(prefs: SharedPreferences? = null, content: @Composable (
             coroutineScope = rememberCoroutineScope(),
             appDatabase = LocalAppDatabase.current,
         ),
-        LocalAppSettings provides AppSettings,
     ) {
         content()
     }
@@ -50,11 +46,11 @@ fun AppSettingsProvider(prefs: SharedPreferences? = null, content: @Composable (
 
 @Composable
 fun <T> localAppSetting(meta: SettingProjection<T>): ResettableState<T> =
-    localAppSetting { meta }
+    LocalSettingsContext.current[meta].state
 
 @Composable
 inline fun <T> localAppSetting(meta: (AppSettings) -> SettingProjection<T>): ResettableState<T> =
-    LocalSettingsContext.current[meta(LocalAppSettings.current)].state
+    localAppSetting(meta(AppSettings))
 
 @Suppress("MemberVisibilityCanBePrivate")
 object AppSettings {

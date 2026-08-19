@@ -22,13 +22,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import se.nullable.flickboard.R
-import se.nullable.flickboard.ui.settings.LocalAppSettings
+import se.nullable.flickboard.ui.settings.AppSettings
 import se.nullable.flickboard.ui.settings.LocalSettingsContext
 
 @Composable
 fun BetaMenu(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val appSettings = LocalAppSettings.current
     val settingsCtx = LocalSettingsContext.current
     Column(modifier) {
         val itemModifier = Modifier.padding(8.dp)
@@ -50,7 +49,7 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                 JsonWriter(context.contentResolver.openOutputStream(uri)!!.bufferedWriter())
                     .use { json ->
                         json.beginObject()
-                        appSettings.all.forEach { section ->
+                        AppSettings.all.forEach { section ->
                             section.settings.forEach { setting ->
                                 if (setting.isSet(settingsCtx)) {
                                     json.name(setting.key)
@@ -69,7 +68,7 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                 if (uri == null) {
                     return@rememberLauncherForActivityResult
                 }
-                val settingsByKey = appSettings.all
+                val settingsByKey = AppSettings.all
                     .flatMap { it.settings }
                     .associateBy { it.key }
                 try {
@@ -95,7 +94,7 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                                 json.endObject()
                             }
                     }
-                    settingsCtx.edit { appSettings.migrateSettings(it) }
+                    settingsCtx.edit { AppSettings.migrateSettings(it) }
                 } catch (err: Exception) {
                     Log.w("BetaMenu", "Import failed", err)
                     Toast.makeText(context, "Import failed", Toast.LENGTH_SHORT).show()

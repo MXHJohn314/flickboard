@@ -13,8 +13,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import se.nullable.flickboard.ui.settings.LocalAppSettings
-import se.nullable.flickboard.ui.settings.LocalSettingsContext
+import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.util.MaterialToneMode
 import se.nullable.flickboard.util.hct.Hct
 import se.nullable.flickboard.util.toAccent
@@ -83,14 +82,12 @@ fun FlickBoardTheme(
         colorScheme = colorScheme,
         typography = Typography,
     ) {
-        val settings = LocalAppSettings.current
-        val settingsCtx = LocalSettingsContext.current
-        val keyColour = settingsCtx[settings.keyColour].state
-        val keyColourChroma = settingsCtx[settings.keyColourChroma].state
-        val toneMode = settingsCtx[settings.keyColourTone].state
+        val keyColour = localAppSetting { it.keyColour }
+        val keyColourChroma = localAppSetting { it.keyColourChroma }
+        val toneMode = localAppSetting { it.keyColourTone }
         val toneConfig = toneMode.value.config
         val visualFeedbackInvertColourScheme =
-            settingsCtx[settings.visualFeedbackInvertColourScheme].state
+            localAppSetting { it.visualFeedbackInvertColourScheme }
         val keySurfaceColour = keyColour.value?.toAccentContainer(
             chroma = keyColourChroma.value,
             toneConfig,

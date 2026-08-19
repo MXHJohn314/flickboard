@@ -32,8 +32,8 @@ import se.nullable.flickboard.model.TextBoundary
 import se.nullable.flickboard.ui.LocalDisplayLimits
 import se.nullable.flickboard.ui.LocalZalgoDatabase
 import se.nullable.flickboard.ui.OnAction
+import se.nullable.flickboard.ui.settings.AppSettings
 import se.nullable.flickboard.ui.settings.EnabledLayers
-import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.settings.LocalSettingsContext
 import se.nullable.flickboard.ui.voice.getVoiceInputId
 import se.nullable.flickboard.util.AndroidKeycodeMapper
@@ -209,10 +209,9 @@ class InputSession(
         navController: NavController,
     ): OnAction {
         val context = LocalContext.current
-        val appSettings = LocalAppSettings.current
         val settingsCtx = LocalSettingsContext.current
-        val periodOnDoubleSpace = settingsCtx[appSettings.periodOnDoubleSpace].state
-        val disabledDeadkeys = settingsCtx[appSettings.disabledDeadkeys].state
+        val periodOnDoubleSpace = settingsCtx[AppSettings.periodOnDoubleSpace].state
+        val disabledDeadkeys = settingsCtx[AppSettings.disabledDeadkeys].state
         val displayLimits = LocalDisplayLimits.current
         val zalgoDb = LocalZalgoDatabase.current
 
@@ -710,10 +709,10 @@ class InputSession(
                 )
 
                 is Action.SwitchLetterLayer -> {
-                    val activeIndex = settingsCtx[appSettings.activeLetterLayerIndex]
+                    val activeIndex = settingsCtx[AppSettings.activeLetterLayerIndex]
                     activeIndex.currentValue =
                         (activeIndex.currentValue + action.direction.factor)
-                            .mod(settingsCtx[appSettings.letterLayers].currentValue.size)
+                            .mod(settingsCtx[AppSettings.letterLayers].currentValue.size)
                 }
 
                 is Action.SwitchSystemKeyboard -> {
@@ -722,20 +721,20 @@ class InputSession(
 
                 Action.ToggleActiveLayer -> {
                     val enabledLayers =
-                        appSettings.enabledLayersProjectionForOrientation(
+                        AppSettings.enabledLayersProjectionForOrientation(
                             settingsCtx,
                             displayLimits,
                         )
 
-                    settingsCtx[appSettings.handedness].modify { !it }
+                    settingsCtx[AppSettings.handedness].modify { !it }
 
                     // Toggling *appears* to do nothing if using doubleletters and both sides are the same,
                     // see https://codeberg.org/natkr/flickboard/issues/318
                     // We can't really *fix* it due to https://codeberg.org/natkr/flickboard/issues/318#issuecomment-2932842,
                     // but we can at least tell the user what went wrong and how to fix it.
                     if (settingsCtx[enabledLayers].currentValue == EnabledLayers.DoubleLetters &&
-                        settingsCtx[appSettings.letterLayers].currentValue.getOrNull(settingsCtx[appSettings.activeLetterLayerIndex].currentValue)
-                        == settingsCtx[appSettings.secondaryLetterLayer].currentValue
+                        settingsCtx[AppSettings.letterLayers].currentValue.getOrNull(settingsCtx[AppSettings.activeLetterLayerIndex].currentValue)
+                        == settingsCtx[AppSettings.secondaryLetterLayer].currentValue
                     ) {
                         warningMessageScope.launch {
                             warningSnackbarHostState.showSnackbar("Toggling when using the double-letters layout flips the sides, which does nothing if both sides are already the same.\nTo switch to a numbers layout, hold the key instead.")
@@ -744,14 +743,14 @@ class InputSession(
                 }
 
                 Action.ToggleHandedness -> {
-                    settingsCtx[appSettings.handedness].modify { !it }
-                    settingsCtx[appSettings.portraitLocation].modify { -it }
-                    settingsCtx[appSettings.landscapeLocation].modify { -it }
+                    settingsCtx[AppSettings.handedness].modify { !it }
+                    settingsCtx[AppSettings.portraitLocation].modify { -it }
+                    settingsCtx[AppSettings.landscapeLocation].modify { -it }
                 }
 
                 Action.ToggleNumbersLayer -> {
                     settingsCtx[
-                        appSettings.enabledLayersProjectionForOrientation(
+                        AppSettings.enabledLayersProjectionForOrientation(
                             settingsCtx,
                             displayLimits,
                         ),
@@ -760,7 +759,7 @@ class InputSession(
                 }
 
                 is Action.AdjustCellHeight ->
-                    settingsCtx[appSettings.keyHeight].currentValue += action.amount
+                    settingsCtx[AppSettings.keyHeight].currentValue += action.amount
 
                 is Action.OpenEmojiKeyboard ->
                     navController.navigate(ActiveView.EmojiKeyboard(search = action.search))
@@ -769,10 +768,10 @@ class InputSession(
                     navController.navigate(ActiveView.ClipboardHistory)
 
                 Action.ToggleShowSymbols ->
-                    settingsCtx[appSettings.showSymbols].modify { !it }
+                    settingsCtx[AppSettings.showSymbols].modify { !it }
 
                 Action.ToggleShowLetters ->
-                    settingsCtx[appSettings.showLetters].modify { !it }
+                    settingsCtx[AppSettings.showLetters].modify { !it }
 
                 Action.EnableVoiceMode -> {
                     val inputManager =

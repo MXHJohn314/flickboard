@@ -74,7 +74,6 @@ fun SettingsHomePage(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier
 ) {
-    val appSettings = LocalAppSettings.current
     val tryText = remember {
         mutableStateOf("")
     }
@@ -101,7 +100,7 @@ fun SettingsHomePage(
             item {
                 Title("Settings")
             }
-            items(appSettings.all, key = { it.key }) { section ->
+            items(AppSettings.all, key = { it.key }) { section ->
                 if (!section.hidden) {
                     MenuPageLink(
                         onClick = { onNavigateToSection(section) },
@@ -379,7 +378,7 @@ private fun SettingsSectionPagePreview() {
             SharedTransitionLayout {
                 AnimatedVisibility(true) {
                     SettingsSectionPage(
-                        LocalAppSettings.current.all[0],
+                        AppSettings.all[0],
                         this@SharedTransitionLayout,
                         this@AnimatedVisibility,
                         Modifier.width(1000.dp),

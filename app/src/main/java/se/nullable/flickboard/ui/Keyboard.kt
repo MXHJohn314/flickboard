@@ -56,12 +56,12 @@ import se.nullable.flickboard.model.layouts.OVERLAY_TOGGLE_SYMBOLS_MESSAGEASE_LA
 import se.nullable.flickboard.model.layouts.overlayMessageaseLayer
 import se.nullable.flickboard.model.layouts.spacer
 import se.nullable.flickboard.ui.layout.Grid
+import se.nullable.flickboard.ui.settings.AppSettings
 import se.nullable.flickboard.ui.settings.AppSettingsProvider
 import se.nullable.flickboard.ui.settings.ControlSectionOption
 import se.nullable.flickboard.ui.settings.EnabledLayers
 import se.nullable.flickboard.ui.settings.Handedness
 import se.nullable.flickboard.ui.settings.LayoutType
-import se.nullable.flickboard.ui.settings.LocalAppSettings
 import se.nullable.flickboard.ui.settings.LocalSettingsContext
 import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
@@ -87,9 +87,8 @@ fun Keyboard(
     allowHideSettings: Boolean = true,
     highlightedAction: Action? = null,
 ) {
-    val appSettings = LocalAppSettings.current
     val settingsCtx = LocalSettingsContext.current
-    val enabledLayersForCurrentOrientation = appSettings.enabledLayersForCurrentOrientation
+    val enabledLayersForCurrentOrientation = AppSettings.enabledLayersForCurrentOrientation
     val overrideEnabledLayersState = rememberUpdatedState(overrideEnabledLayers)
     val enabledLayers = remember {
         derivedStateOf {
@@ -99,34 +98,34 @@ fun Keyboard(
             }
         }
     }
-    val landscapeSplit = settingsCtx[appSettings.landscapeSplit].state
-    val landscapeControlSection = settingsCtx[appSettings.landscapeControlSection].state
-    val numericLayer = settingsCtx[appSettings.numericLayer].state
-    val secondaryLetterLayer = settingsCtx[appSettings.secondaryLetterLayer].state
-    val handedness = settingsCtx[appSettings.handedness].state
-    val invertSwipeDelete = settingsCtx[appSettings.invertSwipeDelete].state
-    val backgroundOpacity = settingsCtx[appSettings.backgroundOpacity].state
-    val enablePointerTrail = settingsCtx[appSettings.enablePointerTrail].state
+    val landscapeSplit = settingsCtx[AppSettings.landscapeSplit].state
+    val landscapeControlSection = settingsCtx[AppSettings.landscapeControlSection].state
+    val numericLayer = settingsCtx[AppSettings.numericLayer].state
+    val secondaryLetterLayer = settingsCtx[AppSettings.secondaryLetterLayer].state
+    val handedness = settingsCtx[AppSettings.handedness].state
+    val invertSwipeDelete = settingsCtx[AppSettings.invertSwipeDelete].state
+    val backgroundOpacity = settingsCtx[AppSettings.backgroundOpacity].state
+    val enablePointerTrail = settingsCtx[AppSettings.enablePointerTrail].state
     val shownActionClasses = when {
-        allowHideSettings -> appSettings.shownActionClasses
+        allowHideSettings -> AppSettings.shownActionClasses
         else -> remember { derivedStateOf { ActionClass.entries.toSet() } }
     }
-    val enableHiddenActions = settingsCtx[appSettings.enableHiddenActions].state
-    val enableAdvancedModifiers = settingsCtx[appSettings.enableAdvancedModifiers].state
-    val modifierSettings = appSettings.modifierSettings
-    val enableToggleShowSymbols = settingsCtx[appSettings.enableToggleShowSymbolsGesture].state
-    val keyGap = settingsCtx[appSettings.keyGap].state
-    val backgroundImage = settingsCtx[appSettings.backgroundImage].state
-    val keyboardMargin = settingsCtx[appSettings.keyboardMargin].state
-    val keyboardMarginBottomPortrait = settingsCtx[appSettings.keyboardMarginBottomPortrait].state
-    val noReverseRtlBrackets = settingsCtx[appSettings.noReverseRtlBrackets].state
+    val enableHiddenActions = settingsCtx[AppSettings.enableHiddenActions].state
+    val enableAdvancedModifiers = settingsCtx[AppSettings.enableAdvancedModifiers].state
+    val modifierSettings = AppSettings.modifierSettings
+    val enableToggleShowSymbols = settingsCtx[AppSettings.enableToggleShowSymbolsGesture].state
+    val keyGap = settingsCtx[AppSettings.keyGap].state
+    val backgroundImage = settingsCtx[AppSettings.backgroundImage].state
+    val keyboardMargin = settingsCtx[AppSettings.keyboardMargin].state
+    val keyboardMarginBottomPortrait = settingsCtx[AppSettings.keyboardMarginBottomPortrait].state
+    val noReverseRtlBrackets = settingsCtx[AppSettings.noReverseRtlBrackets].state
     var modifierState: ModifierState by remember { mutableStateOf(ModifierState()) }
     LaunchedEffect(modifierState) {
         onModifierStateUpdated(modifierState)
     }
     val keyboardState = KeyboardState(
         modifiers = modifierState.takeUnless { showAllModifiers },
-        modifierSettings = appSettings.modifierSettings,
+        modifierSettings = AppSettings.modifierSettings,
         enterOverride = enterActionOverride,
         enabledLayers = enabledLayers.value,
     )
@@ -272,7 +271,7 @@ fun Keyboard(
             // Enforce portrait aspect ratio in landscape mode
             desiredWidth -= maxMargin
         }
-        desiredWidth *= appSettings.currentScale
+        desiredWidth *= AppSettings.currentScale
         val splitScale = when {
             isLandscape.value -> landscapeSplit.value
             else -> 0F
@@ -358,7 +357,7 @@ fun Keyboard(
                 .width(thisWidth)
                 .align(
                     BiasAbsoluteAlignment(
-                        horizontalBias = appSettings.currentLocation,
+                        horizontalBias = AppSettings.currentLocation,
                         verticalBias = 0F,
                     ),
                 )
@@ -503,11 +502,10 @@ fun PlayKeyboardPreview() {
     var lastAction by remember { mutableStateOf<Action?>(null) }
     FlickBoardParent {
         Surface {
-            val appSettings = LocalAppSettings.current
             val settingsCtx = LocalSettingsContext.current
             AppSettingsProvider(
                 prefs = settingsCtx.mock {
-                    appSettings.keyHeight.writeTo(it, 128F)
+                    AppSettings.keyHeight.writeTo(it, 128F)
                 }.prefs,
             ) {
                 ConfiguredKeyboard(

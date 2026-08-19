@@ -41,8 +41,6 @@ import se.nullable.flickboard.model.clipboard.ClipboardEntry
 import se.nullable.flickboard.model.clipboard.clipboardHistorySize
 import se.nullable.flickboard.ui.LocalAppDatabase
 import se.nullable.flickboard.ui.OnAction
-import se.nullable.flickboard.ui.settings.LocalAppSettings
-import se.nullable.flickboard.ui.settings.LocalSettingsContext
 import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.theme.PageTitle
 import se.nullable.flickboard.ui.util.collapsibleListHeader
@@ -56,8 +54,6 @@ fun ClipboardHistoryViewer(
     snackbarHostState: SnackbarHostState,
     navigateUp: () -> Unit,
 ) {
-    val appSettings = LocalAppSettings.current
-    val settingsCtx = LocalSettingsContext.current
     val clipboardHistoryEnabled = localAppSetting { it.saveClipboardHistory }
     val showPinned = localAppSetting { it.clipboardHistoryShowPinned }
     val showHistory = localAppSetting { it.clipboardHistoryShowHistory }
@@ -180,7 +176,7 @@ fun ClipboardHistoryViewer(
                     collapsibleListHeader(
                         "Pinned",
                         expanded = showPinned.value,
-                        onSetExpanded = settingsCtx[appSettings.clipboardHistoryShowPinned]::currentValue::set,
+                        onSetExpanded = showPinned::value::set,
                     )
                 }
 
@@ -210,7 +206,7 @@ fun ClipboardHistoryViewer(
                 collapsibleListHeader(
                     "History",
                     expanded = showHistory.value,
-                    onSetExpanded = settingsCtx[appSettings.clipboardHistoryShowHistory]::currentValue::set,
+                    onSetExpanded = showHistory::value::set,
                 )
 
                 if (showHistory.value) {
@@ -248,7 +244,7 @@ fun ClipboardHistoryViewer(
                 collapsibleListHeader(
                     "Tips",
                     expanded = showTips.value,
-                    onSetExpanded = settingsCtx[appSettings.clipboardHistoryShowTips]::currentValue::set,
+                    onSetExpanded = showTips::value::set,
                 )
                 if (showTips.value) {
                     val tips = listOf(
