@@ -1,7 +1,6 @@
 package se.nullable.flickboard.ui
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -22,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import se.nullable.flickboard.ui.theme.Typography
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -241,7 +241,7 @@ fun CreditEntry(name: String, uri: String? = null, role: String? = null) {
     val clickModifier = when {
         uri != null -> {
             val context = LocalContext.current
-            Modifier.clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri))) }
+            Modifier.clickable { context.startActivity(Intent(Intent.ACTION_VIEW, uri.toUri())) }
         }
 
         else -> Modifier

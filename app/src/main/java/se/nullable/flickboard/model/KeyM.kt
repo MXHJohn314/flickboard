@@ -377,16 +377,14 @@ sealed class Action {
             ShiftState.CapsLock -> "Turns all letters upper-case until shift is disabled manually."
         }
 
-        override fun tint(modifier: ModifierState?): ActionTint = when {
-            state == modifier?.shift -> ActionTint.Active
+        override fun tint(modifier: ModifierState?): ActionTint = when (state) {
+            modifier?.shift -> ActionTint.Active
             else -> ActionTint.Normal
         }
 
-        override fun shift(locale: Locale): Action {
-            return when (state) {
-                ShiftState.Shift -> copy(state = ShiftState.CapsLock)
-                else -> return this
-            }
+        override fun shift(locale: Locale): Action = when (state) {
+            ShiftState.Shift -> copy(state = ShiftState.CapsLock)
+            else -> this
         }
     }
 

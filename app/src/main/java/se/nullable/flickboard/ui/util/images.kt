@@ -41,19 +41,18 @@ fun loadBitmap(
     when {
         Build.VERSION.SDK_INT >= 28 -> ImageDecoder.decodeBitmap(
             ImageDecoder.createSource(contentResolver, uri),
-            { dec, info, _ ->
-                when (scalingMode) {
-                    ScalingMode.TryPrecise ->
-                        dec.setTargetSize(
-                            targetSize.height.roundToInt(),
-                            targetSize.width.roundToInt(),
-                        )
+        ) { dec, info, _ ->
+            when (scalingMode) {
+                ScalingMode.TryPrecise ->
+                    dec.setTargetSize(
+                        targetSize.height.roundToInt(),
+                        targetSize.width.roundToInt(),
+                    )
 
-                    ScalingMode.Conservative ->
-                        dec.setTargetSampleSize(targetSampleSize(info.size.width, info.size.height))
-                }
-            },
-        )
+                ScalingMode.Conservative ->
+                    dec.setTargetSampleSize(targetSampleSize(info.size.width, info.size.height))
+            }
+        }
 
         else -> {
             val opts = BitmapFactory.Options()

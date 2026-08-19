@@ -135,7 +135,7 @@ fun SettingsHomePage(
             item {
                 Title("About")
                 // These constants will depend on the build config
-                @Suppress("KotlinConstantConditions")
+                @Suppress("KotlinConstantConditions", "SimplifyBooleanWithConstants")
                 val variant = when {
                     BuildConfig.BUILD_TYPE == "release" && (BuildConfig.FLAVOR == "plain" || BuildConfig.FLAVOR == "screengrab") -> ""
                     else -> " (${BuildConfig.BUILD_TYPE})"
@@ -168,7 +168,7 @@ fun SettingsHomePage(
                     )
                 }
                 // These constants will depend on the build config
-                @Suppress("KotlinConstantConditions")
+                @Suppress("KotlinConstantConditions", "SimplifyBooleanWithConstants")
                 if (BuildConfig.FLAVOR == "beta") {
                     MenuPageLink(
                         onClick = { onNavigateToBetaMenu() },
@@ -325,6 +325,7 @@ fun SettingsKeyboardPreview(
                                     animatedVisibilityScope,
                                 ),
                         )
+                        @Suppress("RemoveRedundantQualifierName")
                         androidx.compose.animation.AnimatedVisibility(
                             realKeyboardVisible,
                             Modifier.matchParentSize(),

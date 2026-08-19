@@ -131,7 +131,10 @@ class MainActivity : ComponentActivity() {
                                             settingsCtx[AppSettings.hasCompletedTutorial].state.value
                                         LaunchedEffect(hasCompletedTutorial) {
                                             // Flavor depends on build variant
-                                            @Suppress("KotlinConstantConditions")
+                                            @Suppress(
+                                                "KotlinConstantConditions",
+                                                "SimplifyBooleanWithConstants",
+                                            )
                                             if (!hasCompletedTutorial
                                                 && BuildConfig.FLAVOR != "screengrab"
                                             ) {

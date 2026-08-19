@@ -1,7 +1,6 @@
 package se.nullable.flickboard.ui
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import se.nullable.flickboard.R
 
 @Composable
@@ -55,15 +55,15 @@ fun MenuPageLink(
 @Composable
 fun MenuPageUriLink(
     uri: String,
-    icon: Painter? = null,
     label: String,
     modifier: Modifier = Modifier,
+    icon: Painter? = null,
     iconModifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     MenuPageLink(
         onClick = {
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
+            context.startActivity(Intent(Intent.ACTION_VIEW, uri.toUri()))
         },
         icon = icon,
         label = label,

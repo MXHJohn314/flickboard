@@ -471,7 +471,7 @@ fun ZalgoTipCardPreview() {
 }
 
 private object ZalgoInlineContent {
-    val zalgoIconId = "join"
+    const val zalgoIconId = "join"
     val inlineContent = mapOf(
         zalgoIconId to InlineTextContent(
             Placeholder(

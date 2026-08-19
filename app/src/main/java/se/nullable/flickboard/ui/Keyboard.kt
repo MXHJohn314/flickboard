@@ -66,6 +66,7 @@ import se.nullable.flickboard.ui.settings.LocalSettingsContext
 import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import se.nullable.flickboard.ui.util.userImagePainter
+import kotlin.time.Duration.Companion.milliseconds
 
 // Returns false if action could not be processed
 //typealias OnAction = (Action, KeyM?, Gesture?) -> Boolean
@@ -233,7 +234,7 @@ fun Keyboard(
     var pointerTrailActive by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = pointerTrailActive) {
         if (!pointerTrailActive) {
-            delay(2000)
+            delay(2000.milliseconds)
             if (pointerTrailRelativeToActiveKey.isNotEmpty()) {
                 pointerTrailRelativeToActiveKey = emptyList()
             }

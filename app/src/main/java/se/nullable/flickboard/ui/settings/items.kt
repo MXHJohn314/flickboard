@@ -261,7 +261,7 @@ fun ImageSetting(meta: SettingMeta.Image) {
             }
             uri = Uri.fromFile(cachedFile).buildUpon()
                 // Bust caches and make sure clients load it
-                .fragment(Random.Default.nextLong().toString())
+                .fragment(Random.nextLong().toString())
                 .build()
         }
         state.value = uri
