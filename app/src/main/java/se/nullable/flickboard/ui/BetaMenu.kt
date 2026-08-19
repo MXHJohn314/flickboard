@@ -50,8 +50,10 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                         json.beginObject()
                         appSettings.all.forEach { section ->
                             section.settings.forEach { setting ->
-                                json.name(setting.key)
-                                setting.exportToJson(appSettings.ctx, json)
+                                if (setting.isSet(appSettings.ctx)) {
+                                    json.name(setting.key)
+                                    setting.exportToJson(appSettings.ctx, json)
+                                }
                             }
                         }
                         json.endObject()
@@ -70,6 +72,7 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                     .associateBy { it.key }
                 try {
                     appSettings.ctx.edit { editPrefs ->
+                        editPrefs.prefsEditor.clear()
                         JsonReader(context.contentResolver.openInputStream(uri)!!.bufferedReader())
                             .use { json ->
                                 json.beginObject()

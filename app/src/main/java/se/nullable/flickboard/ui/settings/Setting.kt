@@ -147,6 +147,7 @@ interface SettingProjection<T> {
     fun observesKey(key: String?): Boolean
     fun readFrom(ctx: SettingsContext): T
     fun writeTo(ctx: SettingsContext.Editor, value: T)
+    fun isSet(ctx: SettingsContext): Boolean
     fun resetIn(ctx: SettingsContext.Editor)
 
     fun <U : Any> tryMap(
@@ -163,6 +164,7 @@ interface SettingProjection<T> {
                 base.writeTo(ctx, set(value ?: return) ?: return)
             }
 
+            override fun isSet(ctx: SettingsContext): Boolean = base.isSet(ctx)
             override fun resetIn(ctx: SettingsContext.Editor) {
                 base.resetIn(ctx)
             }
@@ -176,6 +178,7 @@ sealed class SettingMeta<T> : SettingProjection<T> {
     abstract val description: String?
 
     override fun observesKey(key: String?): Boolean = key == this.key
+    override fun isSet(ctx: SettingsContext): Boolean = ctx.prefs.contains(key)
     override fun resetIn(ctx: SettingsContext.Editor) {
         ctx.prefsEditor.remove(key)
     }
