@@ -1,5 +1,6 @@
 package se.nullable.flickboard.ui.clipboard
 
+import android.content.ClipData
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,9 +32,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.LocalPinnableContainer
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -135,7 +136,7 @@ fun LazyItemScope.ClipboardEntryItem(
     allowPinToggle: Boolean,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val clipboardManager = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
     val swipeState = key(entry?.id, entry?.generation) {
         rememberSwipeToOptionsBoxState()
     }
@@ -182,19 +183,27 @@ fun LazyItemScope.ClipboardEntryItem(
                             IconButton(
                                 onClick = {
                                     currentEntry.value?.let {
-                                        clipboardManager.setText(AnnotatedString(it.clipData))
                                         coroutineScope.launch {
-                                            swipeState.animateReset()
-                                        }
-                                        // API 33+ provides its own copy toast, so we don't need to provide one there
-                                        // see https://developer.android.com/develop/ui/compose/touch-input/copy-and-paste#feedback_to_copying_content
-                                        if (android.os.Build.VERSION.SDK_INT < 33) {
-                                            coroutineScope.launch {
+                                            clipboard.setClipEntry(
+                                                ClipEntry(
+                                                    ClipData.newPlainText(
+                                                        it.clipData,
+                                                        it.clipData,
+                                                    ),
+                                                ),
+                                            )
+
+                                            // API 33+ provides its own copy toast, so we don't need to provide one there
+                                            // see https://developer.android.com/develop/ui/compose/touch-input/copy-and-paste#feedback_to_copying_content
+                                            if (android.os.Build.VERSION.SDK_INT < 33) {
                                                 snackbarHostState.showSnackbar(
                                                     "Copied \"${it.clipData}\"",
                                                     withDismissAction = true,
                                                 )
                                             }
+                                        }
+                                        coroutineScope.launch {
+                                            swipeState.animateReset()
                                         }
                                     }
                                 },
