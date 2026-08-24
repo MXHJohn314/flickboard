@@ -100,7 +100,7 @@ fun Key(
     onAction: OnAction?,
     keyboardState: KeyboardState,
     modifier: Modifier = Modifier,
-    keyPointerTrailListener: State<KeyPointerTrailListener?> = remember { mutableStateOf(null) },
+    trailState: State<PointerTrailState.ForKey?> = remember { mutableStateOf(null) },
     layoutTextDirection: TextDirection,
     allowFastActions: Boolean = true,
     highlightedAction: Action? = null,
@@ -202,7 +202,7 @@ fun Key(
                             isFast = true,
                         )
                     },
-                    trailListenerState = keyPointerTrailListener,
+                    trailState = trailState,
                     gestureLibrary = { gestureLibrary.value.value },
                     dropLastGesturePoint = { dropLastGesturePoint.value },
                     ignoreJumpsLongerThanPx = { ignoreJumpsLongerThanPx.value },
@@ -406,15 +406,6 @@ fun RenderActionVisual(
     }
 }
 
-data class KeyPointerTrailListener(
-    val onDown: () -> Unit = {},
-    val onUp: () -> Unit = {},
-    // Called on every pointer event in a gesture
-    // The list will be MUTATED after this, and should not be considered stable
-    // For example, if storing it in a MutableState, make sure to use neverEqualPolicy()
-    val onTrailUpdate: (List<Offset>) -> Unit = {}
-)
-
 private suspend inline fun AwaitPointerEventScope.awaitGesture(
     swipeThreshold: () -> Dp,
     fastSwipeThreshold: () -> Dp,
@@ -428,7 +419,7 @@ private suspend inline fun AwaitPointerEventScope.awaitGesture(
     onGestureStart: () -> Unit,
     onFastAction: (Action) -> Boolean,
     // Passed as state to ensure that it's only grabbed once we have a down event
-    trailListenerState: State<KeyPointerTrailListener?>,
+    trailState: State<PointerTrailState.ForKey?>,
     gestureLibrary: () -> GestureLibrary?,
     dropLastGesturePoint: () -> Boolean,
     ignoreJumpsLongerThanPx: () -> Float,
@@ -438,8 +429,8 @@ private suspend inline fun AwaitPointerEventScope.awaitGesture(
     down.consume()
     onGestureStart()
     val gestureStartedAtNanos = System.nanoTime()
-    val trailListener = trailListenerState.value
-    trailListener?.onDown?.invoke()
+    val trailState = trailState.value
+    trailState?.onDown()
     var isDragging = false
     var canBeFastAction = fastActions.isNotEmpty()
     var fastActionBegan = false
@@ -467,7 +458,7 @@ private suspend inline fun AwaitPointerEventScope.awaitGesture(
                             for (change in event.changes) {
                                 // Add pre-slop positions to trail, too
                                 positions.add(change.position)
-                                trailListener?.onTrailUpdate?.invoke(positions)
+                                trailState?.addPoint(change.position)
 
                                 when {
                                     change.changedToUp() -> return@withTimeoutOrNull event
@@ -488,7 +479,7 @@ private suspend inline fun AwaitPointerEventScope.awaitGesture(
                     when (event) {
                         // withTimeoutOrNull returns null on timeout, indicating a long hold
                         null -> {
-                            trailListener?.onUp?.invoke()
+                            trailState?.onUp()
                             return Gesture.Flick(
                                 Direction.CENTER,
                                 longHold = true,
@@ -505,7 +496,7 @@ private suspend inline fun AwaitPointerEventScope.awaitGesture(
             // HACK: kotlin doesn't support for (var ... in ...)
             var change = changeVal
             if (change.isConsumed || change.changedToUp()) {
-                trailListener?.onUp?.invoke()
+                trailState?.onUp()
             }
             if (change.isConsumed) {
                 return null
@@ -523,7 +514,7 @@ private suspend inline fun AwaitPointerEventScope.awaitGesture(
                 change = change.copy(currentPosition = positions.lastOrNull() ?: change.position)
             } else {
                 positions.add(change.position)
-                trailListener?.onTrailUpdate?.invoke(positions)
+                trailState?.addPoint(change.position)
             }
             val posFromDown = change.position - down.position
             val distanceFromDownSquared = posFromDown.getDistanceSquared()
