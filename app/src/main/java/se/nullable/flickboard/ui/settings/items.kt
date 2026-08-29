@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.R
+import se.nullable.flickboard.model.FieldType
 import se.nullable.flickboard.ui.ColourPicker
 import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.DisplayLimits
@@ -440,6 +441,7 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
                                         previewOverride != null -> previewOverride(option)
                                         else -> ConfiguredKeyboard(
                                             onAction = null,
+                                            fieldType = FieldType.Regular,
                                             modifier = Modifier.fillMaxWidth(),
                                         )
                                     }

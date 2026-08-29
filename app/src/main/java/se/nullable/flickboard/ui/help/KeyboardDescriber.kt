@@ -40,6 +40,7 @@ import se.nullable.flickboard.model.ActionTint
 import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.model.Direction
 import se.nullable.flickboard.model.EnterActionOverride
+import se.nullable.flickboard.model.FieldType
 import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.KeyboardState
@@ -132,6 +133,7 @@ fun KeyboardDescriber(modifier: Modifier = Modifier, initialAction: Action? = nu
                 selectedActionStack.add(Triple(action, key, gesture))
                 true
             },
+            fieldType = FieldType.Regular,
             allowFastActions = false,
             allowHideSettings = false,
             highlightedAction = selectedActionStack.firstOrNull()?.first,

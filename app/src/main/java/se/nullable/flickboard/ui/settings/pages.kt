@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import se.nullable.flickboard.BuildConfig
 import se.nullable.flickboard.MainActivitySharedElement
 import se.nullable.flickboard.R
+import se.nullable.flickboard.model.FieldType
 import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.MenuPageLink
@@ -315,6 +316,7 @@ fun SettingsKeyboardPreview(
                     Box {
                         ConfiguredKeyboard(
                             onAction = { _, _, _ -> true }, // Keyboard provides internal visual feedback if enabled
+                            fieldType = FieldType.Regular,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clipToBounds()

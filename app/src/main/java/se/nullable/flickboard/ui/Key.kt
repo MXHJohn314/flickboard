@@ -70,6 +70,7 @@ import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.model.CircleDirection
 import se.nullable.flickboard.model.Direction
 import se.nullable.flickboard.model.FastActionType
+import se.nullable.flickboard.model.FieldType
 import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.KeyboardState
@@ -99,6 +100,7 @@ fun Key(
     key: KeyM,
     onAction: OnAction?,
     keyboardState: KeyboardState,
+    fieldType: FieldType,
     modifier: Modifier = Modifier,
     trailState: State<PointerTrailState.ForKey?> = remember { mutableStateOf(null) },
     layoutTextDirection: TextDirection,
@@ -135,7 +137,11 @@ fun Key(
         settingsCtx[AppSettings.enableHapticFeedbackOnGestureStart].state
     val enableHapticFeedbackOnGestureSuccess =
         settingsCtx[AppSettings.enableHapticFeedbackOnGestureSuccess].state
-    val enableVisualFeedback = settingsCtx[AppSettings.enableVisualFeedback].state
+    val enableVisualFeedbackSetting = settingsCtx[AppSettings.enableVisualFeedback].state
+    val disableVisualFeedbackForPasswords =
+        settingsCtx[AppSettings.disableVisualFeedbackForPasswords].state
+    val enableVisualFeedback = enableVisualFeedbackSetting.value
+            && !(fieldType == FieldType.Password && disableVisualFeedbackForPasswords.value)
     val dropLastGesturePoint = settingsCtx[AppSettings.dropLastGesturePoint].state
     val ignoreJumpsLongerThanPx = settingsCtx[AppSettings.ignoreJumpsLongerThanPx].state
     val flicksMustBeLongerThanSeconds = settingsCtx[AppSettings.flicksMustBeLongerThanSeconds].state
@@ -169,7 +175,7 @@ fun Key(
             if (enableHapticFeedbackOnGestureSuccess.value || (isFast && enableHapticFeedbackOnGestureStart.value)) {
                 haptics.value.vibrate(HapticFeedbackReason.GestureSuccess)
             }
-            if (enableVisualFeedback.value) {
+            if (enableVisualFeedback) {
                 if (!action.isHiddenAction) {
                     lastActionTaken = TakenAction(action, currentKeyboardState.value)
                 }
@@ -694,6 +700,7 @@ fun KeyPreview() {
                         lastAction = action
                         true
                     },
+                    fieldType = FieldType.Regular,
                     layoutTextDirection = TextDirection.LeftToRight,
                     modifier = Modifier.aspectRatio(1F),
                     keyboardState = KeyboardState.ShowAll,

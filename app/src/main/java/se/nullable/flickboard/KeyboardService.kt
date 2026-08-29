@@ -84,6 +84,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.model.ActionVisual
 import se.nullable.flickboard.model.EnterActionOverride
+import se.nullable.flickboard.model.FieldType
 import se.nullable.flickboard.ui.ConfiguredKeyboard
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.clipboard.ClipboardHistoryViewer
@@ -419,6 +420,9 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                             ConfiguredKeyboard(
                                                                 modifier = Modifier.fillMaxWidth(),
                                                                 onAction = onAction,
+                                                                fieldType = inputSession.editorInfo
+                                                                    ?.let(FieldType::fromEditorInfo)
+                                                                    ?: FieldType.Regular,
                                                                 onModifierStateUpdated = inputSession::updateModifierState,
                                                                 enterActionOverride = inputSession.editorInfo?.let { editorInfo ->
                                                                     EnterActionOverride(

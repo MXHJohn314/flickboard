@@ -640,6 +640,12 @@ object AppSettings {
         defaultValue = true,
     )
 
+    val disableVisualFeedbackForPasswords = SettingMeta.Bool(
+        key = "disableVisualFeedbackForPasswords",
+        label = "Disable visual feedback (and pointer trails) for password fields",
+        defaultValue = true,
+    )
+
     val visualFeedbackInvertColourScheme = SettingMeta.Bool(
         key = "visualFeedbackInvertColourScheme",
         label = "Make visual highlight extra prominent",
@@ -865,6 +871,7 @@ object AppSettings {
                     enableVisualFeedback,
                     visualFeedbackInvertColourScheme,
                     enablePointerTrail,
+                    disableVisualFeedbackForPasswords,
                 ),
             ),
             SettingsSection(

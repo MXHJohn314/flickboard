@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.Direction
+import se.nullable.flickboard.model.FieldType
 import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.KeyboardState
@@ -340,6 +341,7 @@ fun TutorialKey(key: KeyM, onAction: OnAction?) {
         key,
         onAction = onAction,
         keyboardState = KeyboardState.ShowAll,
+        fieldType = FieldType.Regular,
         modifier = Modifier
             .size(96.dp)
             .padding(8.dp)

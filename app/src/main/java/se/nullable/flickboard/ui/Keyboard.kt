@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.ActionClass
 import se.nullable.flickboard.model.EnterActionOverride
+import se.nullable.flickboard.model.FieldType
 import se.nullable.flickboard.model.Gesture
 import se.nullable.flickboard.model.KeyM
 import se.nullable.flickboard.model.KeyboardState
@@ -73,6 +74,7 @@ fun interface OnAction {
 fun Keyboard(
     layout: Layout,
     onAction: OnAction?,
+    fieldType: FieldType,
     modifier: Modifier = Modifier,
     enterActionOverride: EnterActionOverride? = null,
     onModifierStateUpdated: (ModifierState) -> Unit = {},
@@ -100,7 +102,11 @@ fun Keyboard(
     val handedness = settingsCtx[AppSettings.handedness].state
     val invertSwipeDelete = settingsCtx[AppSettings.invertSwipeDelete].state
     val backgroundOpacity = settingsCtx[AppSettings.backgroundOpacity].state
-    val enablePointerTrail = settingsCtx[AppSettings.enablePointerTrail].state
+    val enablePointerTrailSetting = settingsCtx[AppSettings.enablePointerTrail].state
+    val disablePointerTrailForPasswords =
+        settingsCtx[AppSettings.disableVisualFeedbackForPasswords].state
+    val enablePointerTrail = enablePointerTrailSetting.value &&
+            !(fieldType == FieldType.Password && disablePointerTrailForPasswords.value)
     val shownActionClasses = when {
         allowHideSettings -> AppSettings.shownActionClasses
         else -> remember { derivedStateOf { ActionClass.entries.toSet() } }
@@ -343,7 +349,7 @@ fun Keyboard(
                             val keyPointerTrailState = remember {
                                 derivedStateOf {
                                     when {
-                                        enablePointerTrail.value ->
+                                        enablePointerTrail ->
                                             pointerTrailState.forKey(keyPosition.value)
 
                                         else -> null
@@ -371,6 +377,7 @@ fun Keyboard(
                                     }
                                 },
                                 keyboardState = keyboardState,
+                                fieldType = fieldType,
                                 modifier = when {
                                     key.fixedWidth != null -> Modifier.fixedWidth(key.fixedWidth)
                                     else -> Modifier.colspan(key.colspan)
@@ -388,7 +395,7 @@ fun Keyboard(
                 }
             },
         )
-        if (enablePointerTrail.value) {
+        if (enablePointerTrail) {
             PointerTrail(Modifier.matchParentSize(), pointerTrailState)
         }
     }
@@ -397,6 +404,7 @@ fun Keyboard(
 @Composable
 fun ConfiguredKeyboard(
     onAction: OnAction?,
+    fieldType: FieldType,
     modifier: Modifier = Modifier,
     enterActionOverride: EnterActionOverride? = null,
     onModifierStateUpdated: (ModifierState) -> Unit = {},
@@ -411,6 +419,7 @@ fun ConfiguredKeyboard(
             ?: enabledLetterLayers.firstOrNull()?.layout
             ?: EN_MESSAGEASE,
         onAction = onAction,
+        fieldType = fieldType,
         modifier = modifier,
         enterActionOverride = enterActionOverride,
         onModifierStateUpdated = onModifierStateUpdated,
@@ -428,6 +437,7 @@ fun KeyboardLayoutPreview(layout: Layout, showAllModifiers: Boolean = false) {
             layout = layout,
             showAllModifiers = showAllModifiers,
             onAction = { _, _, _ -> true },
+            fieldType = FieldType.Regular,
         )
     }
 }
@@ -448,6 +458,7 @@ fun KeyboardPreview() {
                         lastAction = action
                         true
                     },
+                    fieldType = FieldType.Regular,
                 )
             }
         }
@@ -471,6 +482,7 @@ fun PlayKeyboardPreview() {
                         lastAction = action
                         true
                     },
+                    fieldType = FieldType.Regular,
                 )
             }
         }
