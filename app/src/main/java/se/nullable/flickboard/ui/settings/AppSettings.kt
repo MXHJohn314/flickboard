@@ -2,6 +2,7 @@ package se.nullable.flickboard.ui.settings
 
 import android.content.SharedPreferences
 import android.view.ViewConfiguration
+import androidx.annotation.StringRes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -782,7 +783,9 @@ object AppSettings {
     val all =
         listOf(
             SettingsSection(
-                key = "system", label = "System", icon = R.drawable.baseline_warning_24,
+                key = "system",
+                label = R.string.settingsGroup_system,
+                icon = R.drawable.baseline_warning_24,
                 hidden = true,
                 settings = listOf(
                     settingsVersion,
@@ -791,14 +794,18 @@ object AppSettings {
                 ),
             ),
             SettingsSection(
-                key = "deprecated", label = "Deprecated", icon = R.drawable.baseline_warning_24,
+                key = "deprecated",
+                label = R.string.settingsGroup_deprecated,
+                icon = R.drawable.baseline_warning_24,
                 hidden = true,
                 settings = listOf(
                     digitOnClockwiseCircle, digitOnCounterClockwiseCircle,
                 ),
             ),
             SettingsSection(
-                key = "layout", label = "Layout", icon = R.drawable.baseline_apps_24,
+                key = "layout",
+                label = R.string.settingsGroup_layout,
+                icon = R.drawable.baseline_apps_24,
                 settings = listOf(
                     letterLayers,
                     secondaryLetterLayer,
@@ -819,7 +826,9 @@ object AppSettings {
                 ),
             ),
             SettingsSection(
-                key = "aesthetics", label = "Aesthetics", icon = R.drawable.baseline_palette_24,
+                key = "aesthetics",
+                label = R.string.settingsGroup_aesthetics,
+                icon = R.drawable.baseline_palette_24,
                 settings = listOf(
                     showLetters,
                     showSymbols,
@@ -841,7 +850,7 @@ object AppSettings {
             ),
             SettingsSection(
                 key = "behaviour",
-                label = "Behaviour",
+                label = R.string.settingsGroup_behaviour,
                 icon = R.drawable.baseline_app_settings_alt_24,
                 settings = listOf(
                     enableFastActions,
@@ -864,7 +873,9 @@ object AppSettings {
                 ),
             ),
             SettingsSection(
-                key = "feedback", label = "Feedback", icon = R.drawable.baseline_vibration_24,
+                key = "feedback",
+                label = R.string.settingsGroup_feedback,
+                icon = R.drawable.baseline_vibration_24,
                 settings = listOf(
                     enableHapticFeedbackOnGestureStart,
                     enableHapticFeedbackOnGestureSuccess,
@@ -876,7 +887,7 @@ object AppSettings {
             ),
             SettingsSection(
                 key = "workarounds",
-                label = "Workarounds",
+                label = R.string.settingsGroup_workarounds,
                 icon = R.drawable.baseline_bug_report_24,
                 settings = listOf(
                     dropLastGesturePoint,
@@ -889,7 +900,7 @@ object AppSettings {
             ),
             SettingsSection(
                 key = "privacy",
-                label = "Privacy",
+                label = R.string.settingsGroup_privacy,
                 icon = R.drawable.baseline_fingerprint_24,
                 settings = listOf(
                     saveEmojiHistory,
@@ -901,7 +912,7 @@ object AppSettings {
 
 data class SettingsSection(
     val key: String,
-    val label: String,
+    @param:StringRes val label: Int,
     val icon: Int,
     val settings: List<SettingMeta<*>>,
     val hidden: Boolean = false,

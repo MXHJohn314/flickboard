@@ -238,7 +238,7 @@ class MainActivity : ComponentActivity() {
                                         Scaffold(
                                             topBar = {
                                                 TopAppBar(
-                                                    title = { Text(settingsSection.label) },
+                                                    title = { Text(stringResource(settingsSection.label)) },
                                                     navigationIcon = { NavigateUpIcon(navController) },
                                                 )
                                             },

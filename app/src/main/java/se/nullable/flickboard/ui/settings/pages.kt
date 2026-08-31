@@ -100,14 +100,14 @@ fun SettingsHomePage(
                 )
             }
             item {
-                Title("Settings")
+                Title(stringResource(R.string.home_settings))
             }
             items(AppSettings.all, key = { it.key }) { section ->
                 if (!section.hidden) {
                     MenuPageLink(
                         onClick = { onNavigateToSection(section) },
                         icon = painterResource(section.icon),
-                        label = section.label,
+                        label = stringResource(section.label),
                     )
                 }
             }
@@ -135,7 +135,7 @@ fun SettingsHomePage(
                 )
             }
             item {
-                Title("About")
+                Title(stringResource(R.string.home_about))
                 // These constants will depend on the build config
                 @Suppress("KotlinConstantConditions", "SimplifyBooleanWithConstants")
                 val variant = when {
