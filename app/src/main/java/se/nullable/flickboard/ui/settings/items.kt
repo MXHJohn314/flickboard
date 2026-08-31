@@ -480,7 +480,7 @@ fun RowScope.SettingLabel(setting: SettingMeta<*>) {
         val description = setting.description
         if (description != null) {
             Text(
-                text = description,
+                text = stringResource(description),
                 softWrap = true,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7F),
                 fontWeight = FontWeight.Light,

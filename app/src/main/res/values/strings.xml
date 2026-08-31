@@ -31,6 +31,7 @@
     <string name="setting_layout">Letter layouts</string>
     <string name="setting_activeLetterLayerIndex" translatable="false">Active letter layer index</string>
     <string name="setting_secondaryLetterLayer">Secondary letter layout</string>
+    <string name="setting_secondaryLetterLayer_desc">Only applies when using double letter layers</string>
     <string name="setting_numericLayer">Number layout</string>
     <string name="setting_enabledLayers">Enabled layers</string>
     <string name="setting_enabledLayersLandscape">Enabled layers (landscape)</string>
@@ -43,7 +44,9 @@
     <string name="setting_portraitLocation">Portrait location</string>
     <string name="setting_portraitScale">Portrait scale</string>
     <string name="setting_showLetters">Show letters</string>
+    <string name="setting_showLetters_desc">Can also be toggled by swiping up from spacebar</string>
     <string name="setting_showSymbols">Show symbols</string>
+    <string name="setting_showSymbols_desc">Can also be toggled by swiping up-then-down from spacebar</string>
     <string name="setting_enableToggleShowSymbolsGesture">Enable toggle show symbols/letters gestures</string>
     <string name="setting_showNumbers">Show numbers</string>
     <string name="setting_enableHiddenActions">Enable hidden actions</string>
@@ -55,6 +58,7 @@
     <string name="setting_actionVisualBiasCenter">Center key label scale</string>
     <string name="setting_actionVisualScale">Key label scale</string>
     <string name="setting_keyColour">Key colour</string>
+    <string name="setting_keyColour_attrib_desc">Only applies when using a custom colour</string>
     <string name="setting_keyColourChroma">Key colour saturation</string>
     <string name="setting_keyColourTone">Key colour brightness</string>
     <string name="setting_keyOpacity">Key opacity</string>
@@ -62,11 +66,16 @@
     <string name="setting_backgroundImage">Background image</string>
     <string name="setting_enablePointerTrail">Enable pointer trail</string>
     <string name="setting_enableFastActions">Enable fast actions</string>
+    <string name="setting_enableFastActions_desc">Allows certain actions to be performed before the tap is released</string>
     <string name="setting_enableLongSwipes">Enable long swipes</string>
+    <string name="setting_enableLongSwipes_desc">Enables shortcut actions on extra long swipes</string>
     <string name="setting_longSwipeThreshold">Long swipe threshold</string>
     <string name="setting_enableAdvancedModifiers">Enable advanced modifiers</string>
+    <string name="setting_enableAdvancedModifiers_desc">Allows ctrl and alt modifiers to be toggled by swiping diagonally from space</string>
     <string name="setting_stickyModifiers">Sticky modifiers</string>
+    <string name="setting_stickyModifiers_desc">When disabled, ctrl and alt modifiers are automatically cleared after typing a letter. When enabled, they must be cleared manually.</string>
     <string name="setting_periodOnDoubleSpace">Period on double space</string>
+    <string name="setting_periodOnDoubleSpace_desc">Convert \"  \" into \". \"</string>
     <string name="setting_digitOnClockwiseCircle" translatable="false">Type digit on clockwise circle</string>
     <string name="setting_digitOnCounterClockwiseCircle" translatable="false">Type digit on counter-clockwise circle</string>
     <string name="setting_clockwiseCircleBehaviour">Clockwise circle behaviour</string>
@@ -74,13 +83,19 @@
     <string name="setting_longHoldThresholdMillis">Long hold duration threshold</string>
     <string name="setting_longHoldBehaviour">Long hold behaviour</string>
     <string name="setting_disabledDeadkeys">Disabled deadkeys</string>
+    <string name="setting_disabledDeadkeys_desc">Special characters that should never be merged into the previous character</string>
     <string name="setting_keyHeight">Key height</string>
     <string name="setting_swipeThreshold">Swipe threshold</string>
+    <string name="setting_swipeThreshold_desc">How far you need to drag before a tap becomes a swipe</string>
     <string name="setting_fastSwipeTreshold">Fast swipe threshold</string>
+    <string name="setting_fastSwipeTreshold_desc">How far you need to drag between each fast action tick</string>
     <string name="setting_gestureRecognizer">Gesture recognizer</string>
     <string name="setting_circleJaggednessThreshold">Circle jaggedness threshold</string>
+    <string name="setting_circleJaggednessThreshold_desc">How smooth a circle\'s radius must be</string>
     <string name="setting_circleDiscontinuityThreshold">Circle discontinuity threshold</string>
+    <string name="setting_circleDiscontinuityThreshold_desc">How much a circle\'s angle is allowed to jump</string>
     <string name="setting_circleAngleThreshold">Circle angle threshold</string>
+    <string name="setting_circleAngleThreshold_desc">How full the circle must be to be detected</string>
     <string name="setting_enableHapticFeedbackOnGestureStart">Vibrate on gesture start</string>
     <string name="setting_enableHapticFeedback">Vibrate on gesture finish</string>
     <string name="setting_enableVisualFeedback">Highlight taken actions</string>
@@ -88,14 +103,22 @@
     <string name="setting_visualFeedbackInvertColourScheme">Make visual highlight extra prominent</string>
     <string name="setting_enableKeyboardPreview" translatable="false">Enable keyboard preview</string>
     <string name="setting_dropLastGesturePoint">Ignore last gesture point</string>
+    <string name="setting_dropLastGesturePoint_desc">This can help against some devices that insert erroneous motion at the end of gestures</string>
     <string name="setting_ignoreJumpsLongerThanPx">Ignore jumps larger than limit</string>
+    <string name="setting_ignoreJumpsLongerThanPx_desc">This can help against some devices that insert erroneous motion in the middle of gestures, at the cost of sometimes causing misinput if the device lags</string>
     <string name="setting_flicksMustBeLongerThanSeconds">Swipes must be longer than limit</string>
+    <string name="setting_flicksMustBeLongerThanSeconds_desc">All gestures shorter than the limit will be forcibly interpreted as taps, rather than swipes</string>
     <string name="setting_noReverseRtlBrackets">Do not reverse brackets in right-to-left languages</string>
+    <string name="setting_noReverseRtlBrackets_desc">This is required for the correct brackets to be typed on some devices (especially Samsung)</string>
     <string name="setting_enableCustomHaptics">Enable custom vibration</string>
+    <string name="setting_enableCustomHaptics_desc">This is required for some devices that ship broken vibration profiles that aren\'t strong enough to notice</string>
     <string name="setting_customHapticsDuration">Custom vibration duration</string>
+    <string name="setting_customHapticsDuration_desc">Only used when custom vibration is enabled</string>
     <string name="setting_emojiHistory" translatable="false">Emoji history</string>
     <string name="setting_saveEmojiHistory">Remember recent emojis</string>
+    <string name="setting_saveEmojiHistory_desc">History is only saved locally, and will not be shared.</string>
     <string name="setting_saveClipboardHistory">Save clipboard history</string>
+    <string name="setting_saveClipboardHistory_desc">History is only saved locally, and will not be shared.\nClipboard entries marked as \"sensitive\" will not be stored, but this requires the sharing app to know that it is sensitive.</string>
     <string name="setting_clipboardHistoryShowPinned" translatable="false">Clipboard History: Show Pinned</string>
     <string name="setting_clipboardHistoryShowHistory" translatable="false">Clipboard History: Show History</string>
     <string name="setting_clipboardHistoryShowTips" translatable="false">Clipboard History: Show Tips</string>
