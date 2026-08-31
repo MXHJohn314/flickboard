@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FlickBoard</string>
+    <string name="app_name" translatable="false">FlickBoard</string>
 
     <string name="page_tutorial">Tutorial</string>
     <string name="page_keyboardDescriber">What Does This Do?</string>
