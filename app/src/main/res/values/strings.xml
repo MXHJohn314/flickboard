@@ -125,4 +125,9 @@
     <string name="setting_zalgoSubstitutionsShowCustom" translatable="false">Zalgo Substitutions: Show Custom</string>
     <string name="setting_zalgoSubstitutionsShowDefault" translatable="false">Zalgo Substitutions: Show Default</string>
     <string name="setting_zalgoSubstitutionsShowTips" translatable="false">Zalgo Substitutions: Show Tips</string>
+
+    <string name="onboarding_keyboardNotEnabled">Keyboard not enabled</string>
+    <string name="onboarding_keyboardNotEnabled_desc">The keyboard must be enabled before it can be used. Tap here to enable it.\nYou can still try it in the preview below.</string>
+    <string name="onboarding_keyboardNotSelected">Keyboard not selected</string>
+    <string name="onboarding_keyboardNotSelected_desc">The keyboard must be selected as you active input method before it can be used. Tap here to open the picker.</string>
 </resources>
