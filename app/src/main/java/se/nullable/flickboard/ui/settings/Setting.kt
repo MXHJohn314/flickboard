@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.JsonReader
 import android.util.JsonToken
 import android.util.JsonWriter
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
@@ -174,7 +175,9 @@ interface SettingProjection<T> {
 
 sealed class SettingMeta<T> : SettingProjection<T> {
     abstract val key: String
-    abstract val label: String
+
+    @get:StringRes
+    abstract val label: Int
     abstract val description: String?
 
     override fun observesKey(key: String?): Boolean = key == this.key
@@ -196,7 +199,7 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class Bool(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val defaultValue: Boolean,
         override val description: String? = null,
         val onChange: (SettingsContext.Editor, Boolean) -> Unit = { _, _ -> },
@@ -217,7 +220,7 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class Integer(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val defaultValue: Int,
         override val description: String? = null,
     ) : SettingMeta<Int>() {
@@ -236,7 +239,7 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class Text(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val defaultValue: String,
         override val description: String? = null,
         val placeholder: String? = null,
@@ -256,7 +259,7 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class FloatSlider(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val defaultValue: Float,
         val range: ClosedFloatingPointRange<Float>,
         override val description: String? = null,
@@ -282,7 +285,7 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class EnumList<T : Labeled>(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val defaultValue: List<T>,
         val options: List<T>,
         /** Should be [tryEnumValueOf] */
@@ -319,7 +322,7 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class Enum<T : Labeled>(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val defaultValue: T,
         val options: List<T>,
         /** Should be [tryEnumValueOf]<T> */
@@ -344,7 +347,7 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class Image(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val cacheFileName: String,
         val scalingTarget: ImageScalingTarget,
         override val description: String? = null,
@@ -366,7 +369,7 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class Colour(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         override val description: String? = null,
     ) : SettingMeta<Color?>() {
         override fun readFrom(ctx: SettingsContext): Color? =

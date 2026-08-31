@@ -54,6 +54,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -475,7 +476,7 @@ fun RowScope.SettingLabel(setting: SettingMeta<*>) {
             .weight(1f, false)
             .padding(end = 8.dp),
     ) {
-        Text(text = setting.label)
+        Text(text = stringResource(setting.label))
         val description = setting.description
         if (description != null) {
             Text(

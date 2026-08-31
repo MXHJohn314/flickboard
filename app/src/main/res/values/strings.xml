@@ -25,4 +25,81 @@
     <string name="settingsGroup_feedback">Feedback</string>
     <string name="settingsGroup_workarounds">Workarounds</string>
     <string name="settingsGroup_privacy">Privacy</string>
+
+    <string name="setting_settingsVersion" translatable="false">Settings format version</string>
+    <string name="setting_hasCompletedTutorial" translatable="false">Has completed tutorial</string>
+    <string name="setting_layout">Letter layouts</string>
+    <string name="setting_activeLetterLayerIndex" translatable="false">Active letter layer index</string>
+    <string name="setting_secondaryLetterLayer">Secondary letter layout</string>
+    <string name="setting_numericLayer">Number layout</string>
+    <string name="setting_enabledLayers">Enabled layers</string>
+    <string name="setting_enabledLayersLandscape">Enabled layers (landscape)</string>
+    <string name="setting_handedness">Handedness</string>
+    <string name="setting_invertSwipeDelete">Invert delete-swipe direction</string>
+    <string name="setting_landscapeLocation">Landscape location</string>
+    <string name="setting_landscapeScale">Landscape scale</string>
+    <string name="setting_landscapeSplit">Landscape split</string>
+    <string name="setting_landscapeControlSection">Control section mode in landscape</string>
+    <string name="setting_portraitLocation">Portrait location</string>
+    <string name="setting_portraitScale">Portrait scale</string>
+    <string name="setting_showLetters">Show letters</string>
+    <string name="setting_showSymbols">Show symbols</string>
+    <string name="setting_enableToggleShowSymbolsGesture">Enable toggle show symbols/letters gestures</string>
+    <string name="setting_showNumbers">Show numbers</string>
+    <string name="setting_enableHiddenActions">Enable hidden actions</string>
+    <string name="setting_keyboardMargin">Keyboard margin</string>
+    <string name="setting_keyboardMarginBottomPortrait">Keyboard bottom margin (portrait)</string>
+    <string name="setting_keyRoundness">Key roundness</string>
+    <string name="setting_keyGap">Key gap</string>
+    <string name="setting_keyOutline">Key outline</string>
+    <string name="setting_actionVisualBiasCenter">Center key label scale</string>
+    <string name="setting_actionVisualScale">Key label scale</string>
+    <string name="setting_keyColour">Key colour</string>
+    <string name="setting_keyColourChroma">Key colour saturation</string>
+    <string name="setting_keyColourTone">Key colour brightness</string>
+    <string name="setting_keyOpacity">Key opacity</string>
+    <string name="setting_backgroundOpacity">Background opacity</string>
+    <string name="setting_backgroundImage">Background image</string>
+    <string name="setting_enablePointerTrail">Enable pointer trail</string>
+    <string name="setting_enableFastActions">Enable fast actions</string>
+    <string name="setting_enableLongSwipes">Enable long swipes</string>
+    <string name="setting_longSwipeThreshold">Long swipe threshold</string>
+    <string name="setting_enableAdvancedModifiers">Enable advanced modifiers</string>
+    <string name="setting_stickyModifiers">Sticky modifiers</string>
+    <string name="setting_periodOnDoubleSpace">Period on double space</string>
+    <string name="setting_digitOnClockwiseCircle" translatable="false">Type digit on clockwise circle</string>
+    <string name="setting_digitOnCounterClockwiseCircle" translatable="false">Type digit on counter-clockwise circle</string>
+    <string name="setting_clockwiseCircleBehaviour">Clockwise circle behaviour</string>
+    <string name="setting_counterClockwiseCircleBehaviour">Counter-clockwise circle behaviour</string>
+    <string name="setting_longHoldThresholdMillis">Long hold duration threshold</string>
+    <string name="setting_longHoldBehaviour">Long hold behaviour</string>
+    <string name="setting_disabledDeadkeys">Disabled deadkeys</string>
+    <string name="setting_keyHeight">Key height</string>
+    <string name="setting_swipeThreshold">Swipe threshold</string>
+    <string name="setting_fastSwipeTreshold">Fast swipe threshold</string>
+    <string name="setting_gestureRecognizer">Gesture recognizer</string>
+    <string name="setting_circleJaggednessThreshold">Circle jaggedness threshold</string>
+    <string name="setting_circleDiscontinuityThreshold">Circle discontinuity threshold</string>
+    <string name="setting_circleAngleThreshold">Circle angle threshold</string>
+    <string name="setting_enableHapticFeedbackOnGestureStart">Vibrate on gesture start</string>
+    <string name="setting_enableHapticFeedback">Vibrate on gesture finish</string>
+    <string name="setting_enableVisualFeedback">Highlight taken actions</string>
+    <string name="setting_disableVisualFeedbackForPasswords">Disable visual feedback (and pointer trails) for password fields</string>
+    <string name="setting_visualFeedbackInvertColourScheme">Make visual highlight extra prominent</string>
+    <string name="setting_enableKeyboardPreview">Enable keyboard preview</string>
+    <string name="setting_dropLastGesturePoint">Ignore last gesture point</string>
+    <string name="setting_ignoreJumpsLongerThanPx">Ignore jumps larger than limit</string>
+    <string name="setting_flicksMustBeLongerThanSeconds">Swipes must be longer than limit</string>
+    <string name="setting_noReverseRtlBrackets">Do not reverse brackets in right-to-left languages</string>
+    <string name="setting_enableCustomHaptics">Enable custom vibration</string>
+    <string name="setting_customHapticsDuration">Custom vibration duration</string>
+    <string name="setting_emojiHistory" translatable="false">Emoji history</string>
+    <string name="setting_saveEmojiHistory">Remember recent emojis</string>
+    <string name="setting_saveClipboardHistory">Save clipboard history</string>
+    <string name="setting_clipboardHistoryShowPinned" translatable="false">Clipboard History: Show Pinned</string>
+    <string name="setting_clipboardHistoryShowHistory" translatable="false">Clipboard History: Show History</string>
+    <string name="setting_clipboardHistoryShowTips" translatable="false">Clipboard History: Show Tips</string>
+    <string name="setting_zalgoSubstitutionsShowCustom" translatable="false">Zalgo Substitutions: Show Custom</string>
+    <string name="setting_zalgoSubstitutionsShowDefault" translatable="false">Zalgo Substitutions: Show Default</string>
+    <string name="setting_zalgoSubstitutionsShowTips" translatable="false">Zalgo Substitutions: Show Tips</string>
 </resources>
