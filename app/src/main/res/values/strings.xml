@@ -86,7 +86,7 @@
     <string name="setting_enableVisualFeedback">Highlight taken actions</string>
     <string name="setting_disableVisualFeedbackForPasswords">Disable visual feedback (and pointer trails) for password fields</string>
     <string name="setting_visualFeedbackInvertColourScheme">Make visual highlight extra prominent</string>
-    <string name="setting_enableKeyboardPreview">Enable keyboard preview</string>
+    <string name="setting_enableKeyboardPreview" translatable="false">Enable keyboard preview</string>
     <string name="setting_dropLastGesturePoint">Ignore last gesture point</string>
     <string name="setting_ignoreJumpsLongerThanPx">Ignore jumps larger than limit</string>
     <string name="setting_flicksMustBeLongerThanSeconds">Swipes must be longer than limit</string>
