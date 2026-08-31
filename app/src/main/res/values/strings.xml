@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">FlickBoard</string>
+
+    <string name="page_tutorial">Tutorial</string>
+    <string name="page_keyboardDescriber">What Does This Do?</string>
+    <string name="page_zalgoEditor">Zalgo Macros</string>
+    <string name="page_betaMenu">Beta Options</string>
+    <string name="page_credits">Credits</string>
+
+    <string name="link_zulip">Discuss on Zulip</string>
+    <string name="link_sourcecode">View Source on Codeberg</string>
+    <string name="link_issues">Report Bugs on Codeberg</string>
+
+    <string name="tutorial_skip">SKIP</string>
+
+    <string name="home_testPad">Type here to try FlickBoard</string>
 </resources>

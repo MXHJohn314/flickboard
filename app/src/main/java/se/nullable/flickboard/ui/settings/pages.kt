@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
@@ -88,14 +89,14 @@ fun SettingsHomePage(
                 MenuPageLink(
                     onClick = onNavigateToTutorial,
                     icon = painterResource(R.drawable.baseline_checklist_24),
-                    label = "Tutorial",
+                    label = stringResource(R.string.page_tutorial),
                 )
             }
             item {
                 MenuPageLink(
                     onClick = onNavigateToDescriber,
                     icon = painterResource(R.drawable.baseline_help_24),
-                    label = "What Does This Do?",
+                    label = stringResource(R.string.page_keyboardDescriber),
                 )
             }
             item {
@@ -114,7 +115,7 @@ fun SettingsHomePage(
                 MenuPageLink(
                     onClick = onNavigateToZalgoEditor,
                     icon = painterResource(R.drawable.outline_cell_merge_24),
-                    label = "Zalgo Macros",
+                    label = stringResource(R.string.page_zalgoEditor),
                 )
             }
             item {
@@ -123,7 +124,7 @@ fun SettingsHomePage(
                     onValueChange = { tryText.value = it },
                     label = {
                         Text(
-                            "Type here to try FlickBoard",
+                            stringResource(R.string.home_testPad),
                             Modifier.testTag("testPad"),
                         )
                     },
@@ -174,28 +175,28 @@ fun SettingsHomePage(
                     MenuPageLink(
                         onClick = { onNavigateToBetaMenu() },
                         icon = painterResource(R.drawable.baseline_bug_report_24),
-                        label = "Beta Options",
+                        label = stringResource(R.string.page_betaMenu),
                     )
                 }
                 MenuPageLink(
                     onClick = { onNavigateToCredits() },
                     icon = painterResource(R.drawable.baseline_people_24),
-                    label = "Credits",
+                    label = stringResource(R.string.page_credits),
                 )
                 MenuPageUriLink(
                     uri = "https://zulip.flickboard.natkr.com",
                     icon = painterResource(R.drawable.baseline_chat_24),
-                    label = "Discuss on Zulip",
+                    label = stringResource(R.string.link_zulip),
                 )
                 MenuPageUriLink(
                     uri = "https://codeberg.org/natkr/flickboard",
                     icon = painterResource(id = R.drawable.baseline_code_24),
-                    label = "View Source on Codeberg",
+                    label = stringResource(R.string.link_sourcecode),
                 )
                 MenuPageUriLink(
                     uri = "https://codeberg.org/natkr/flickboard/issues",
                     icon = painterResource(id = R.drawable.baseline_bug_report_24),
-                    label = "Report Bugs on Codeberg",
+                    label = stringResource(R.string.link_issues),
                 )
             }
         }

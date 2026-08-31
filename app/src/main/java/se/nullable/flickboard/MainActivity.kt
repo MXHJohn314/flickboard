@@ -114,7 +114,10 @@ class MainActivity : ComponentActivity() {
                                                     title = {},
                                                     actions = {
                                                         Box(Modifier.clickable(onClick = onFinish)) {
-                                                            Text("SKIP", Modifier.padding(8.dp))
+                                                            Text(
+                                                                stringResource(R.string.tutorial_skip),
+                                                                Modifier.padding(8.dp),
+                                                            )
                                                         }
                                                     },
                                                 )
@@ -187,7 +190,7 @@ class MainActivity : ComponentActivity() {
                                         Scaffold(
                                             topBar = {
                                                 TopAppBar(
-                                                    title = { Text("What Does This Do?") },
+                                                    title = { Text(stringResource(R.string.page_keyboardDescriber)) },
                                                     navigationIcon = { NavigateUpIcon(navController) },
                                                 )
                                             },
@@ -199,7 +202,7 @@ class MainActivity : ComponentActivity() {
                                         Scaffold(
                                             topBar = {
                                                 TopAppBar(
-                                                    title = { Text("Beta Options") },
+                                                    title = { Text(stringResource(R.string.page_betaMenu)) },
                                                     navigationIcon = { NavigateUpIcon(navController) },
                                                 )
                                             },
@@ -211,7 +214,7 @@ class MainActivity : ComponentActivity() {
                                         Scaffold(
                                             topBar = {
                                                 TopAppBar(
-                                                    title = { Text("Credits") },
+                                                    title = { Text(stringResource(R.string.page_credits)) },
                                                     navigationIcon = { NavigateUpIcon(navController) },
                                                 )
                                             },

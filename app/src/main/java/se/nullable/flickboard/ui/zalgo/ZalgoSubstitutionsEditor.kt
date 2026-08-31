@@ -42,6 +42,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
@@ -84,7 +85,7 @@ fun ZalgoSubstitutionsEditor(
         modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Zalgo Macros") },
+                title = { Text(stringResource(R.string.page_zalgoEditor)) },
                 navigationIcon = { navigationIcon() },
                 actions = {
                     IconButton({ composingNewId.modify { it ?: UUID.randomUUID() } }) {
