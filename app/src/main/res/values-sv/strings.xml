@@ -1,3 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="page_keyboardDescriber">Vad Gör Det Här?</string>
+    <string name="page_tutorial">Guide</string>
+    <string name="page_zalgoEditor">Zalgo-Makron</string>
+    <string name="page_betaMenu">Beta-Alternativ</string>
+    <string name="page_credits">Om</string>
+    <string name="link_zulip">Diskutera på Zulip</string>
+    <string name="link_sourcecode">Visa Källkod på Codeberg</string>
+    <string name="link_issues">Rapportera Buggar på Codeberg</string>
+    <string name="tutorial_skip">HOPPA ÖVER</string>
+    <string name="home_testPad">Skriv här för att prova FlickBoard</string>
 </resources>
