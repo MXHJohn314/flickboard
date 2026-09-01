@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -106,7 +107,7 @@ fun KeyboardDescriber(modifier: Modifier = Modifier, initialAction: Action? = nu
                                 else -> Transition.pop
                             }
                         },
-                        label = "action description",
+                        label = stringResource(R.string.keyboardDescriber_actionDescription),
                     ) { (action, _, stackSize) ->
                         ActionDescription(
                             action = action?.first,
@@ -169,7 +170,7 @@ fun ActionDescription(
                     IconButton(onClick = { onNavigateBack() }) {
                         Icon(
                             painterResource(R.drawable.baseline_arrow_back_24),
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                         )
                     }
                 }
@@ -207,7 +208,7 @@ fun ActionDescription(
                         RelatedAction(
                             fastAction,
                             painterResource(R.drawable.baseline_speed_24),
-                            "Fast Action",
+                            stringResource(R.string.fastAction),
                             gesture = flick,
                         ),
                     )
@@ -218,7 +219,7 @@ fun ActionDescription(
                     withModifiers.add(
                         RelatedAction(
                             shiftAction,
-                            label = "Shift",
+                            label = stringResource(R.string.shift),
                             icon = when {
                                 // Only show transient shift icon for regular shift if there is no
                                 // transient shift action that shadows it
@@ -238,7 +239,7 @@ fun ActionDescription(
                         RelatedAction(
                             transientShiftAction,
                             transientShiftIcon,
-                            "Transient Shift",
+                            stringResource(R.string.transientShift),
                             gesture = flick.copy(shift = true),
                             iconModifier = transientShiftIconModifier,
                         ),
@@ -249,7 +250,7 @@ fun ActionDescription(
                         RelatedAction(
                             key.holdAction,
                             painterResource(R.drawable.baseline_file_download_24),
-                            "Hold",
+                            stringResource(R.string.hold),
                             gesture = flick.copy(longHold = true),
                         ),
                     )
@@ -261,7 +262,7 @@ fun ActionDescription(
                                 Action.TransientShift,
                                 transientShiftIcon,
                                 iconModifier = transientShiftIconModifier,
-                                label = "Reach",
+                                label = stringResource(R.string.reach),
                                 gesture = null,
                             ),
                         )
@@ -270,8 +271,8 @@ fun ActionDescription(
                         relatedActions.add(
                             RelatedAction(
                                 Action.ToggleShift(ShiftState.Shift),
-                                painterResource(R.drawable.baseline_arrow_drop_up_24),
-                                "Reach",
+                                icon = painterResource(R.drawable.baseline_arrow_drop_up_24),
+                                label = stringResource(R.string.reach),
                                 gesture = null,
                             ),
                         )
@@ -322,12 +323,18 @@ fun ActionDescription(
                         }
                     }
                 }
-                RelatedActions("With modifiers:", withModifiers)
-                RelatedActions("Related gestures:", relatedActions)
+                RelatedActions(
+                    stringResource(R.string.keyboardDescriber_withModifiers),
+                    withModifiers,
+                )
+                RelatedActions(
+                    stringResource(R.string.keyboardDescriber_relatedGestures),
+                    relatedActions,
+                )
             }
         }
     } else {
-        BodyPlaceholder("Perform a gesture to see what it does!", Modifier.fillMaxWidth())
+        BodyPlaceholder(stringResource(R.string.keyboardDescriber_try), Modifier.fillMaxWidth())
     }
 }
 

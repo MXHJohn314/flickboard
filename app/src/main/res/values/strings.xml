@@ -147,7 +147,19 @@
     <string name="onboarding_keyboardNotSelected">Keyboard not selected</string>
     <string name="onboarding_keyboardNotSelected_desc">The keyboard must be selected as you active input method before it can be used. Tap here to open the picker.</string>
 
+    <string name="back">Back</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
     <string name="pageIndicator">page indicator</string>
+
+    <string name="fastAction">Fast Action</string>
+    <string name="shift">Shift</string>
+    <string name="transientShift">Transient Shift</string>
+    <string name="hold">Hold</string>
+    <string name="reach">Reach</string>
+
+    <string name="keyboardDescriber_actionDescription">action description</string>
+    <string name="keyboardDescriber_withModifiers">With modifiers:</string>
+    <string name="keyboardDescriber_relatedGestures">Related gestures:</string>
+    <string name="keyboardDescriber_try">Perform a gesture to see what it does!</string>
 </resources>
