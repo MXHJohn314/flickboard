@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -78,13 +79,15 @@ fun ClipboardHistoryViewer(
     val listState = rememberLazyListState()
 
     val undoableDeletedEntries = remember { mutableStateListOf<ClipboardEntry>() }
+    val deletedString = stringResource(R.string.deleted)
+    val undoString = stringResource(R.string.undo)
     LaunchedEffect(undoableDeletedEntries.lastOrNull(), undoableDeletedEntries.size) {
         // Specifically not storing entry here, since we don't want to capture a specific value
         // until the user has responded.
         if (undoableDeletedEntries.isNotEmpty()) {
             val snackbarResult = snackbarHostState.showSnackbar(
-                "Deleted",
-                actionLabel = "Undo",
+                deletedString,
+                actionLabel = undoString,
                 withDismissAction = true,
             )
             if (snackbarResult == SnackbarResult.ActionPerformed) {
@@ -109,10 +112,13 @@ fun ClipboardHistoryViewer(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     IconButton(onClick = navigateUp) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Return to keyboard")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            stringResource(R.string.returnToKeyboard),
+                        )
                     }
 
-                    PageTitle("Clipboard", Modifier.weight(1F))
+                    PageTitle(stringResource(R.string.clipboard), Modifier.weight(1F))
 
                     IconButton(
                         onClick = {
@@ -125,11 +131,17 @@ fun ClipboardHistoryViewer(
                         },
                         enabled = unpinnedEntries.itemCount > 0,
                     ) {
-                        Icon(painterResource(R.drawable.outline_delete_sweep_24), "Delete all")
+                        Icon(
+                            painterResource(R.drawable.outline_delete_sweep_24),
+                            stringResource(R.string.deleteAll),
+                        )
                     }
 
                     IconButton(onClick = { addingNewEntry.value = true }) {
-                        Icon(painterResource(R.drawable.baseline_add_24), "Add")
+                        Icon(
+                            painterResource(R.drawable.baseline_add_24),
+                            stringResource(R.string.add),
+                        )
                     }
                 }
             }
@@ -157,6 +169,15 @@ fun ClipboardHistoryViewer(
                 )
             }
 
+            val pinnedLabel = stringResource(R.string.clipboard_pinned)
+            val historyLabel = stringResource(R.string.clipboard_history)
+            val tipsLabel = stringResource(R.string.tips)
+            val tips = listOf(
+                stringResource(R.string.clipboard_history_tips_copied),
+                stringResource(R.string.clipboard_history_tips_limit, clipboardHistorySize),
+                stringResource(R.string.clipboard_history_tips_insert),
+                stringResource(R.string.clipboard_history_tips_actions),
+            )
             LazyColumn(
                 Modifier
                     .height(200.dp)
@@ -174,7 +195,7 @@ fun ClipboardHistoryViewer(
 
                 if (pinnedEntries.itemCount > 0) {
                     collapsibleListHeader(
-                        "Pinned",
+                        pinnedLabel,
                         expanded = showPinned.value,
                         onSetExpanded = showPinned::value::set,
                     )
@@ -204,7 +225,7 @@ fun ClipboardHistoryViewer(
                 // the visible top item is deleted and restored it will reappear within the visible
                 // area.
                 collapsibleListHeader(
-                    "History",
+                    historyLabel,
                     expanded = showHistory.value,
                     onSetExpanded = showHistory::value::set,
                 )
@@ -215,9 +236,9 @@ fun ClipboardHistoryViewer(
                             ClipboardEntryCard(
                                 when {
                                     clipboardHistoryEnabled.value ->
-                                        "The history is empty, go and copy something!"
+                                        stringResource(R.string.clipboard_history_empty)
 
-                                    else -> "Clipboard history is disabled."
+                                    else -> stringResource(R.string.clipboard_history_disabled)
                                 },
                                 onClick = null,
                                 modifier = Modifier.animateItem(),
@@ -242,17 +263,11 @@ fun ClipboardHistoryViewer(
                 }
 
                 collapsibleListHeader(
-                    "Tips",
+                    tipsLabel,
                     expanded = showTips.value,
                     onSetExpanded = showTips::value::set,
                 )
                 if (showTips.value) {
-                    val tips = listOf(
-                        "Any text copied (while clipboard history is enabled) will be saved here.",
-                        "Only the $clipboardHistorySize most recent unpinned items will be kept.",
-                        "An item can be inserted by tapping it.",
-                        "Items can be pinned, copied, or deleted by swiping them to the side.",
-                    )
                     items(tips) { tip ->
                         ClipboardEntryCard(tip, onClick = null, Modifier.animateItem())
                     }

@@ -151,6 +151,18 @@
     <string name="previous">Previous</string>
     <string name="next">Next</string>
     <string name="pageIndicator">page indicator</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="copy">Copy</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="deleted">Deleted</string>
+    <string name="deleteAll">Delete all</string>
+    <string name="undo">Undo</string>
+    <string name="add">Add</string>
+    <string name="tips">Tips</string>
+    <string name="loadingPlaceholder">(loading)</string>
+    <string name="returnToKeyboard">Return to keyboard</string>
 
     <string name="fastAction">Fast Action</string>
     <string name="shift">Shift</string>
@@ -162,4 +174,17 @@
     <string name="keyboardDescriber_withModifiers">With modifiers:</string>
     <string name="keyboardDescriber_relatedGestures">Related gestures:</string>
     <string name="keyboardDescriber_try">Perform a gesture to see what it does!</string>
+
+    <string name="clipboard">Clipboard</string>
+    <string name="clipboard_copied">Copied \"%1$s\"</string>
+    <string name="clipboard_pin">Pin</string>
+    <string name="clipboard_unpin">Unpin</string>
+    <string name="clipboard_pinned">Pinned</string>
+    <string name="clipboard_history">History</string>
+    <string name="clipboard_history_empty">The history is empty, go and copy something!</string>
+    <string name="clipboard_history_disabled">Clipboard history is disabled.</string>
+    <string name="clipboard_history_tips_copied">Any text copied (while clipboard history is enabled) will be saved here.</string>
+    <string name="clipboard_history_tips_limit">Only the %1$d most recent unpinned items will be kept.</string>
+    <string name="clipboard_history_tips_insert">An item can be inserted by tapping it.</string>
+    <string name="clipboard_history_tips_actions">Items can be pinned, copied, or deleted by swiping them to the side.</string>
 </resources>

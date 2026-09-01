@@ -34,7 +34,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -96,10 +98,16 @@ fun ClipboardEntryCard(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         IconButton(onClick = { onEditDone(null) }) {
-                            Icon(painterResource(R.drawable.baseline_clear_24), "Cancel")
+                            Icon(
+                                painterResource(R.drawable.baseline_clear_24),
+                                stringResource(R.string.cancel),
+                            )
                         }
                         IconButton(onClick = { onEditDone(editedClipData.value.text) }) {
-                            Icon(painterResource(R.drawable.baseline_check_24), "Save")
+                            Icon(
+                                painterResource(R.drawable.baseline_check_24),
+                                stringResource(R.string.save),
+                            )
                         }
                     }
                 }
@@ -180,6 +188,7 @@ fun LazyItemScope.ClipboardEntryItem(
                             },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
+                            val resources = LocalResources.current
                             IconButton(
                                 onClick = {
                                     currentEntry.value?.let {
@@ -197,7 +206,10 @@ fun LazyItemScope.ClipboardEntryItem(
                                             // see https://developer.android.com/develop/ui/compose/touch-input/copy-and-paste#feedback_to_copying_content
                                             if (android.os.Build.VERSION.SDK_INT < 33) {
                                                 snackbarHostState.showSnackbar(
-                                                    "Copied \"${it.clipData}\"",
+                                                    resources.getString(
+                                                        R.string.clipboard_copied,
+                                                        it.clipData,
+                                                    ),
                                                     withDismissAction = true,
                                                 )
                                             }
@@ -210,7 +222,7 @@ fun LazyItemScope.ClipboardEntryItem(
                             ) {
                                 Icon(
                                     painterResource(R.drawable.baseline_content_copy_24),
-                                    "Copy",
+                                    stringResource(R.string.copy),
                                 )
                             }
                             IconButton(
@@ -229,12 +241,12 @@ fun LazyItemScope.ClipboardEntryItem(
                                 when {
                                     entry?.pinned == true -> Icon(
                                         painterResource(R.drawable.outline_keep_off_24),
-                                        "Unpin",
+                                        stringResource(R.string.clipboard_unpin),
                                     )
 
                                     else -> Icon(
                                         painterResource(R.drawable.outline_keep_24),
-                                        "Pin",
+                                        stringResource(R.string.clipboard_pin),
                                     )
                                 }
                             }
@@ -247,7 +259,7 @@ fun LazyItemScope.ClipboardEntryItem(
                             ) {
                                 Icon(
                                     painterResource(R.drawable.baseline_edit_24),
-                                    "Edit",
+                                    stringResource(R.string.edit),
                                 )
                             }
                             IconButton(
@@ -262,7 +274,7 @@ fun LazyItemScope.ClipboardEntryItem(
                             ) {
                                 Icon(
                                     painterResource(R.drawable.baseline_delete_outline_24),
-                                    "Delete",
+                                    stringResource(R.string.delete),
                                 )
                             }
                         }
@@ -273,7 +285,7 @@ fun LazyItemScope.ClipboardEntryItem(
         modifier = Modifier.animateItem(),
     ) {
         ClipboardEntryCard(
-            clipData = entry?.clipData ?: "(loading)",
+            clipData = entry?.clipData ?: stringResource(R.string.loadingPlaceholder),
             onClick = {
                 if (entry != null) {
                     onAction.onAction(
