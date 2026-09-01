@@ -86,7 +86,7 @@
     <string name="setting_stickyModifiers">Sticky modifiers</string>
     <string name="setting_stickyModifiers_desc">When disabled, ctrl and alt modifiers are automatically cleared after typing a letter. When enabled, they must be cleared manually.</string>
     <string name="setting_periodOnDoubleSpace">Period on double space</string>
-    <string name="setting_periodOnDoubleSpace_desc">Convert \" \" into \". \"</string>
+    <string name="setting_periodOnDoubleSpace_desc">"Convert \"  \" into \". \""</string>
     <string name="setting_digitOnClockwiseCircle" translatable="false">Type digit on clockwise circle</string>
     <string name="setting_digitOnCounterClockwiseCircle" translatable="false">Type digit on counter-clockwise circle</string>
     <string name="setting_clockwiseCircleBehaviour">Clockwise circle behaviour</string>
