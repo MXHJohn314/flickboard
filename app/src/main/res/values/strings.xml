@@ -11,7 +11,23 @@
     <string name="link_sourcecode">View Source on Codeberg</string>
     <string name="link_issues">Report Bugs on Codeberg</string>
 
+    <string name="tutorial_title">Welcome to FlickBoard!</string>
+    <string name="tutorial_intro">FlickBoard is a pretty unusual keyboard, so let\'s get you a quick run-down of how to use it.</string>
     <string name="tutorial_skip">SKIP</string>
+    <string name="tutorial_finish">Finish</string>
+    <string name="tutorial_personalization">Personalization</string>
+    <string name="tutorial_handedness">Which side is your dominant hand?</string>
+    <string name="tutorial_typing">Typing</string>
+    <string name="tutorial_typing_instruction_center">To type the character in the middle of a key, tap it.\nTry tapping the key now, to type an o!</string>
+    <string name="tutorial_typing_edge">Typing (edge)</string>
+    <string name="tutorial_typing_instruction_edge">Unlike most other keyboards, FlickBoard keys have multiple characters on them.\nTo type a character at the edge of a key, swipe in that direction.\nTry swiping towards the right from the key, to type a b!</string>
+    <string name="tutorial_typing_corner">Typing (corner)</string>
+    <string name="tutorial_typing_instruction_corner">Characters can also appear at a corner of the key.\nTry swiping towards the bottom-left from key, to type a g!</string>
+    <string name="tutorial_uppercase">Upper-case</string>
+    <string name="tutorial_uppercase_instruction_center">To type an upper-case character in the middle of a key, draw a circle, starting on the key.\nTry typing an upper-case O now!</string>
+    <string name="tutorial_uppercase_edge">Upper-case (edge)</string>
+    <string name="tutorial_uppercase_instruction_edge">To type an upper-case character at an edge, swipe towards it and then return to where you started.\nTry typing an upper-case G now!</string>
+    <string name="tutorial_complete">Great, you\'ve got the hang of it!</string>
 
     <string name="home_testPad">Type here to try FlickBoard</string>
     <string name="home_settings">Settings</string>
@@ -130,4 +146,8 @@
     <string name="onboarding_keyboardNotEnabled_desc">The keyboard must be enabled before it can be used. Tap here to enable it.\nYou can still try it in the preview below.</string>
     <string name="onboarding_keyboardNotSelected">Keyboard not selected</string>
     <string name="onboarding_keyboardNotSelected_desc">The keyboard must be selected as you active input method before it can be used. Tap here to open the picker.</string>
+
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="pageIndicator">page indicator</string>
 </resources>
