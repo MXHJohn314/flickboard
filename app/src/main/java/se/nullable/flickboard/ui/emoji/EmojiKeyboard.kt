@@ -44,9 +44,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -106,7 +107,10 @@ fun EmojiKeyboard(
                     onClick = navigateUp,
                     Modifier.padding(8.dp),
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "Return to keyboard")
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        stringResource(R.string.returnToKeyboard),
+                    )
                 }
                 // Ideally this would be a ScrollableTabRow, but it enforces a massive minimum width
                 Row(
@@ -120,7 +124,7 @@ fun EmojiKeyboard(
                         icon = {
                             Icon(
                                 painterResource(R.drawable.baseline_search_24),
-                                contentDescription = "emoji search",
+                                contentDescription = stringResource(R.string.emoji_search),
                                 Modifier.padding(8.dp),
                             )
                         },
@@ -132,7 +136,7 @@ fun EmojiKeyboard(
                             icon = {
                                 Icon(
                                     painterResource(R.drawable.baseline_history_24),
-                                    contentDescription = "emoji history",
+                                    contentDescription = stringResource(R.string.emoji_history),
                                     Modifier.padding(8.dp),
                                 )
                             },
@@ -160,7 +164,10 @@ fun EmojiKeyboard(
                     onClick = { onAction.onAction(Action.Delete(), key = null, gesture = null) },
                     Modifier.padding(8.dp),
                 ) {
-                    Icon(painterResource(R.drawable.baseline_backspace_24), "Backspace")
+                    Icon(
+                        painterResource(R.drawable.baseline_backspace_24),
+                        stringResource(R.string.action_delete_backwardsCharacter),
+                    )
                 }
             }
         }
@@ -172,7 +179,7 @@ fun EmojiKeyboard(
                 Modifier
                     .fillMaxWidth()
                     .defaultFocus(),
-                label = { Text("Search") },
+                label = { Text(stringResource(R.string.emoji_search)) },
                 singleLine = true,
                 keyboardActions = KeyboardActions { this.defaultKeyboardAction(ImeAction.Done) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -295,7 +302,7 @@ fun EmojiVariant(
         if (onLongClick != null) {
             Icon(
                 painterResource(R.drawable.corner),
-                "has variants",
+                stringResource(R.string.emoji_hasVariants),
                 Modifier
                     .align(AbsoluteAlignment.TopRight)
                     .size(12.dp)
@@ -347,25 +354,25 @@ fun emojiList(): EmojiList {
     // but reimplement it to use Compose and control rendering.
     // Compose doesn't currently support loading non-string arrays, so we need to drop down to Ye Olde
     // context/resources API.
-    val context = LocalContext.current
-    return remember(context) {
+    val resources = LocalResources.current
+    return remember(resources) {
         val categoryIconIds =
-            context.resources.obtainTypedArray(Emoji2R.array.emoji_categories_icons)
+            resources.obtainTypedArray(Emoji2R.array.emoji_categories_icons)
                 .use { icons ->
                     IntArray(icons.length(), icons::getResourceIdOrThrow)
                 }
         val categoryNames =
-            context.resources.obtainTypedArray(Emoji2R.array.category_names)
+            resources.obtainTypedArray(Emoji2R.array.category_names)
                 .use { names ->
                     Array(names.length(), names::getStringOrThrow)
                 }
 
         val categories =
-            context.resources.obtainTypedArray(Emoji2R.array.emoji_by_category_raw_resources_gender_inclusive)
+            resources.obtainTypedArray(Emoji2R.array.emoji_by_category_raw_resources_gender_inclusive)
                 .use { categories ->
                     List(categories.length()) { i ->
                         val categoryId = categories.getResourceIdOrThrow(i)
-                        val categoryCsv = context.resources.openRawResource(categoryId).use {
+                        val categoryCsv = resources.openRawResource(categoryId).use {
                             it.readBytes().decodeToString()
                         }
                         EmojiCategory(

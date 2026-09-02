@@ -188,6 +188,10 @@
     <string name="clipboard_history_tips_insert">An item can be inserted by tapping it.</string>
     <string name="clipboard_history_tips_actions">Items can be pinned, copied, or deleted by swiping them to the side.</string>
 
+    <string name="emoji_search">emoji search</string>
+    <string name="emoji_history">emoji history</string>
+    <string name="emoji_hasVariants">has variants</string>
+
     <string name="enabledLayers_all">All</string>
     <string name="enabledLayers_lettersOnly">Letters only</string>
     <string name="enabledLayers_numbersOnly">Numbers only</string>
