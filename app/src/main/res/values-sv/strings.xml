@@ -153,7 +153,7 @@
     <string name="clipboard_pin">Nåla fast</string>
     <string name="clipboard_unpin">Avnåla</string>
     <string name="clipboard_pinned">Fastnålade</string>
-    <string name="clipboard_history">Urklippshistorik</string>
+    <string name="clipboard_history">Historik</string>
     <string name="clipboard_history_empty">Historiken är tom, gå och kopiera nått!</string>
     <string name="clipboard_history_disabled">Urklippshistoriken är avstängd.</string>
     <string name="clipboard_history_tips_copied">All text du kopierar (medans urklippshistoriken är påslagen) kommer sparas här.</string>
@@ -217,7 +217,7 @@
     <string name="letterLayerOption_italian">Italienska (MessagEase)</string>
     <string name="letterLayerOption_norwegianThumbKey">Norska (Thumb-Key)</string>
     <string name="letterLayerOption_persian">Persiska (MessagEase)</string>
-    <string name="letterLayerOption_persianThumbKey">Persiskt (Thumb-Key)</string>
+    <string name="letterLayerOption_persianThumbKey">Persiska (Thumb-Key)</string>
     <string name="letterLayerOption_polishRmitura">Polska (i MessagEase-stil, av Rmitura)</string>
     <string name="letterLayerOption_portuguese">Portugisiska (MessagEase)</string>
     <string name="letterLayerOption_portugueseIos">Portugisiska (MessagEase, iOS)</string>
@@ -361,7 +361,8 @@
     <string name="action_toggleWordCase_desc_down">Ersätter det senast skrivna ordet med mindre bokstäver. Cyklar STORA-BOKSTÄVER -&gt; Titel-bokstäver, små-bokstäver.</string>
     <string name="action_toggleCtrl_desc">Om påslaget kommer nästa kommando behandlas som att ctrl hålls ner. Detta kan användas för att aktivera tangentbordsgenvägar som är avsedda för fysiska tangentbord.</string>
     <string name="action_toggleAlt_desc">Om påslaget kommer nästa kommando behandlas som att alt hålls ner. Detta kan användas för att aktivera tangentbordsgenvägar som är avsedda för fysiska tangentbord.</string>
-    <string name="action_toggleZalgo_desc">Om påslaget kommer nästa tecken försöka kombineras med det föregående.\nTill exempel: c-zalgo-¨ blir c̈, och a-zalgo-e blir æ. (Perfekt när du korsar öresund!)</string>
+    <string name="action_toggleZalgo_desc">Om påslaget kommer nästa tecken försöka kombineras med det föregående.\nTill exempel: c-zalgo-¨ blir c̈, och a-zalgo-e blir æ. (Perfekt när du korsar Öresund!)</string>
     <string name="action_toggleSelect_desc">Om påslaget kommer textrörelsegester (som att svepa på blankstegstangenten) istället markera text.</string>
     <string name="action_toggleActiveLayer_desc">Växlar bokstavs- och siffersidorna. Siffror kan också skrivas genom att hålla in bokstaven på samma plats.</string>
+    <string name="credits_layouts">Layoutbidrag av</string>
 </resources>
