@@ -76,7 +76,7 @@ fun Credits(modifier: Modifier = Modifier) {
             )
         }
 
-        stickyHeader { CreditHeader(stringResource(R.string.credits_role_layout)) }
+        stickyHeader { CreditHeader(stringResource(R.string.credits_layouts)) }
         item {
             CreditEntry(
                 "AhmadMoradDoctor",
