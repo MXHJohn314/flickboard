@@ -1,14 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">FlickBoard</string>
+
     <string name="page_tutorial">Tutorial</string>
     <string name="page_keyboardDescriber">What Does This Do?</string>
     <string name="page_zalgoEditor">Zalgo Macros</string>
     <string name="page_betaMenu">Beta Options</string>
     <string name="page_credits">Credits</string>
+
     <string name="link_zulip">Discuss on Zulip</string>
     <string name="link_sourcecode">View Source on Codeberg</string>
     <string name="link_issues">Report Bugs on Codeberg</string>
+
     <string name="tutorial_title">Welcome to FlickBoard!</string>
     <string name="tutorial_intro">FlickBoard is a pretty unusual keyboard, so let\'s get you a quick run-down of how to use it.</string>
     <string name="tutorial_skip">SKIP</string>
@@ -26,9 +28,11 @@
     <string name="tutorial_uppercase_edge">Upper-case (edge)</string>
     <string name="tutorial_uppercase_instruction_edge">To type an upper-case character at an edge, swipe towards it and then return to where you started.\nTry typing an upper-case G now!</string>
     <string name="tutorial_complete">Great, you\'ve got the hang of it!</string>
+
     <string name="home_testPad">Type here to try FlickBoard</string>
     <string name="home_settings">Settings</string>
     <string name="home_about">About</string>
+
     <string name="settingsGroup_system" translatable="false">System</string>
     <string name="settingsGroup_deprecated" translatable="false">Deprecated</string>
     <string name="settingsGroup_layout">Layout</string>
@@ -37,6 +41,7 @@
     <string name="settingsGroup_feedback">Feedback</string>
     <string name="settingsGroup_workarounds">Workarounds</string>
     <string name="settingsGroup_privacy">Privacy</string>
+
     <string name="setting_settingsVersion" translatable="false">Settings format version</string>
     <string name="setting_hasCompletedTutorial" translatable="false">Has completed tutorial</string>
     <string name="setting_layout">Letter layouts</string>
@@ -86,7 +91,7 @@
     <string name="setting_stickyModifiers">Sticky modifiers</string>
     <string name="setting_stickyModifiers_desc">When disabled, ctrl and alt modifiers are automatically cleared after typing a letter. When enabled, they must be cleared manually.</string>
     <string name="setting_periodOnDoubleSpace">Period on double space</string>
-    <string name="setting_periodOnDoubleSpace_desc">Convert \" \" into \". \"</string>
+    <string name="setting_periodOnDoubleSpace_desc">Convert \"  \" into \". \"</string>
     <string name="setting_digitOnClockwiseCircle" translatable="false">Type digit on clockwise circle</string>
     <string name="setting_digitOnCounterClockwiseCircle" translatable="false">Type digit on counter-clockwise circle</string>
     <string name="setting_clockwiseCircleBehaviour">Clockwise circle behaviour</string>
@@ -136,6 +141,7 @@
     <string name="setting_zalgoSubstitutionsShowCustom" translatable="false">Zalgo Substitutions: Show Custom</string>
     <string name="setting_zalgoSubstitutionsShowDefault" translatable="false">Zalgo Substitutions: Show Default</string>
     <string name="setting_zalgoSubstitutionsShowTips" translatable="false">Zalgo Substitutions: Show Tips</string>
+
     <string name="onboarding_keyboardNotEnabled">Keyboard not enabled</string>
     <string name="onboarding_keyboardNotEnabled_desc">The keyboard must be enabled before it can be used. Tap here to enable it.\nYou can still try it in the preview below.</string>
     <string name="onboarding_keyboardNotSelected">Keyboard not selected</string>
@@ -156,15 +162,18 @@
     <string name="tips">Tips</string>
     <string name="loadingPlaceholder">(loading)</string>
     <string name="returnToKeyboard">Return to keyboard</string>
+
     <string name="fastAction">Fast Action</string>
     <string name="shift">Shift</string>
     <string name="transientShift">Transient Shift</string>
     <string name="hold">Hold</string>
     <string name="reach">Reach</string>
+
     <string name="keyboardDescriber_actionDescription">action description</string>
     <string name="keyboardDescriber_withModifiers">With modifiers:</string>
     <string name="keyboardDescriber_relatedGestures">Related gestures:</string>
     <string name="keyboardDescriber_try">Perform a gesture to see what it does!</string>
+
     <string name="clipboard">Clipboard</string>
     <string name="clipboard_copied">Copied \"%1$s\"</string>
     <string name="clipboard_pin">Pin</string>
