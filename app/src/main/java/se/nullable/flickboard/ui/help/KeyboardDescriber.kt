@@ -185,9 +185,9 @@ fun ActionDescription(
                     layoutTextDirection = TextDirection.LeftToRight,
                     tint = ActionTint.Normal,
                 )
-                SubTitle(action.title)
+                SubTitle(action.title.get())
             }
-            Text(action.description)
+            Text(action.description.get())
             if (gesture != null) {
                 val flick = gesture.normalizeToFlick(
                     clockwiseCircleBehaviour = ModifierBehaviourOption.Shift,
@@ -318,7 +318,7 @@ fun ActionDescription(
                                 },
                                 icon = relatedAction.icon,
                                 iconModifier = relatedAction.iconModifier,
-                                label = "${relatedAction.label}: ${relatedAction.action.title}",
+                                label = "${relatedAction.label}: ${relatedAction.action.title.get()}",
                             )
                         }
                     }
