@@ -21,8 +21,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BrushPainter
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import se.nullable.flickboard.R
 import se.nullable.flickboard.util.colourOfHctHue
 
 @Composable
@@ -38,7 +40,7 @@ fun ColourPicker(onColourSelected: (Color) -> Unit, modifier: Modifier = Modifie
 
     Image(
         BrushPainter(brush),
-        "colour picker",
+        stringResource(R.string.colourPicker),
         modifier = modifier
             .aspectRatio(1F)
             .clip(CircleShape)

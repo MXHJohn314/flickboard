@@ -391,4 +391,6 @@
     <string name="beta_importWillOverwrite">Import will overwrite existing settings. Proceed?</string>
     <string name="beta_import">Import</string>
     <string name="beta_importSettings">Import settings</string>
+
+    <string name="colourPicker">Colour Picker</string>
 </resources>
