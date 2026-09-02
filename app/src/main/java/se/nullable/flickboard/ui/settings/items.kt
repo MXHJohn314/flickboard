@@ -161,7 +161,10 @@ fun <T : Labeled> EnumListSetting(meta: SettingMeta.EnumList<T>) {
     }
     BaseEnumSetting(
         meta, state,
-        valueLabel = { it.singleOrNull()?.label ?: "${it.size} enabled" },
+        valueLabel = { selected ->
+            selected.singleOrNull()?.label?.let { stringResource(it) }
+                ?: stringResource(R.string.enumList_manyEnabled, selected.size)
+        },
         options = meta.options,
         optionSelectionControl = { selected, option ->
             Switch(
@@ -187,7 +190,7 @@ fun <T : Labeled> EnumSetting(meta: SettingMeta.Enum<T>) {
     if (meta.options.size > 1) {
         BaseEnumSetting(
             meta, state,
-            valueLabel = { it.label },
+            valueLabel = { stringResource(it.label) },
             options = meta.options,
             optionSelectionControl = { selected, option ->
                 RadioButton(
@@ -347,7 +350,7 @@ fun ColourSetting(meta: SettingMeta.Colour) {
 fun <T : Labeled, V : Any> BaseEnumSetting(
     meta: SettingMeta<V>,
     state: ResettableState<V>,
-    valueLabel: (V) -> String,
+    valueLabel: @Composable (V) -> String,
     options: List<T>,
     optionSelectionControl: @Composable (V, T) -> Unit,
     optionIsSelected: (V, T) -> Boolean,
@@ -420,7 +423,7 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Text(
-                                        text = option.label,
+                                        text = stringResource(option.label),
                                         fontSize = 16.sp,
                                         modifier = Modifier.weight(1F),
                                     )

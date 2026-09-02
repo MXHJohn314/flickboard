@@ -391,7 +391,8 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 }
 
 interface Labeled {
-    val label: String
+    @get:StringRes
+    val label: Int
 }
 
 enum class ImageScalingTarget {

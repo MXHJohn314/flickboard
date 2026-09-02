@@ -162,6 +162,7 @@
     <string name="tips">Tips</string>
     <string name="loadingPlaceholder">(loading)</string>
     <string name="returnToKeyboard">Return to keyboard</string>
+    <string name="enumList_manyEnabled">%1$d enabled</string>
 
     <string name="fastAction">Fast Action</string>
     <string name="shift">Shift</string>
@@ -186,4 +187,75 @@
     <string name="clipboard_history_tips_limit">Only the %1$d most recent unpinned items will be kept.</string>
     <string name="clipboard_history_tips_insert">An item can be inserted by tapping it.</string>
     <string name="clipboard_history_tips_actions">Items can be pinned, copied, or deleted by swiping them to the side.</string>
+
+    <string name="enabledLayers_all">All</string>
+    <string name="enabledLayers_lettersOnly">Letters only</string>
+    <string name="enabledLayers_numbersOnly">Numbers only</string>
+    <string name="enabledLayers_doubleLetters">Double letters</string>
+    <string name="enabledLayers_allMiniNumbers">All (mini numbers)</string>
+    <string name="enabledLayers_allMiniNumbersInMiddle">All (mini numbers in middle)</string>
+    <string name="enabledLayers_allMiniNumbersOnOppositeSide">All (mini numbers on opposite side)</string>
+    <string name="enabledLayers_landscape_inherit">Same as portrait</string>
+
+    <string name="handedness_leftHanded">Left-handed</string>
+    <string name="handedness_rightHanded">Right-handed</string>
+    <string name="invertSwipeDelete_never">Never</string>
+    <string name="invertSwipeDelete_always">Always</string>
+
+    <string name="numericLayerOption_phone">Phone</string>
+    <string name="numericLayerOption_calculator">Calculator</string>
+
+    <string name="controlSectionOption_single">Single</string>
+    <string name="controlSectionOption_doubleInside">Double (inside)</string>
+    <string name="controlSectionOption_doubleOutside">Double (outside)</string>
+
+    <string name="modifierBehaviourOption_digit">Type digit</string>
+    <string name="modifierBehaviourOption_shift">Use shifted action</string>
+
+    <string name="gestureRecognizer_default">Default</string>
+    <string name="gestureRecognizer_dollar1">$1 (OLD EXPERIMENT)</string>
+
+    <string name="letterLayerOption_arabic">Arabic (MessagEase)</string>
+    <string name="letterLayerOption_bulgarianHlonrno">Bulgarian (hlonrno)</string>
+    <string name="letterLayerOption_bulgarianThumbKey">Bulgarian (Thumb-Key)</string>
+    <string name="letterLayerOption_danish">Danish (MessagEase)</string>
+    <string name="letterLayerOption_english">English (MessagEase)</string>
+    <string name="letterLayerOption_englishThumbKey">English (Thumb-Key)</string>
+    <string name="letterLayerOption_esperanto">Esperanto (MessagEase)</string>
+    <string name="letterLayerOption_french">French (MessagEase)</string>
+    <string name="letterLayerOption_frenchExt">French (Extended MessagEase)</string>
+    <string name="letterLayerOption_frenchPunc">French (Punctuation MessagEase)</string>
+    <string name="letterLayerOption_frenchEnglishFrappefluide"><![CDATA[French & English (Frappefluide)]]></string>
+    <string name="letterLayerOption_german">German (MessagEase)</string>
+    <string name="letterLayerOption_germanEnglish"><![CDATA[German & English (MessagEase-style)]]></string>
+    <string name="letterLayerOption_germanEsperanto"><![CDATA[German & Esperanto (MessagEase-style)]]></string>
+    <string name="letterLayerOption_georgian">Georgian (by Vladimir Solovev)</string>
+    <string name="letterLayerOption_hebrew">Hebrew (MessagEase)</string>
+    <string name="letterLayerOption_hungarian">Hungarian (MessagEase)</string>
+    <string name="letterLayerOption_hungarianDt">Hungarian (MessagEase-style, by Dániel Tenke)</string>
+    <string name="letterLayerOption_hungarianMf">Hungarian (MessagEase-style, by Máté Farkas)</string>
+    <string name="letterLayerOption_hungarianUUp">Hungarian (MessagEase-style, U always up)</string>
+    <string name="letterLayerOption_italian">Italian (MessagEase)</string>
+    <string name="letterLayerOption_norwegianThumbKey">Norwegian (Thumb-Key)</string>
+    <string name="letterLayerOption_persian">Persian (MessagEase)</string>
+    <string name="letterLayerOption_persianThumbKey">Persian (Thumb-Key)</string>
+    <string name="letterLayerOption_polishRmitura">Polish (MessagEase-style, Rmitura)</string>
+    <string name="letterLayerOption_portuguese">Portuguese (MessagEase)</string>
+    <string name="letterLayerOption_portugueseIos">Portuguese (MessagEase, iOS)</string>
+    <string name="letterLayerOption_romanianEnglishThumbKey"><![CDATA[Romanian & English (Thumb-Key)]]></string>
+    <string name="letterLayerOption_russian">Russian (MessagEase)</string>
+    <string name="letterLayerOption_russianPhonetic">Russian phonetic (MessagEase)</string>
+    <string name="letterLayerOption_spanish">Spanish (MessagEase)</string>
+    <string name="letterLayerOption_spanishCatalan"><![CDATA[Spanish & Catalan (MessagEase-style)]]></string>
+    <string name="letterLayerOption_spanishEnglish"><![CDATA[Spanish & English (MessagEase)]]></string>
+    <string name="letterLayerOption_swedish">Swedish (MessagEase-style)</string>
+    <string name="letterLayerOption_swedishDe">Swedish (MessagEase, German-style)</string>
+    <string name="letterLayerOption_turkish">Turkish (MessagEase)</string>
+    <string name="letterLayerOption_ukrainian">Ukrainian (MessagEase)</string>
+    <string name="letterLayerOption_ukrainianRussian">Ukrainian Russian (MessagEase)</string>
+
+    <string name="materialToneMode_system">System</string>
+    <string name="materialToneMode_light">Light</string>
+    <string name="materialToneMode_dark">Dark</string>
+    <string name="materialToneMode_midnight">Midnight</string>
 </resources>

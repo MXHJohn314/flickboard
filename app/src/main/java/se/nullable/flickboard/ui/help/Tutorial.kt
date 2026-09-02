@@ -116,7 +116,7 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
                                     selected = handedness.value == option,
                                     onClick = null,
                                 )
-                                Text(option.label, Modifier)
+                                Text(stringResource(option.label), Modifier)
                             }
                             TutorialKey(fullOKey, onAction = null)
                         }
