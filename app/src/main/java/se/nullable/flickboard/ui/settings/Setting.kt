@@ -61,7 +61,7 @@ class SettingsContext(
 
     companion object {
         /**
-         * Do not use in a composable context! Use [LocalAppSettings] instead!
+         * Do not use in a composable context! Use [LocalSettingsContext] instead!
          */
         fun appPrefsForContext(context: Context): SharedPreferences =
             context.getSharedPreferences(
