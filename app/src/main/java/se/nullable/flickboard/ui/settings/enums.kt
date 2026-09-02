@@ -120,26 +120,27 @@ enum class Handedness(@param:StringRes override val label: Int) : Labeled {
 
 enum class InvertSwipeDelete(
     @param:StringRes override val label: Int,
-    val description: String,
+    @param:StringRes val description: Int,
     val forHandedness: (Handedness) -> Boolean
 ) : Labeled {
     Never(
-        R.string.invertSwipeDelete_never, description = "Never invert the delete direction.",
+        R.string.invertSwipeDelete_never,
+        description = R.string.invertSwipeDelete_never_desc,
         forHandedness = { false },
     ),
     Always(
         R.string.invertSwipeDelete_always,
-        description = "Always invert the swipe-to-delete direction.",
+        description = R.string.invertSwipeDelete_always_desc,
         forHandedness = { true },
     ),
     RightHanded(
         R.string.handedness_rightHanded,
-        description = "Only invert the swipe-to-delete direction when in right-handed mode (where the delete key will usually be on the left edge of the screen).",
+        description = R.string.invertSwipeDelete_rightHanded_desc,
         forHandedness = { it == Handedness.RightHanded },
     ),
     LeftHanded(
         R.string.handedness_leftHanded,
-        "Only invert the swipe-to-delete direction when in left-handed mode (where the delete key will usually be on the right edge of the screen).",
+        description = R.string.invertSwipeDelete_leftHanded_desc,
         forHandedness = { it == Handedness.LeftHanded },
     ),
 }
@@ -218,14 +219,17 @@ enum class ModifierBehaviourOption(@param:StringRes override val label: Int) : L
 }
 
 
-enum class GestureRecognizer(@param:StringRes override val label: Int, val description: String) :
+enum class GestureRecognizer(
+    @param:StringRes override val label: Int,
+    @param:StringRes val description: Int
+) :
     Labeled {
     Default(
         R.string.gestureRecognizer_default,
-        description = "The default FlickBoard gesture recognizer",
+        description = R.string.gestureRecognizer_default_desc,
     ),
     Dollar1(
         R.string.gestureRecognizer_dollar1,
-        description = "Experimental legacy gesture recognizer (many recognition settings do not apply)",
+        description = R.string.gestureRecognizer_dollar1_desc,
     ),
 }

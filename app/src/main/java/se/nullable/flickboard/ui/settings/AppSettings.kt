@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.ActionClass
@@ -239,7 +240,7 @@ object AppSettings {
         defaultValue = InvertSwipeDelete.Never,
         options = InvertSwipeDelete.entries,
         tryEnumValueOfT = ::tryEnumValueOf,
-        previewOverride = { Text(it.description) },
+        previewOverride = { Text(stringResource(it.description)) },
     )
 
 
@@ -593,7 +594,7 @@ object AppSettings {
         defaultValue = GestureRecognizer.Default,
         options = GestureRecognizer.entries,
         tryEnumValueOfT = ::tryEnumValueOf,
-        previewOverride = { Text(it.description) },
+        previewOverride = { Text(stringResource(it.description)) },
     )
 
     val circleJaggednessThreshold = SettingMeta.FloatSlider(

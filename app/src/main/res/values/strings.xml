@@ -200,7 +200,11 @@
     <string name="handedness_leftHanded">Left-handed</string>
     <string name="handedness_rightHanded">Right-handed</string>
     <string name="invertSwipeDelete_never">Never</string>
+    <string name="invertSwipeDelete_never_desc">Never invert the delete direction.</string>
     <string name="invertSwipeDelete_always">Always</string>
+    <string name="invertSwipeDelete_always_desc">Always invert the swipe-to-delete direction.</string>
+    <string name="invertSwipeDelete_rightHanded_desc">Only invert the swipe-to-delete direction when in right-handed mode (where the delete key will usually be on the left edge of the screen).</string>
+    <string name="invertSwipeDelete_leftHanded_desc">Only invert the swipe-to-delete direction when in left-handed mode (where the delete key will usually be on the right edge of the screen).</string>
 
     <string name="numericLayerOption_phone">Phone</string>
     <string name="numericLayerOption_calculator">Calculator</string>
@@ -213,7 +217,9 @@
     <string name="modifierBehaviourOption_shift">Use shifted action</string>
 
     <string name="gestureRecognizer_default">Default</string>
+    <string name="gestureRecognizer_default_desc">The default FlickBoard gesture recognizer</string>
     <string name="gestureRecognizer_dollar1">$1 (OLD EXPERIMENT)</string>
+    <string name="gestureRecognizer_dollar1_desc">Experimental legacy gesture recognizer (many recognition settings do not apply)</string>
 
     <string name="letterLayerOption_arabic">Arabic (MessagEase)</string>
     <string name="letterLayerOption_bulgarianHlonrno">Bulgarian (hlonrno)</string>
