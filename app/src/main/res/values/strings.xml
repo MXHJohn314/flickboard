@@ -382,4 +382,13 @@
     <string name="action_toggleShowLetters_desc">Toggles whether or not letters are shown.</string>
     <string name="action_enableVoiceMode">Voice</string>
     <string name="action_enableVoiceMode_desc">Switches to the voice keyboard, if any is installed.</string>
+
+    <string name="beta_openHint">To open the secret beta menu in a release build, tap the version number 7 times</string>
+    <string name="beta_disclaimer">All beta options are experimental, and you may still require a full reset. Sensitive settings will not be saved.</string>
+    <string name="beta_exportSettings">Export settings</string>
+    <string name="beta_importFailed">Import failed</string>
+    <string name="beta_importConfirm">Confirm import</string>
+    <string name="beta_importWillOverwrite">Import will overwrite existing settings. Proceed?</string>
+    <string name="beta_import">Import</string>
+    <string name="beta_importSettings">Import settings</string>
 </resources>
