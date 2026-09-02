@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="page_tutorial">Tutoriel</string>
+    <string name="page_zalgoEditor">Macros Zalgo</string>
+    <string name="page_betaMenu">Options Beta</string>
 </resources>
