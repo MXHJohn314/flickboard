@@ -339,7 +339,6 @@
     <string name="credits_role_docs">Dokumentation</string>
     <string name="credits_role_testing">Testande</string>
     <string name="credits_role_logo">Loggan</string>
-    <string name="credits_role_layout">Layoutbidrag av</string>
     <string name="credits_role_exideas">MessagEase-konceptet och layouter</string>
     <string name="credits_role_thumbKey">Thumb-Key-layouter</string>
     <string name="pointerTrail">Pekarspår</string>
