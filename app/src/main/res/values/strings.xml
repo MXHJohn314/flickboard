@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">FlickBoard</string>
+    <string name="app_keyboard">FlickBoard keyboard</string>
 
     <string name="page_tutorial">Tutorial</string>
     <string name="page_keyboardDescriber">What Does This Do?</string>
@@ -157,12 +158,14 @@
     <string name="delete">Delete</string>
     <string name="deleted">Deleted</string>
     <string name="deleteAll">Delete all</string>
+    <string name="open">open</string>
     <string name="undo">Undo</string>
     <string name="add">Add</string>
     <string name="tips">Tips</string>
     <string name="loadingPlaceholder">(loading)</string>
     <string name="returnToKeyboard">Return to keyboard</string>
     <string name="enumList_manyEnabled">%1$d enabled</string>
+    <string name="pointerTrail">Pointer trail</string>
 
     <string name="fastAction">Fast Action</string>
     <string name="shift">Shift</string>
@@ -187,6 +190,10 @@
     <string name="clipboard_history_tips_limit">Only the %1$d most recent unpinned items will be kept.</string>
     <string name="clipboard_history_tips_insert">An item can be inserted by tapping it.</string>
     <string name="clipboard_history_tips_actions">Items can be pinned, copied, or deleted by swiping them to the side.</string>
+
+    <string name="emoji_search">emoji search</string>
+    <string name="emoji_history">emoji history</string>
+    <string name="emoji_hasVariants">has variants</string>
 
     <string name="enabledLayers_all">All</string>
     <string name="enabledLayers_lettersOnly">Letters only</string>
@@ -378,4 +385,29 @@
     <string name="action_toggleShowLetters_desc">Toggles whether or not letters are shown.</string>
     <string name="action_enableVoiceMode">Voice</string>
     <string name="action_enableVoiceMode_desc">Switches to the voice keyboard, if any is installed.</string>
+
+    <string name="beta_openHint">To open the secret beta menu in a release build, tap the version number 7 times</string>
+    <string name="beta_disclaimer">All beta options are experimental, and you may still require a full reset. Sensitive settings will not be saved.</string>
+    <string name="beta_exportSettings">Export settings</string>
+    <string name="beta_importFailed">Import failed</string>
+    <string name="beta_importConfirm">Confirm import</string>
+    <string name="beta_importWillOverwrite">Import will overwrite existing settings. Proceed?</string>
+    <string name="beta_import">Import</string>
+    <string name="beta_importSettings">Import settings</string>
+
+    <string name="colourPicker">Colour Picker</string>
+
+    <string name="credits_by">By</string>
+    <string name="credits_contributors">Contributors</string>
+    <string name="credits_specialThanks">Special Thanks</string>
+    <string name="credits_dependencies">Third-party components</string>
+    <string name="credits_role_maintainer">Maintainer</string>
+    <string name="credits_role_code">Code</string>
+    <string name="credits_role_docs">Documentation</string>
+    <string name="credits_role_testing">Testing</string>
+    <string name="credits_role_logo">Logo Designer</string>
+    <string name="credits_role_capitalization">Capitalization improvements</string>
+    <string name="credits_role_layout">Layout Contributors</string>
+    <string name="credits_role_exideas">MessagEase concept and layouts</string>
+    <string name="credits_role_thumbKey">Thumb-Key layouts</string>
 </resources>
