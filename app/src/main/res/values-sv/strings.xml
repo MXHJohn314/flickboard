@@ -3,7 +3,7 @@
     <string name="page_keyboardDescriber">Vad Gör Det Här?</string>
     <string name="page_tutorial">Guide</string>
     <string name="page_zalgoEditor">Zalgo-Makron</string>
-    <string name="page_betaMenu">Beta-Alternativ</string>
+    <string name="page_betaMenu">Betameny</string>
     <string name="page_credits">Medskapare</string>
     <string name="link_zulip">Diskutera på Zulip</string>
     <string name="link_sourcecode">Visa Källkod på Codeberg</string>
