@@ -399,6 +399,7 @@
 
     <string name="credits_by">By</string>
     <string name="credits_contributors">Contributors</string>
+    <string name="credits_layouts">Layout Contributors</string>
     <string name="credits_specialThanks">Special Thanks</string>
     <string name="credits_dependencies">Third-party components</string>
     <string name="credits_role_maintainer">Maintainer</string>
@@ -406,8 +407,6 @@
     <string name="credits_role_docs">Documentation</string>
     <string name="credits_role_testing">Testing</string>
     <string name="credits_role_logo">Logo Designer</string>
-    <string name="credits_role_capitalization">Capitalization improvements</string>
-    <string name="credits_role_layout">Layout Contributors</string>
     <string name="credits_role_exideas">MessagEase concept and layouts</string>
     <string name="credits_role_thumbKey">Thumb-Key layouts</string>
 </resources>
