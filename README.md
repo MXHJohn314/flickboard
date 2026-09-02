@@ -4,7 +4,7 @@
 
 [![Zulip](https://img.shields.io/badge/chat%20on-zulip-brightgreen)](https://zulip.flickboard.natkr.com/) [![RB shield](https://shields.rbtlog.dev/simple/se.nullable.flickboard)](https://shields.rbtlog.dev/se.nullable.flickboard)
 
-[![Translation status](https://translate.codeberg.org/widget/flickboard/matrix-auto.svg)](https://translate.codeberg.org/engage/flickboard/)
+[![Translation status](https://translate.codeberg.org/widget/flickboard/matrix-auto.svg)](https://translate.codeberg.org/projects/flickboard/)
 
 FlickBoard is a keyboard for Android that doesn't try to correct or predict you.
 It doesn't have an opinion on the correct spelling or tone. It certainly doesn't use any AI.
