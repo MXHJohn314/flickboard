@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.launch
 import se.nullable.flickboard.R
 import se.nullable.flickboard.model.ActionClass
@@ -57,7 +58,7 @@ inline fun <T> localAppSetting(meta: (AppSettings) -> SettingProjection<T>): Res
 object AppSettings {
     val settingsVersion = SettingMeta.Integer(
         key = "settingsVersion",
-        label = "Settings format version",
+        label = R.string.setting_settingsVersion,
         // This should always stay at 0 to
         defaultValue = 0,
     )
@@ -108,14 +109,14 @@ object AppSettings {
 
     val hasCompletedTutorial = SettingMeta.Bool(
         key = "hasCompletedTutorial",
-        label = "Has completed tutorial",
+        label = R.string.setting_hasCompletedTutorial,
         defaultValue = false,
     )
 
     val letterLayers = SettingMeta.EnumList(
         // Renaming this would reset the people's selected layer..
         key = "layout",
-        label = "Letter layouts",
+        label = R.string.setting_layout,
         defaultValue = listOf(LetterLayerOption.English),
         options = LetterLayerOption.entries,
         tryEnumValueOfT = ::tryEnumValueOf,
@@ -128,14 +129,14 @@ object AppSettings {
 
     val activeLetterLayerIndex = SettingMeta.Integer(
         key = "activeLetterLayerIndex",
-        label = "Active letter layer index",
+        label = R.string.setting_activeLetterLayerIndex,
         defaultValue = 0,
     )
 
     val secondaryLetterLayer = SettingMeta.Enum(
         key = "secondaryLetterLayer",
-        label = "Secondary letter layout",
-        description = "Only applies when using double letter layers",
+        label = R.string.setting_secondaryLetterLayer,
+        description = R.string.setting_secondaryLetterLayer_desc,
         defaultValue = LetterLayerOption.English,
         options = LetterLayerOption.entries,
         tryEnumValueOfT = ::tryEnumValueOf,
@@ -146,7 +147,7 @@ object AppSettings {
 
     val numericLayer = SettingMeta.Enum(
         key = "numericLayer",
-        label = "Number layout",
+        label = R.string.setting_numericLayer,
         defaultValue = NumericLayerOption.Phone,
         options = NumericLayerOption.entries,
         tryEnumValueOfT = ::tryEnumValueOf,
@@ -159,7 +160,7 @@ object AppSettings {
 
     val enabledLayers = SettingMeta.Enum(
         key = "enabledLayers",
-        label = "Enabled layers",
+        label = R.string.setting_enabledLayers,
         defaultValue = EnabledLayers.All,
         options = EnabledLayers.entries,
         tryEnumValueOfT = ::tryEnumValueOf,
@@ -167,7 +168,7 @@ object AppSettings {
 
     val enabledLayersLandscape = SettingMeta.Enum(
         key = "enabledLayersLandscape",
-        label = "Enabled layers (landscape)",
+        label = R.string.setting_enabledLayersLandscape,
         defaultValue = EnabledLayersLandscape.Inherit,
         options = EnabledLayersLandscape.entries,
         tryEnumValueOfT = EnabledLayersLandscape.Companion::tryEnumValueOf,
@@ -227,7 +228,7 @@ object AppSettings {
 
     val handedness = SettingMeta.Enum(
         key = "handedness",
-        label = "Handedness",
+        label = R.string.setting_handedness,
         defaultValue = Handedness.RightHanded,
         options = Handedness.entries,
         tryEnumValueOfT = ::tryEnumValueOf,
@@ -235,17 +236,17 @@ object AppSettings {
 
     val invertSwipeDelete = SettingMeta.Enum(
         key = "invertSwipeDelete",
-        label = "Invert delete-swipe direction",
+        label = R.string.setting_invertSwipeDelete,
         defaultValue = InvertSwipeDelete.Never,
         options = InvertSwipeDelete.entries,
         tryEnumValueOfT = ::tryEnumValueOf,
-        previewOverride = { Text(it.description) },
+        previewOverride = { Text(stringResource(it.description)) },
     )
 
 
     val landscapeLocation = SettingMeta.FloatSlider(
         key = "landscapeLocation",
-        label = "Landscape location",
+        label = R.string.setting_landscapeLocation,
         defaultValue = 0F,
         range = -1F..1F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -253,7 +254,7 @@ object AppSettings {
 
     val landscapeScale = SettingMeta.FloatSlider(
         key = "landscapeScale",
-        label = "Landscape scale",
+        label = R.string.setting_landscapeScale,
         defaultValue = 1F,
         range = 0.2F..1F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -261,7 +262,7 @@ object AppSettings {
 
     val landscapeSplit = SettingMeta.FloatSlider(
         key = "landscapeSplit",
-        label = "Landscape split",
+        label = R.string.setting_landscapeSplit,
         defaultValue = 0F,
         range = 0F..1F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -269,7 +270,7 @@ object AppSettings {
 
     val landscapeControlSection = SettingMeta.Enum(
         key = "landscapeControlSection",
-        label = "Control section mode in landscape",
+        label = R.string.setting_landscapeControlSection,
         defaultValue = ControlSectionOption.Single,
         options = ControlSectionOption.entries,
         tryEnumValueOfT = { tryEnumValueOf<ControlSectionOption>(it) },
@@ -278,7 +279,7 @@ object AppSettings {
 
     val portraitLocation = SettingMeta.FloatSlider(
         key = "portraitLocation",
-        label = "Portrait location",
+        label = R.string.setting_portraitLocation,
         defaultValue = 0F,
         range = -1F..1F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -286,7 +287,7 @@ object AppSettings {
 
     val portraitScale = SettingMeta.FloatSlider(
         key = "portraitScale",
-        label = "Portrait scale",
+        label = R.string.setting_portraitScale,
         defaultValue = 1F,
         range = 0.2F..1F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -310,27 +311,27 @@ object AppSettings {
 
     val showLetters = SettingMeta.Bool(
         key = "showLetters",
-        label = "Show letters",
-        description = "Can also be toggled by swiping up from spacebar",
+        label = R.string.setting_showLetters,
+        description = R.string.setting_showLetters_desc,
         defaultValue = true,
     )
 
     val showSymbols = SettingMeta.Bool(
         key = "showSymbols",
-        label = "Show symbols",
-        description = "Can also be toggled by swiping up-then-down from spacebar",
+        label = R.string.setting_showSymbols,
+        description = R.string.setting_showSymbols_desc,
         defaultValue = true,
     )
 
     val enableToggleShowSymbolsGesture = SettingMeta.Bool(
         key = "enableToggleShowSymbolsGesture",
-        label = "Enable toggle show symbols/letters gestures",
+        label = R.string.setting_enableToggleShowSymbolsGesture,
         defaultValue = true,
     )
 
     val showNumbers = SettingMeta.Bool(
         key = "showNumbers",
-        label = "Show numbers",
+        label = R.string.setting_showNumbers,
         defaultValue = true,
     )
 
@@ -353,27 +354,27 @@ object AppSettings {
 
     val enableHiddenActions = SettingMeta.Bool(
         key = "enableHiddenActions",
-        label = "Enable hidden actions",
+        label = R.string.setting_enableHiddenActions,
         defaultValue = true,
     )
 
     val keyboardMargin = SettingMeta.FloatSlider(
         key = "keyboardMargin",
-        label = "Keyboard margin",
+        label = R.string.setting_keyboardMargin,
         defaultValue = 0F,
         range = 0F..8F,
     )
 
     val keyboardMarginBottomPortrait = SettingMeta.FloatSlider(
         key = "keyboardMarginBottomPortrait",
-        label = "Keyboard bottom margin (portrait)",
+        label = R.string.setting_keyboardMarginBottomPortrait,
         defaultValue = 0F,
         range = 0F..250F,
     )
 
     val keyRoundness = SettingMeta.FloatSlider(
         key = "keyRoundness",
-        label = "Key roundness",
+        label = R.string.setting_keyRoundness,
         defaultValue = 0F,
         range = 0F..0.5F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -381,7 +382,7 @@ object AppSettings {
 
     val keyGap = SettingMeta.FloatSlider(
         key = "keyGap",
-        label = "Key gap",
+        label = R.string.setting_keyGap,
         defaultValue = 1F,
         range = 0F..2F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -389,7 +390,7 @@ object AppSettings {
 
     val keyOutline = SettingMeta.FloatSlider(
         key = "keyOutline",
-        label = "Key outline",
+        label = R.string.setting_keyOutline,
         defaultValue = 0F,
         range = 0F..1F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -397,7 +398,7 @@ object AppSettings {
 
     val actionVisualBiasCenter = SettingMeta.FloatSlider(
         key = "actionVisualBiasCenter",
-        label = "Center key label scale",
+        label = R.string.setting_actionVisualBiasCenter,
         defaultValue = 1.5F,
         range = 1F..2F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -405,7 +406,7 @@ object AppSettings {
 
     val actionVisualScale = SettingMeta.FloatSlider(
         key = "actionVisualScale",
-        label = "Key label scale",
+        label = R.string.setting_actionVisualScale,
         defaultValue = 1F,
         range = 0.5F..1F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -413,27 +414,27 @@ object AppSettings {
 
     val keyColour = SettingMeta.Colour(
         key = "keyColour",
-        label = "Key colour",
+        label = R.string.setting_keyColour,
     )
     val keyColourChroma = SettingMeta.FloatSlider(
         key = "keyColourChroma",
-        label = "Key colour saturation",
+        label = R.string.setting_keyColourChroma,
         defaultValue = 20F,
         range = 0F..100F,
-        description = "Only applies when using a custom colour",
+        description = R.string.setting_keyColour_attrib_desc,
     )
     val keyColourTone = SettingMeta.Enum(
         key = "keyColourTone",
-        label = "Key colour brightness",
+        label = R.string.setting_keyColourTone,
         defaultValue = MaterialToneMode.System,
         options = MaterialToneMode.entries,
         tryEnumValueOfT = { tryEnumValueOf<MaterialToneMode>(it) },
-        description = "Only applies when using a custom colour",
+        description = R.string.setting_keyColour_attrib_desc,
     )
 
     val keyOpacity = SettingMeta.FloatSlider(
         key = "keyOpacity",
-        label = "Key opacity",
+        label = R.string.setting_keyOpacity,
         defaultValue = 0.7F,
         range = 0F..1F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -441,7 +442,7 @@ object AppSettings {
 
     val backgroundOpacity = SettingMeta.FloatSlider(
         key = "backgroundOpacity",
-        label = "Background opacity",
+        label = R.string.setting_backgroundOpacity,
         defaultValue = 1F,
         range = 0F..1F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -449,34 +450,34 @@ object AppSettings {
 
     val backgroundImage = SettingMeta.Image(
         key = "backgroundImage",
-        label = "Background image",
+        label = R.string.setting_backgroundImage,
         cacheFileName = "background-image.jpeg",
         scalingTarget = ImageScalingTarget.DeviceDisplay,
     )
 
     val enablePointerTrail = SettingMeta.Bool(
         key = "enablePointerTrail",
-        label = "Enable pointer trail",
+        label = R.string.setting_enablePointerTrail,
         defaultValue = true,
     )
 
     val enableFastActions = SettingMeta.Bool(
         key = "enableFastActions",
-        label = "Enable fast actions",
-        description = "Allows certain actions to be performed before the tap is released",
+        label = R.string.setting_enableFastActions,
+        description = R.string.setting_enableFastActions_desc,
         defaultValue = true,
     )
 
     val enableLongSwipes = SettingMeta.Bool(
         key = "enableLongSwipes",
-        label = "Enable long swipes",
-        description = "Enables shortcut actions on extra long swipes",
+        label = R.string.setting_enableLongSwipes,
+        description = R.string.setting_enableLongSwipes_desc,
         defaultValue = false,
     )
 
     val longSwipeThreshold = SettingMeta.FloatSlider(
         key = "longSwipeThreshold",
-        label = "Long swipe threshold",
+        label = R.string.setting_longSwipeThreshold,
         range = 0.5F..4F,
         defaultValue = 1.5F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -484,15 +485,15 @@ object AppSettings {
 
     val enableAdvancedModifiers = SettingMeta.Bool(
         key = "enableAdvancedModifiers",
-        label = "Enable advanced modifiers",
-        description = "Allows ctrl and alt modifiers to be toggled by swiping diagonally from space",
+        label = R.string.setting_enableAdvancedModifiers,
+        description = R.string.setting_enableAdvancedModifiers_desc,
         defaultValue = true,
     )
 
     val stickyModifiers = SettingMeta.Bool(
         key = "stickyModifiers",
-        label = "Sticky modifiers",
-        description = "When disabled, ctrl and alt modifiers are automatically cleared after typing a letter. When enabled, they must be cleared manually.",
+        label = R.string.setting_stickyModifiers,
+        description = R.string.setting_stickyModifiers_desc,
         defaultValue = false,
     )
 
@@ -502,26 +503,26 @@ object AppSettings {
 
     val periodOnDoubleSpace = SettingMeta.Bool(
         key = "periodOnDoubleSpace",
-        label = "Period on double space",
-        description = "Convert \"  \" into \". \"",
+        label = R.string.setting_periodOnDoubleSpace,
+        description = R.string.setting_periodOnDoubleSpace_desc,
         defaultValue = false,
     )
 
     // Deprecated options only used to migrate values to {counterC,c}lockwiseCircleBehaviour
     private val digitOnClockwiseCircle = SettingMeta.Bool(
         key = "digitOnClockwiseCircle",
-        label = "Type digit on clockwise circle",
+        label = R.string.setting_digitOnClockwiseCircle,
         defaultValue = false,
     )
     private val digitOnCounterClockwiseCircle = SettingMeta.Bool(
         key = "digitOnCounterClockwiseCircle",
-        label = "Type digit on counter-clockwise circle",
+        label = R.string.setting_digitOnCounterClockwiseCircle,
         defaultValue = false,
     )
 
     val clockwiseCircleBehaviour = SettingMeta.Enum(
         key = "clockwiseCircleBehaviour",
-        label = "Clockwise circle behaviour",
+        label = R.string.setting_clockwiseCircleBehaviour,
         defaultValue = ModifierBehaviourOption.Shift,
         options = ModifierBehaviourOption.entries,
         tryEnumValueOfT = { tryEnumValueOf<ModifierBehaviourOption>(it) },
@@ -530,7 +531,7 @@ object AppSettings {
 
     val counterClockwiseCircleBehaviour = SettingMeta.Enum(
         key = "counterClockwiseCircleBehaviour",
-        label = "Counter-clockwise circle behaviour",
+        label = R.string.setting_counterClockwiseCircleBehaviour,
         defaultValue = ModifierBehaviourOption.Shift,
         options = ModifierBehaviourOption.entries,
         tryEnumValueOfT = { tryEnumValueOf<ModifierBehaviourOption>(it) },
@@ -539,7 +540,7 @@ object AppSettings {
 
     val longHoldThresholdMillis = SettingMeta.FloatSlider(
         key = "longHoldThresholdMillis",
-        label = "Long hold duration threshold",
+        label = R.string.setting_longHoldThresholdMillis,
         // This is theoretically possible to modify with the `settings`
         // but there's no good event to read for updating this anyway.
         defaultValue = ViewConfiguration.getLongPressTimeout().toFloat(),
@@ -549,7 +550,7 @@ object AppSettings {
 
     val longHoldBehaviour = SettingMeta.Enum(
         key = "longHoldBehaviour",
-        label = "Long hold behaviour",
+        label = R.string.setting_longHoldBehaviour,
         defaultValue = ModifierBehaviourOption.Digit,
         options = ModifierBehaviourOption.entries,
         tryEnumValueOfT = { tryEnumValueOf<ModifierBehaviourOption>(it) },
@@ -558,48 +559,48 @@ object AppSettings {
 
     val disabledDeadkeys = SettingMeta.Text(
         key = "disabledDeadkeys",
-        label = "Disabled deadkeys",
+        label = R.string.setting_disabledDeadkeys,
         defaultValue = "",
-        description = "Special characters that should never be merged into the previous character",
+        description = R.string.setting_disabledDeadkeys_desc,
         placeholder = "(none)",
     )
 
     val keyHeight = SettingMeta.FloatSlider(
         key = "keyHeight",
-        label = "Key height",
+        label = R.string.setting_keyHeight,
         defaultValue = 72F,
         range = 48F..512F,
     )
 
     val swipeThreshold = SettingMeta.FloatSlider(
         key = "swipeThreshold",
-        label = "Swipe threshold",
-        description = "How far you need to drag before a tap becomes a swipe",
+        label = R.string.setting_swipeThreshold,
+        description = R.string.setting_swipeThreshold_desc,
         defaultValue = 8F,
         range = 8F..96F,
     )
 
     val fastSwipeThreshold = SettingMeta.FloatSlider(
         key = "fastSwipeTreshold",
-        label = "Fast swipe threshold",
-        description = "How far you need to drag between each fast action tick",
+        label = R.string.setting_fastSwipeTreshold,
+        description = R.string.setting_fastSwipeTreshold_desc,
         defaultValue = 16F,
         range = 8F..96F,
     )
 
     val gestureRecognizer = SettingMeta.Enum(
         key = "gestureRecognizer",
-        "Gesture recognizer",
+        label = R.string.setting_gestureRecognizer,
         defaultValue = GestureRecognizer.Default,
         options = GestureRecognizer.entries,
         tryEnumValueOfT = ::tryEnumValueOf,
-        previewOverride = { Text(it.description) },
+        previewOverride = { Text(stringResource(it.description)) },
     )
 
     val circleJaggednessThreshold = SettingMeta.FloatSlider(
         key = "circleJaggednessThreshold",
-        label = "Circle jaggedness threshold",
-        description = "How smooth a circle's radius must be",
+        label = R.string.setting_circleJaggednessThreshold,
+        description = R.string.setting_circleJaggednessThreshold_desc,
         defaultValue = .5F,
         range = .01F..1F,
         render = SettingMeta.FloatSlider.Companion::percentage,
@@ -607,8 +608,8 @@ object AppSettings {
 
     val circleDiscontinuityThreshold = SettingMeta.FloatSlider(
         key = "circleDiscontinuityThreshold",
-        label = "Circle discontinuity threshold",
-        description = "How much a circle's angle is allowed to jump",
+        label = R.string.setting_circleDiscontinuityThreshold,
+        description = R.string.setting_circleDiscontinuityThreshold_desc,
         defaultValue = PiF,
         range = 0F..PiF,
         render = SettingMeta.FloatSlider.Companion::angle,
@@ -616,8 +617,8 @@ object AppSettings {
 
     val circleAngleThreshold = SettingMeta.FloatSlider(
         key = "circleAngleThreshold",
-        label = "Circle angle threshold",
-        description = "How full the circle must be to be detected",
+        label = R.string.setting_circleAngleThreshold,
+        description = R.string.setting_circleAngleThreshold_desc,
         defaultValue = 1.5F * PiF,
         range = 1.5F * PiF..3F * PiF,
         render = SettingMeta.FloatSlider.Companion::angle,
@@ -625,85 +626,84 @@ object AppSettings {
 
     val enableHapticFeedbackOnGestureStart = SettingMeta.Bool(
         key = "enableHapticFeedbackOnGestureStart",
-        label = "Vibrate on gesture start",
+        label = R.string.setting_enableHapticFeedbackOnGestureStart,
         defaultValue = false,
     )
 
     val enableHapticFeedbackOnGestureSuccess = SettingMeta.Bool(
         key = "enableHapticFeedback",
-        label = "Vibrate on gesture finish",
+        label = R.string.setting_enableHapticFeedback,
         defaultValue = true,
     )
 
     val enableVisualFeedback = SettingMeta.Bool(
         key = "enableVisualFeedback",
-        label = "Highlight taken actions",
+        label = R.string.setting_enableVisualFeedback,
         defaultValue = true,
     )
 
     val disableVisualFeedbackForPasswords = SettingMeta.Bool(
         key = "disableVisualFeedbackForPasswords",
-        label = "Disable visual feedback (and pointer trails) for password fields",
+        label = R.string.setting_disableVisualFeedbackForPasswords,
         defaultValue = true,
     )
 
     val visualFeedbackInvertColourScheme = SettingMeta.Bool(
         key = "visualFeedbackInvertColourScheme",
-        label = "Make visual highlight extra prominent",
+        label = R.string.setting_visualFeedbackInvertColourScheme,
         defaultValue = false,
     )
 
     val enableKeyboardPreview = SettingMeta.Bool(
         key = "enableKeyboardPreview",
-        label = "Enable keyboard preview",
+        label = R.string.setting_enableKeyboardPreview,
         defaultValue = true,
     )
 
     val dropLastGesturePoint = SettingMeta.Bool(
         key = "dropLastGesturePoint",
-        label = "Ignore last gesture point",
+        label = R.string.setting_dropLastGesturePoint,
         defaultValue = false,
-        description = "This can help against some devices that insert erroneous motion at the end of gestures",
+        description = R.string.setting_dropLastGesturePoint_desc,
     )
 
     val ignoreJumpsLongerThanPx = SettingMeta.FloatSlider(
         key = "ignoreJumpsLongerThanPx",
-        label = "Ignore jumps larger than limit",
+        label = R.string.setting_ignoreJumpsLongerThanPx,
         defaultValue = 600F,
         range = 16F..600F,
-        description = "This can help against some devices that insert erroneous motion in the middle of " +
-                "gestures, at the cost of sometimes causing misinput if the device lags",
+        description = R.string.setting_ignoreJumpsLongerThanPx_desc,
     )
 
     val flicksMustBeLongerThanSeconds = SettingMeta.FloatSlider(
         key = "flicksMustBeLongerThanSeconds",
-        label = "Swipes must be longer than limit",
+        label = R.string.setting_flicksMustBeLongerThanSeconds,
         defaultValue = 0F,
         range = 0F..1F,
-        description = "All gestures shorter than the limit will be forcibly interpreted as taps, rather than swipes",
+        description = R.string.setting_flicksMustBeLongerThanSeconds_desc,
         render = { String.format(locale = Locale.getDefault(), "%.2fs", it) },
     )
 
     val noReverseRtlBrackets = SettingMeta.Bool(
         key = "noReverseRtlBrackets",
-        label = "Do not reverse brackets in right-to-left languages",
+        label = R.string.setting_noReverseRtlBrackets,
         defaultValue = isSamsungDevice,
-        description = "This is required for the correct brackets to be typed on some devices (especially Samsung)",
+        description = R.string.setting_noReverseRtlBrackets_desc,
     )
 
     val enableCustomHaptics = SettingMeta.Bool(
         key = "enableCustomHaptics",
-        label = "Enable custom vibration",
+        label = R.string.setting_enableCustomHaptics,
         defaultValue = false,
-        description = "This is required for some devices that ship broken vibration profiles that aren't strong enough to notice",
+        description = R.string.setting_enableCustomHaptics_desc,
     )
 
     val customHapticsDuration = SettingMeta.FloatSlider(
         key = "customHapticsDuration",
-        label = "Custom vibration duration",
+        label = R.string.setting_customHapticsDuration,
         defaultValue = 30F,
         range = 0F..300F,
-        description = "Only used when custom vibration is enabled",
+        description = R.string.setting_customHapticsDuration_desc,
         render = { "${it.roundToInt()}ms" },
     )
 
@@ -711,15 +711,15 @@ object AppSettings {
     val emojiHistory =
         SettingMeta.Text(
             key = "emojiHistory",
-            label = "Emoji history",
+            label = R.string.setting_emojiHistory,
             defaultValue = "",
         )
 
     val saveEmojiHistory = SettingMeta.Bool(
         key = "saveEmojiHistory",
-        label = "Remember recent emojis",
+        label = R.string.setting_saveEmojiHistory,
         defaultValue = false,
-        description = "History is only saved locally, and will not be shared.",
+        description = R.string.setting_saveEmojiHistory_desc,
         onChange = { ctx, enabled ->
             // Reset history on disable
             if (!enabled) {
@@ -730,11 +730,9 @@ object AppSettings {
 
     val saveClipboardHistory = SettingMeta.Bool(
         key = "saveClipboardHistory",
-        label = "Save clipboard history",
+        label = R.string.setting_saveClipboardHistory,
         defaultValue = false,
-        description = "History is only saved locally, and will not be shared.\n" +
-                "Clipboard entries marked as \"sensitive\" will not be stored," +
-                " but this requires the sharing app to know that it is sensitive.",
+        description = R.string.setting_saveClipboardHistory_desc,
         onChange = { ctx, enabled ->
             // Reset history on disable
             if (!enabled) {
@@ -748,35 +746,35 @@ object AppSettings {
     // Section display toggles that are intentionally not listed as regular settings
     val clipboardHistoryShowPinned = SettingMeta.Bool(
         key = "clipboardHistoryShowPinned",
-        label = "Clipboard History: Show Pinned",
+        label = R.string.setting_clipboardHistoryShowPinned,
         defaultValue = true,
     )
     val clipboardHistoryShowHistory = SettingMeta.Bool(
         key = "clipboardHistoryShowHistory",
-        label = "Clipboard History: Show History",
+        label = R.string.setting_clipboardHistoryShowHistory,
         defaultValue = true,
     )
     val clipboardHistoryShowTips = SettingMeta.Bool(
         key = "clipboardHistoryShowTips",
-        label = "Clipboard History: Show Tips",
+        label = R.string.setting_clipboardHistoryShowTips,
         defaultValue = true,
     )
 
     val zalgoSubstitutionsShowCustom = SettingMeta.Bool(
         key = "zalgoSubstitutionsShowCustom",
-        label = "Zalgo Substitutions: Show Custom",
+        label = R.string.setting_zalgoSubstitutionsShowCustom,
         defaultValue = true,
     )
 
     val zalgoSubstitutionsShowDefault = SettingMeta.Bool(
         key = "zalgoSubstitutionsShowDefault",
-        label = "Zalgo Substitutions: Show Default",
+        label = R.string.setting_zalgoSubstitutionsShowDefault,
         defaultValue = false,
     )
 
     val zalgoSubstitutionsShowTips = SettingMeta.Bool(
         key = "zalgoSubstitutionsShowTips",
-        label = "Zalgo Substitutions: Show Tips",
+        label = R.string.setting_zalgoSubstitutionsShowTips,
         defaultValue = true,
     )
 

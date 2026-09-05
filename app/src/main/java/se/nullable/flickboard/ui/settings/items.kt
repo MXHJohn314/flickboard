@@ -54,6 +54,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -160,7 +161,10 @@ fun <T : Labeled> EnumListSetting(meta: SettingMeta.EnumList<T>) {
     }
     BaseEnumSetting(
         meta, state,
-        valueLabel = { it.singleOrNull()?.label ?: "${it.size} enabled" },
+        valueLabel = { selected ->
+            selected.singleOrNull()?.label?.let { stringResource(it) }
+                ?: stringResource(R.string.enumList_manyEnabled, selected.size)
+        },
         options = meta.options,
         optionSelectionControl = { selected, option ->
             Switch(
@@ -186,7 +190,7 @@ fun <T : Labeled> EnumSetting(meta: SettingMeta.Enum<T>) {
     if (meta.options.size > 1) {
         BaseEnumSetting(
             meta, state,
-            valueLabel = { it.label },
+            valueLabel = { stringResource(it.label) },
             options = meta.options,
             optionSelectionControl = { selected, option ->
                 RadioButton(
@@ -346,7 +350,7 @@ fun ColourSetting(meta: SettingMeta.Colour) {
 fun <T : Labeled, V : Any> BaseEnumSetting(
     meta: SettingMeta<V>,
     state: ResettableState<V>,
-    valueLabel: (V) -> String,
+    valueLabel: @Composable (V) -> String,
     options: List<T>,
     optionSelectionControl: @Composable (V, T) -> Unit,
     optionIsSelected: (V, T) -> Boolean,
@@ -419,7 +423,7 @@ fun <T : Labeled, V : Any> BaseEnumSetting(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Text(
-                                        text = option.label,
+                                        text = stringResource(option.label),
                                         fontSize = 16.sp,
                                         modifier = Modifier.weight(1F),
                                     )
@@ -475,11 +479,11 @@ fun RowScope.SettingLabel(setting: SettingMeta<*>) {
             .weight(1f, false)
             .padding(end = 8.dp),
     ) {
-        Text(text = setting.label)
+        Text(text = stringResource(setting.label))
         val description = setting.description
         if (description != null) {
             Text(
-                text = description,
+                text = stringResource(description),
                 softWrap = true,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7F),
                 fontWeight = FontWeight.Light,

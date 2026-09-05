@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.JsonReader
 import android.util.JsonToken
 import android.util.JsonWriter
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
@@ -60,7 +61,7 @@ class SettingsContext(
 
     companion object {
         /**
-         * Do not use in a composable context! Use [LocalAppSettings] instead!
+         * Do not use in a composable context! Use [LocalSettingsContext] instead!
          */
         fun appPrefsForContext(context: Context): SharedPreferences =
             context.getSharedPreferences(
@@ -174,8 +175,12 @@ interface SettingProjection<T> {
 
 sealed class SettingMeta<T> : SettingProjection<T> {
     abstract val key: String
-    abstract val label: String
-    abstract val description: String?
+
+    @get:StringRes
+    abstract val label: Int
+
+    @get:StringRes
+    abstract val description: Int?
 
     override fun observesKey(key: String?): Boolean = key == this.key
     override fun isSet(ctx: SettingsContext): Boolean = ctx.prefs.contains(key)
@@ -196,9 +201,9 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class Bool(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val defaultValue: Boolean,
-        override val description: String? = null,
+        @param:StringRes override val description: Int? = null,
         val onChange: (SettingsContext.Editor, Boolean) -> Unit = { _, _ -> },
     ) : SettingMeta<Boolean>() {
         override fun readFrom(ctx: SettingsContext): Boolean =
@@ -217,9 +222,9 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class Integer(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val defaultValue: Int,
-        override val description: String? = null,
+        @param:StringRes override val description: Int? = null,
     ) : SettingMeta<Int>() {
         override fun readFrom(ctx: SettingsContext): Int =
             ctx.prefs.getInt(key, defaultValue)
@@ -236,9 +241,9 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class Text(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val defaultValue: String,
-        override val description: String? = null,
+        @param:StringRes override val description: Int? = null,
         val placeholder: String? = null,
     ) : SettingMeta<String>() {
         override fun readFrom(ctx: SettingsContext): String =
@@ -256,10 +261,10 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class FloatSlider(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val defaultValue: Float,
         val range: ClosedFloatingPointRange<Float>,
-        override val description: String? = null,
+        @param:StringRes override val description: Int? = null,
         val render: (Float) -> String = { it.roundToInt().toString() },
     ) : SettingMeta<Float>() {
         override fun readFrom(ctx: SettingsContext): Float =
@@ -282,12 +287,12 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class EnumList<T : Labeled>(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val defaultValue: List<T>,
         val options: List<T>,
         /** Should be [tryEnumValueOf] */
         val tryEnumValueOfT: (String) -> T?,
-        override val description: String? = null,
+        @param:StringRes override val description: Int? = null,
         val writePreviewSettings: (SettingsContext.Editor) -> Unit = {},
     ) : SettingMeta<List<T>>() {
         override fun readFrom(ctx: SettingsContext): List<T> =
@@ -319,12 +324,12 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class Enum<T : Labeled>(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val defaultValue: T,
         val options: List<T>,
         /** Should be [tryEnumValueOf]<T> */
         val tryEnumValueOfT: (String) -> T?,
-        override val description: String? = null,
+        @param:StringRes override val description: Int? = null,
         val writePreviewSettings: (SettingsContext.Editor) -> Unit = {},
         val previewOverride: (@Composable (T) -> Unit)? = null,
         val previewForceLandscape: Boolean = false,
@@ -344,10 +349,10 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class Image(
         override val key: String,
-        override val label: String,
+        @param:StringRes override val label: Int,
         val cacheFileName: String,
         val scalingTarget: ImageScalingTarget,
-        override val description: String? = null,
+        @param:StringRes override val description: Int? = null,
     ) : SettingMeta<Uri?>() {
         override fun readFrom(ctx: SettingsContext): Uri? =
             ctx.prefs.getString(key, null)?.let(Uri::parse)
@@ -366,8 +371,8 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 
     class Colour(
         override val key: String,
-        override val label: String,
-        override val description: String? = null,
+        @param:StringRes override val label: Int,
+        @param:StringRes override val description: Int? = null,
     ) : SettingMeta<Color?>() {
         override fun readFrom(ctx: SettingsContext): Color? =
             ctx.prefs.getInt(key, 0).takeUnless { it == 0 }?.let { Color(it) }
@@ -386,7 +391,8 @@ sealed class SettingMeta<T> : SettingProjection<T> {
 }
 
 interface Labeled {
-    val label: String
+    @get:StringRes
+    val label: Int
 }
 
 enum class ImageScalingTarget {

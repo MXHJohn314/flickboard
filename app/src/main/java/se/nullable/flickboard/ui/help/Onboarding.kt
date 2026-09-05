@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,6 +40,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import se.nullable.flickboard.KeyboardService
+import se.nullable.flickboard.R
 import se.nullable.flickboard.ui.FlickBoardParent
 import se.nullable.flickboard.ui.theme.Transition
 
@@ -101,25 +103,24 @@ fun OnboardingPrompt() {
 fun OnboardingPromptEnable() {
     val context = LocalContext.current
     OnboardingPromptCard(
-        title = "Keyboard not enabled",
+        title = stringResource(R.string.onboarding_keyboardNotEnabled),
         onClick = {
             context.startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
         },
     ) {
-        Text("The keyboard must be enabled before it can be used. Tap here to enable it.")
-        Text("You can still try it in the preview below.")
+        Text(stringResource(R.string.onboarding_keyboardNotEnabled_desc))
     }
 }
 
 @Composable
 fun OnboardingPromptSelect(inputManager: InputMethodManager?) {
     OnboardingPromptCard(
-        title = "Keyboard not selected",
+        title = stringResource(R.string.onboarding_keyboardNotSelected),
         onClick = {
             inputManager?.showInputMethodPicker()
         },
     ) {
-        Text("The keyboard must be selected as you active input method before it can be used. Tap here to open the picker.")
+        Text(stringResource(R.string.onboarding_keyboardNotSelected_desc))
     }
 }
 

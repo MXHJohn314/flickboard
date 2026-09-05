@@ -22,9 +22,11 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import se.nullable.flickboard.R
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -138,7 +140,7 @@ fun PointerTrail(modifier: Modifier, state: PointerTrailState) {
     }
     Canvas(
         modifier.onSizeChanged { state.trailOverlayBitmap = ImageBitmap(it.width, it.height) },
-        "Pointer trail",
+        stringResource(R.string.pointerTrail),
     ) {
         state.needRedraw
         drawImage(state.trailOverlayBitmap, colorFilter = pointerTrailTint)

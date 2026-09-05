@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">FlickBoard</string>
+    <string name="app_keyboard">FlickBoard keyboard</string>
 
     <string name="page_tutorial">Tutorial</string>
     <string name="page_keyboardDescriber">What Does This Do?</string>
@@ -11,7 +12,23 @@
     <string name="link_sourcecode">View Source on Codeberg</string>
     <string name="link_issues">Report Bugs on Codeberg</string>
 
+    <string name="tutorial_title">Welcome to FlickBoard!</string>
+    <string name="tutorial_intro">FlickBoard is a pretty unusual keyboard, so let\'s get you a quick run-down of how to use it.</string>
     <string name="tutorial_skip">SKIP</string>
+    <string name="tutorial_finish">Finish</string>
+    <string name="tutorial_personalization">Personalization</string>
+    <string name="tutorial_handedness">Which side is your dominant hand?</string>
+    <string name="tutorial_typing">Typing</string>
+    <string name="tutorial_typing_instruction_center">To type the character in the middle of a key, tap it.\nTry tapping the key now, to type an o!</string>
+    <string name="tutorial_typing_edge">Typing (edge)</string>
+    <string name="tutorial_typing_instruction_edge">Unlike most other keyboards, FlickBoard keys have multiple characters on them.\nTo type a character at the edge of a key, swipe in that direction.\nTry swiping towards the right from the key, to type a b!</string>
+    <string name="tutorial_typing_corner">Typing (corner)</string>
+    <string name="tutorial_typing_instruction_corner">Characters can also appear at a corner of the key.\nTry swiping towards the bottom-left from key, to type a g!</string>
+    <string name="tutorial_uppercase">Upper-case</string>
+    <string name="tutorial_uppercase_instruction_center">To type an upper-case character in the middle of a key, draw a circle, starting on the key.\nTry typing an upper-case O now!</string>
+    <string name="tutorial_uppercase_edge">Upper-case (edge)</string>
+    <string name="tutorial_uppercase_instruction_edge">To type an upper-case character at an edge, swipe towards it and then return to where you started.\nTry typing an upper-case G now!</string>
+    <string name="tutorial_complete">Great, you\'ve got the hang of it!</string>
 
     <string name="home_testPad">Type here to try FlickBoard</string>
     <string name="home_settings">Settings</string>
@@ -25,4 +42,371 @@
     <string name="settingsGroup_feedback">Feedback</string>
     <string name="settingsGroup_workarounds">Workarounds</string>
     <string name="settingsGroup_privacy">Privacy</string>
+
+    <string name="setting_settingsVersion" translatable="false">Settings format version</string>
+    <string name="setting_hasCompletedTutorial" translatable="false">Has completed tutorial</string>
+    <string name="setting_layout">Letter layouts</string>
+    <string name="setting_activeLetterLayerIndex" translatable="false">Active letter layer index</string>
+    <string name="setting_secondaryLetterLayer">Secondary letter layout</string>
+    <string name="setting_secondaryLetterLayer_desc">Only applies when using double letter layers</string>
+    <string name="setting_numericLayer">Number layout</string>
+    <string name="setting_enabledLayers">Enabled layers</string>
+    <string name="setting_enabledLayersLandscape">Enabled layers (landscape)</string>
+    <string name="setting_handedness">Handedness</string>
+    <string name="setting_invertSwipeDelete">Invert delete-swipe direction</string>
+    <string name="setting_landscapeLocation">Landscape location</string>
+    <string name="setting_landscapeScale">Landscape scale</string>
+    <string name="setting_landscapeSplit">Landscape split</string>
+    <string name="setting_landscapeControlSection">Control section mode in landscape</string>
+    <string name="setting_portraitLocation">Portrait location</string>
+    <string name="setting_portraitScale">Portrait scale</string>
+    <string name="setting_showLetters">Show letters</string>
+    <string name="setting_showLetters_desc">Can also be toggled by swiping up from spacebar</string>
+    <string name="setting_showSymbols">Show symbols</string>
+    <string name="setting_showSymbols_desc">Can also be toggled by swiping up-then-down from spacebar</string>
+    <string name="setting_enableToggleShowSymbolsGesture">Enable toggle show symbols/letters gestures</string>
+    <string name="setting_showNumbers">Show numbers</string>
+    <string name="setting_enableHiddenActions">Enable hidden actions</string>
+    <string name="setting_keyboardMargin">Keyboard margin</string>
+    <string name="setting_keyboardMarginBottomPortrait">Keyboard bottom margin (portrait)</string>
+    <string name="setting_keyRoundness">Key roundness</string>
+    <string name="setting_keyGap">Key gap</string>
+    <string name="setting_keyOutline">Key outline</string>
+    <string name="setting_actionVisualBiasCenter">Center key label scale</string>
+    <string name="setting_actionVisualScale">Key label scale</string>
+    <string name="setting_keyColour">Key colour</string>
+    <string name="setting_keyColour_attrib_desc">Only applies when using a custom colour</string>
+    <string name="setting_keyColourChroma">Key colour saturation</string>
+    <string name="setting_keyColourTone">Key colour brightness</string>
+    <string name="setting_keyOpacity">Key opacity</string>
+    <string name="setting_backgroundOpacity">Background opacity</string>
+    <string name="setting_backgroundImage">Background image</string>
+    <string name="setting_enablePointerTrail">Enable pointer trail</string>
+    <string name="setting_enableFastActions">Enable fast actions</string>
+    <string name="setting_enableFastActions_desc">Allows certain actions to be performed before the tap is released</string>
+    <string name="setting_enableLongSwipes">Enable long swipes</string>
+    <string name="setting_enableLongSwipes_desc">Enables shortcut actions on extra long swipes</string>
+    <string name="setting_longSwipeThreshold">Long swipe threshold</string>
+    <string name="setting_enableAdvancedModifiers">Enable advanced modifiers</string>
+    <string name="setting_enableAdvancedModifiers_desc">Allows ctrl and alt modifiers to be toggled by swiping diagonally from space</string>
+    <string name="setting_stickyModifiers">Sticky modifiers</string>
+    <string name="setting_stickyModifiers_desc">When disabled, ctrl and alt modifiers are automatically cleared after typing a letter. When enabled, they must be cleared manually.</string>
+    <string name="setting_periodOnDoubleSpace">Period on double space</string>
+    <string name="setting_periodOnDoubleSpace_desc">Convert \"  \" into \". \"</string>
+    <string name="setting_digitOnClockwiseCircle" translatable="false">Type digit on clockwise circle</string>
+    <string name="setting_digitOnCounterClockwiseCircle" translatable="false">Type digit on counter-clockwise circle</string>
+    <string name="setting_clockwiseCircleBehaviour">Clockwise circle behaviour</string>
+    <string name="setting_counterClockwiseCircleBehaviour">Counter-clockwise circle behaviour</string>
+    <string name="setting_longHoldThresholdMillis">Long hold duration threshold</string>
+    <string name="setting_longHoldBehaviour">Long hold behaviour</string>
+    <string name="setting_disabledDeadkeys">Disabled deadkeys</string>
+    <string name="setting_disabledDeadkeys_desc">Special characters that should never be merged into the previous character</string>
+    <string name="setting_keyHeight">Key height</string>
+    <string name="setting_swipeThreshold">Swipe threshold</string>
+    <string name="setting_swipeThreshold_desc">How far you need to drag before a tap becomes a swipe</string>
+    <string name="setting_fastSwipeTreshold">Fast swipe threshold</string>
+    <string name="setting_fastSwipeTreshold_desc">How far you need to drag between each fast action tick</string>
+    <string name="setting_gestureRecognizer">Gesture recognizer</string>
+    <string name="setting_circleJaggednessThreshold">Circle jaggedness threshold</string>
+    <string name="setting_circleJaggednessThreshold_desc">How smooth a circle\'s radius must be</string>
+    <string name="setting_circleDiscontinuityThreshold">Circle discontinuity threshold</string>
+    <string name="setting_circleDiscontinuityThreshold_desc">How much a circle\'s angle is allowed to jump</string>
+    <string name="setting_circleAngleThreshold">Circle angle threshold</string>
+    <string name="setting_circleAngleThreshold_desc">How full the circle must be to be detected</string>
+    <string name="setting_enableHapticFeedbackOnGestureStart">Vibrate on gesture start</string>
+    <string name="setting_enableHapticFeedback">Vibrate on gesture finish</string>
+    <string name="setting_enableVisualFeedback">Highlight taken actions</string>
+    <string name="setting_disableVisualFeedbackForPasswords">Disable visual feedback (and pointer trails) for password fields</string>
+    <string name="setting_visualFeedbackInvertColourScheme">Make visual highlight extra prominent</string>
+    <string name="setting_enableKeyboardPreview" translatable="false">Enable keyboard preview</string>
+    <string name="setting_dropLastGesturePoint">Ignore last gesture point</string>
+    <string name="setting_dropLastGesturePoint_desc">This can help against some devices that insert erroneous motion at the end of gestures</string>
+    <string name="setting_ignoreJumpsLongerThanPx">Ignore jumps larger than limit</string>
+    <string name="setting_ignoreJumpsLongerThanPx_desc">This can help against some devices that insert erroneous motion in the middle of gestures, at the cost of sometimes causing misinput if the device lags</string>
+    <string name="setting_flicksMustBeLongerThanSeconds">Swipes must be longer than limit</string>
+    <string name="setting_flicksMustBeLongerThanSeconds_desc">All gestures shorter than the limit will be forcibly interpreted as taps, rather than swipes</string>
+    <string name="setting_noReverseRtlBrackets">Do not reverse brackets in right-to-left languages</string>
+    <string name="setting_noReverseRtlBrackets_desc">This is required for the correct brackets to be typed on some devices (especially Samsung)</string>
+    <string name="setting_enableCustomHaptics">Enable custom vibration</string>
+    <string name="setting_enableCustomHaptics_desc">This is required for some devices that ship broken vibration profiles that aren\'t strong enough to notice</string>
+    <string name="setting_customHapticsDuration">Custom vibration duration</string>
+    <string name="setting_customHapticsDuration_desc">Only used when custom vibration is enabled</string>
+    <string name="setting_emojiHistory" translatable="false">Emoji history</string>
+    <string name="setting_saveEmojiHistory">Remember recent emojis</string>
+    <string name="setting_saveEmojiHistory_desc">History is only saved locally, and will not be shared.</string>
+    <string name="setting_saveClipboardHistory">Save clipboard history</string>
+    <string name="setting_saveClipboardHistory_desc">History is only saved locally, and will not be shared.\nClipboard entries marked as \"sensitive\" will not be stored, but this requires the sharing app to know that it is sensitive.</string>
+    <string name="setting_clipboardHistoryShowPinned" translatable="false">Clipboard History: Show Pinned</string>
+    <string name="setting_clipboardHistoryShowHistory" translatable="false">Clipboard History: Show History</string>
+    <string name="setting_clipboardHistoryShowTips" translatable="false">Clipboard History: Show Tips</string>
+    <string name="setting_zalgoSubstitutionsShowCustom" translatable="false">Zalgo Substitutions: Show Custom</string>
+    <string name="setting_zalgoSubstitutionsShowDefault" translatable="false">Zalgo Substitutions: Show Default</string>
+    <string name="setting_zalgoSubstitutionsShowTips" translatable="false">Zalgo Substitutions: Show Tips</string>
+
+    <string name="onboarding_keyboardNotEnabled">Keyboard not enabled</string>
+    <string name="onboarding_keyboardNotEnabled_desc">The keyboard must be enabled before it can be used. Tap here to enable it.\nYou can still try it in the preview below.</string>
+    <string name="onboarding_keyboardNotSelected">Keyboard not selected</string>
+    <string name="onboarding_keyboardNotSelected_desc">The keyboard must be selected as your active input method before it can be used. Tap here to open the picker.</string>
+    <string name="back">Back</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="pageIndicator">page indicator</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="copy">Copy</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="deleted">Deleted</string>
+    <string name="deleteAll">Delete all</string>
+    <string name="open">open</string>
+    <string name="undo">Undo</string>
+    <string name="add">Add</string>
+    <string name="tips">Tips</string>
+    <string name="loadingPlaceholder">(loading)</string>
+    <string name="returnToKeyboard">Return to keyboard</string>
+    <string name="enumList_manyEnabled">%1$d enabled</string>
+    <string name="pointerTrail">Pointer trail</string>
+
+    <string name="fastAction">Fast Action</string>
+    <string name="shift">Shift</string>
+    <string name="transientShift">Transient Shift</string>
+    <string name="hold">Hold</string>
+    <string name="reach">Reach</string>
+
+    <string name="keyboardDescriber_actionDescription">action description</string>
+    <string name="keyboardDescriber_withModifiers">With modifiers:</string>
+    <string name="keyboardDescriber_relatedGestures">Related gestures:</string>
+    <string name="keyboardDescriber_try">Perform a gesture to see what it does!</string>
+
+    <string name="clipboard">Clipboard</string>
+    <string name="clipboard_copied">Copied \"%1$s\"</string>
+    <string name="clipboard_pin">Pin</string>
+    <string name="clipboard_unpin">Unpin</string>
+    <string name="clipboard_pinned">Pinned</string>
+    <string name="clipboard_history">History</string>
+    <string name="clipboard_history_empty">The history is empty, go and copy something!</string>
+    <string name="clipboard_history_disabled">Clipboard history is disabled.</string>
+    <string name="clipboard_history_tips_copied">Any text copied (while clipboard history is enabled) will be saved here.</string>
+    <string name="clipboard_history_tips_limit">Only the %1$d most recent unpinned items will be kept.</string>
+    <string name="clipboard_history_tips_insert">An item can be inserted by tapping it.</string>
+    <string name="clipboard_history_tips_actions">Items can be pinned, copied, or deleted by swiping them to the side.</string>
+
+    <string name="emoji_search">emoji search</string>
+    <string name="emoji_history">emoji history</string>
+    <string name="emoji_hasVariants">has variants</string>
+
+    <string name="enabledLayers_all">All</string>
+    <string name="enabledLayers_lettersOnly">Letters only</string>
+    <string name="enabledLayers_numbersOnly">Numbers only</string>
+    <string name="enabledLayers_doubleLetters">Double letters</string>
+    <string name="enabledLayers_allMiniNumbers">All (mini numbers)</string>
+    <string name="enabledLayers_allMiniNumbersInMiddle">All (mini numbers in middle)</string>
+    <string name="enabledLayers_allMiniNumbersOnOppositeSide">All (mini numbers on opposite side)</string>
+    <string name="enabledLayers_landscape_inherit">Same as portrait</string>
+
+    <string name="handedness_leftHanded">Left-handed</string>
+    <string name="handedness_rightHanded">Right-handed</string>
+    <string name="invertSwipeDelete_never">Never</string>
+    <string name="invertSwipeDelete_never_desc">Never invert the delete direction.</string>
+    <string name="invertSwipeDelete_always">Always</string>
+    <string name="invertSwipeDelete_always_desc">Always invert the swipe-to-delete direction.</string>
+    <string name="invertSwipeDelete_rightHanded_desc">Only invert the swipe-to-delete direction when in right-handed mode (where the delete key will usually be on the left edge of the screen).</string>
+    <string name="invertSwipeDelete_leftHanded_desc">Only invert the swipe-to-delete direction when in left-handed mode (where the delete key will usually be on the right edge of the screen).</string>
+
+    <string name="numericLayerOption_phone">Phone</string>
+    <string name="numericLayerOption_calculator">Calculator</string>
+
+    <string name="controlSectionOption_single">Single</string>
+    <string name="controlSectionOption_doubleInside">Double (inside)</string>
+    <string name="controlSectionOption_doubleOutside">Double (outside)</string>
+
+    <string name="modifierBehaviourOption_digit">Type digit</string>
+    <string name="modifierBehaviourOption_shift">Use shifted action</string>
+
+    <string name="gestureRecognizer_default">Default</string>
+    <string name="gestureRecognizer_default_desc">The default FlickBoard gesture recognizer</string>
+    <string name="gestureRecognizer_dollar1">$1 (OLD EXPERIMENT)</string>
+    <string name="gestureRecognizer_dollar1_desc">Experimental legacy gesture recognizer (many recognition settings do not apply)</string>
+
+    <string name="letterLayerOption_arabic">Arabic (MessagEase)</string>
+    <string name="letterLayerOption_bulgarianHlonrno">Bulgarian (hlonrno)</string>
+    <string name="letterLayerOption_bulgarianThumbKey">Bulgarian (Thumb-Key)</string>
+    <string name="letterLayerOption_danish">Danish (MessagEase)</string>
+    <string name="letterLayerOption_english">English (MessagEase)</string>
+    <string name="letterLayerOption_englishThumbKey">English (Thumb-Key)</string>
+    <string name="letterLayerOption_esperanto">Esperanto (MessagEase)</string>
+    <string name="letterLayerOption_french">French (MessagEase)</string>
+    <string name="letterLayerOption_frenchExt">French (Extended MessagEase)</string>
+    <string name="letterLayerOption_frenchPunc">French (Punctuation MessagEase)</string>
+    <string name="letterLayerOption_frenchEnglishFrappefluide"><![CDATA[French & English (Frappefluide)]]></string>
+    <string name="letterLayerOption_german">German (MessagEase)</string>
+    <string name="letterLayerOption_germanEnglish"><![CDATA[German & English (MessagEase-style)]]></string>
+    <string name="letterLayerOption_germanEsperanto"><![CDATA[German & Esperanto (MessagEase-style)]]></string>
+    <string name="letterLayerOption_georgian">Georgian (by Vladimir Solovev)</string>
+    <string name="letterLayerOption_hebrew">Hebrew (MessagEase)</string>
+    <string name="letterLayerOption_hungarian">Hungarian (MessagEase)</string>
+    <string name="letterLayerOption_hungarianDt">Hungarian (MessagEase-style, by Dániel Tenke)</string>
+    <string name="letterLayerOption_hungarianMf">Hungarian (MessagEase-style, by Máté Farkas)</string>
+    <string name="letterLayerOption_hungarianUUp">Hungarian (MessagEase-style, U always up)</string>
+    <string name="letterLayerOption_italian">Italian (MessagEase)</string>
+    <string name="letterLayerOption_norwegianThumbKey">Norwegian (Thumb-Key)</string>
+    <string name="letterLayerOption_persian">Persian (MessagEase)</string>
+    <string name="letterLayerOption_persianThumbKey">Persian (Thumb-Key)</string>
+    <string name="letterLayerOption_polishRmitura">Polish (MessagEase-style, Rmitura)</string>
+    <string name="letterLayerOption_portuguese">Portuguese (MessagEase)</string>
+    <string name="letterLayerOption_portugueseIos">Portuguese (MessagEase, iOS)</string>
+    <string name="letterLayerOption_romanianEnglishThumbKey"><![CDATA[Romanian & English (Thumb-Key)]]></string>
+    <string name="letterLayerOption_russian">Russian (MessagEase)</string>
+    <string name="letterLayerOption_russianPhonetic">Russian phonetic (MessagEase)</string>
+    <string name="letterLayerOption_spanish">Spanish (MessagEase)</string>
+    <string name="letterLayerOption_spanishCatalan"><![CDATA[Spanish & Catalan (MessagEase-style)]]></string>
+    <string name="letterLayerOption_spanishEnglish"><![CDATA[Spanish & English (MessagEase)]]></string>
+    <string name="letterLayerOption_swedish">Swedish (MessagEase-style)</string>
+    <string name="letterLayerOption_swedishDe">Swedish (MessagEase, German-style)</string>
+    <string name="letterLayerOption_turkish">Turkish (MessagEase)</string>
+    <string name="letterLayerOption_ukrainian">Ukrainian (MessagEase)</string>
+    <string name="letterLayerOption_ukrainianRussian">Ukrainian Russian (MessagEase)</string>
+
+    <string name="materialToneMode_system">System</string>
+    <string name="materialToneMode_light">Light</string>
+    <string name="materialToneMode_dark">Dark</string>
+    <string name="materialToneMode_midnight">Midnight</string>
+
+    <string name="action_text">Type %1$s</string>
+    <string name="action_text_desc">Types the character %1$s into the active text field.</string>
+    <string name="action_delete_backwardsCharacter">Backspace</string>
+    <string name="action_delete_backwardsWord">Backspace (Word)</string>
+    <string name="action_delete_backwardsLine">Backspace (Line)</string>
+    <string name="action_delete_forwardsCharacter">Delete</string>
+    <string name="action_delete_forwardsWord">Delete (Word)</string>
+    <string name="action_delete_forwardsLine">Delete (Line)</string>
+    <string name="action_delete_desc_backwardsCharacter">Deletes the previous character.</string>
+    <string name="action_delete_desc_backwardsWord">Deletes the previous word.</string>
+    <string name="action_delete_desc_backwardsLine">Deletes the previous line.</string>
+    <string name="action_delete_desc_forwardsCharacter">Deletes the next character.</string>
+    <string name="action_delete_desc_forwardsWord">Deletes the next word.</string>
+    <string name="action_delete_desc_forwardsLine">Deletes the next line.</string>
+    <string name="action_delete_desc_fastActions_character">When Fast Actions are enabled, multiple characters can be selected for deletion by swiping west/east.</string>
+    <string name="action_delete_desc_fastActions_word">When Fast Actions are enabled, multiple words can be selected for deletion by swiping west/east.</string>
+    <string name="action_delete_desc_fastActions_line">When Fast Actions are enabled, multiple lines can be selected for deletion by swiping west/east.</string>
+    <string name="action_fastDelete" translatable="false">Fast Delete</string>
+    <string name="action_fastDelete_desc" translatable="false">Marks a cursor movement during a Fast Delete. This should not be visible.</string>
+    <string name="action_beginFastAction" translatable="false">Begin Fast Action</string>
+    <string name="action_beginFastAction_desc" translatable="false">Fake event that marks the start of a fast action. This should not be visible.</string>
+    <string name="action_fastActionDone" translatable="false">Fast Action Done</string>
+    <string name="action_fastActionDone_desc" translatable="false">Fake event that marks that a gesture containing fast actions is done, and that any previewed actions should be executed. This should not be visible.</string>
+    <string name="action_tab_shift">Backtab</string>
+    <string name="action_tab">Tab</string>
+    <string name="action_tab_desc_shift">Sends a shift+tab keypress, either shifting to the previous field or inserting a tab symbol.</string>
+    <string name="action_tab_desc">Sends a tab keypress, either shifting to the next field or inserting a tab symbol.</string>
+    <string name="action_enter_secondary">Enter (secondary)</string>
+    <string name="action_enter">Enter</string>
+    <string name="action_enter_desc_secondary">Perform the special enter action, if the app requests that it should be separate.</string>
+    <string name="action_enter_desc">Sends an enter event, either executing the action or inserting a newline.</string>
+    <string name="action_escape">Escape</string>
+    <string name="action_escape_desc">May close open pop-up windows, if the app supports it.</string>
+    <string name="action_jump_backwardsCharacter">Jump to Previous Character</string>
+    <string name="action_jump_backwardsWord">Jump to Previous Word</string>
+    <string name="action_jump_backwardsLine">Jump to Previous Line</string>
+    <string name="action_jump_forwardsCharacter">Jump to Next Character</string>
+    <string name="action_jump_forwardsWord">Jump to Next Word</string>
+    <string name="action_jump_forwardsLine">Jump to Next Line</string>
+    <string name="action_jump_desc_backwardsCharacter">Moves the cursor to the previous character.</string>
+    <string name="action_jump_desc_backwardsWord">Moves the cursor to the previous word.</string>
+    <string name="action_jump_desc_backwardsLine">Moves the cursor to the previous line.</string>
+    <string name="action_jump_desc_forwardsCharacter">Moves the cursor to the next character.</string>
+    <string name="action_jump_desc_forwardsWord">Moves the cursor to the next word.</string>
+    <string name="action_jump_desc_forwardsLine">Moves the cursor to the next line.</string>
+    <string name="action_jump_desc_fastActions_character">When Fast Actions are enabled, multiple characters can be skipped by swiping further west/east.</string>
+    <string name="action_jump_desc_fastActions_word">When Fast Actions are enabled, multiple words can be skipped by swiping further west/east.</string>
+    <string name="action_jump_desc_fastActions_line">When Fast Actions are enabled, multiple lines can be skipped by swiping further west/east.</string>
+    <string name="action_jump_desc_select_character">When in Select mode, the characters will be (de)selected instead.</string>
+    <string name="action_jump_desc_select_word">When in Select mode, the words will be (de)selected instead.</string>
+    <string name="action_jump_desc_select_line">When in Select mode, the lines will be (de)selected instead.</string>
+    <string name="action_toggleShift_normal">Disable Shift</string>
+    <string name="action_toggleShift_shift">Enable Shift</string>
+    <string name="action_toggleShift_capsLock">Enable Caps Lock</string>
+    <string name="action_toggleShift_desc_normal">Disables any active shift modifier.</string>
+    <string name="action_toggleShift_desc_shift">Replaces the next action with a shifted variant (such as an upper-case letter or alternate symbol).\nThis can also be done by drawing a circle (for tap gestures) or U (for edge gestures) on the key.\nCircle gestures can also be configured to produce numbers instead, depending on the direction.</string>
+    <string name="action_toggleShift_desc_capsLock">Turns all letters upper-case until shift is disabled manually.</string>
+    <string name="action_transientShift">Transient Shift</string>
+    <string name="action_transientShift_desc">A gesture can be made shifted by drawing a circle (for tap gestures) or U (for edge gestures) on the key.\nGestures that require transient shift can only be made this way, not by using shift mode.\nCircle gestures can also be configured to produce numbers instead, depending on the direction.</string>
+    <string name="action_toggleWordCase_up">Shift Word Up</string>
+    <string name="action_toggleWordCase_down">Shift Word Down</string>
+    <string name="action_toggleWordCase_desc_up">Replaces the last typed word with an "upperer-case" variant. Cycles lower-case -> Title-case, UPPER-CASE.</string>
+    <string name="action_toggleWordCase_desc_down">Replaces the last typed word with an "lowerer-case" variant. Cycles UPPER-CASE -> Title-case, lower-case.</string>
+    <string name="action_toggleCtrl">Toggle Control Modifier</string>
+    <string name="action_toggleCtrl_desc">If enabled, the control modifier will be applied to the next typed character. This can be used to activate keyboard shortcuts intended for physical keyboards.</string>
+    <string name="action_toggleAlt">Toggle Alt Modifier</string>
+    <string name="action_toggleAlt_desc">If enabled, the alt modifier will be applied to the next typed character. This can be used to activate keyboard shortcuts intended for physical keyboards.</string>
+    <string name="action_toggleZalgo">Toggle Zalgo Modifier</string>
+    <string name="action_toggleZalgo_desc">If enabled, the next typed character will be be combined into the previous (if supported).\nFor example, c-zalgo-¨ becomes c̈, and a-zalgo-e becomes æ.</string>
+    <string name="action_toggleSelect">Toggle Select Mode</string>
+    <string name="action_toggleSelect_desc">If enabled, text movement (such as swiping on the space bar) will instead select text.</string>
+    <string name="action_cut">Cut</string>
+    <string name="action_cut_desc">Moves all selected text into the clipboard, and deletes it from the source field.</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_copy_desc">Copies all selected text into the clipboard. If nothing is selected, everything is selected and copied.</string>
+    <string name="action_paste">Paste</string>
+    <string name="action_paste_desc">Pastes whatever is in the clipboard.</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_undo_desc">Reverts the previous action.</string>
+    <string name="action_redo">Redo</string>
+    <string name="action_redo_desc">Attempts to restore the action that was just undone.</string>
+    <string name="action_settings">FlickBoard Settings</string>
+    <string name="action_settings_desc">Opens FlickBoard\'s settings app.</string>
+    <string name="action_switchLetterLayer_backwards">Previous Letter Layout</string>
+    <string name="action_switchLetterLayer_forwards">Next Letter Layout</string>
+    <string name="action_switchLetterLayer_desc_backwards">Switches to the previous letter layout, if more than one is enabled.</string>
+    <string name="action_switchLetterLayer_desc_forwards">Switches to the next letter layout, if more than one is enabled.</string>
+    <string name="action_switchSystemKeyboard">Switch Keyboard App</string>
+    <string name="action_switchSystemKeyboard_desc">Opens the system keyboard picker, letting you switch to another keyboard app.</string>
+    <string name="action_toggleActiveLayer">Toggle Layers</string>
+    <string name="action_toggleActiveLayer_desc">Swaps the letter and number sides. Numbers can also be typed by holding the matching letter.</string>
+    <string name="action_toggleHandedness">Toggle Handedness</string>
+    <string name="action_toggleHandedness_desc">Toggles between right-handed and left-handed mode.</string>
+    <string name="action_toggleNumbersLayer">Toggle Numbers Layer</string>
+    <string name="action_toggleNumbersLayer_desc">Toggles between showing and hiding the numbers layer. Numbers can also be typed by holding the matching letter.</string>
+    <string name="action_adjustCellHeight_increase">Increase Keyboard Height</string>
+    <string name="action_adjustCellHeight_decrease">Decrease Keyboard Height</string>
+    <string name="action_adjustCellHeight_desc_increase">Makes the keyboard slightly taller.</string>
+    <string name="action_adjustCellHeight_desc_decrease">Makes the keyboard slightly shorter.</string>
+    <string name="action_selectAll">Select All</string>
+    <string name="action_selectAll_desc">Selects all text in the field.</string>
+    <string name="action_emoji_search">Emoji Search</string>
+    <string name="action_emoji">Emoji</string>
+    <string name="action_emoji_desc_search">Opens the emoji keyboard, in search mode.</string>
+    <string name="action_emoji_desc">Opens the emoji keyboard.</string>
+    <string name="action_clipboardHistory">Clipboard History</string>
+    <string name="action_clipboardHistory_desc">Opens the clipboard history.</string>
+    <string name="action_toggleShowSymbols">Toggle Show Symbols</string>
+    <string name="action_toggleShowSymbols_desc">Toggles whether or not symbols are shown.</string>
+    <string name="action_toggleShowLetters">Toggle Show Letters</string>
+    <string name="action_toggleShowLetters_desc">Toggles whether or not letters are shown.</string>
+    <string name="action_enableVoiceMode">Voice</string>
+    <string name="action_enableVoiceMode_desc">Switches to the voice keyboard, if any is installed.</string>
+
+    <string name="beta_openHint">To open the secret beta menu in a release build, tap the version number 7 times</string>
+    <string name="beta_disclaimer">All beta options are experimental, and you may still require a full reset. Sensitive settings will not be saved.</string>
+    <string name="beta_exportSettings">Export settings</string>
+    <string name="beta_importFailed">Import failed</string>
+    <string name="beta_importConfirm">Confirm import</string>
+    <string name="beta_importWillOverwrite">Import will overwrite existing settings. Proceed?</string>
+    <string name="beta_import">Import</string>
+    <string name="beta_importSettings">Import settings</string>
+
+    <string name="colourPicker">Colour Picker</string>
+
+    <string name="credits_by">By</string>
+    <string name="credits_contributors">Contributors</string>
+    <string name="credits_layouts">Layout Contributors</string>
+    <string name="credits_specialThanks">Special Thanks</string>
+    <string name="credits_dependencies">Third-party components</string>
+    <string name="credits_role_maintainer">Maintainer</string>
+    <string name="credits_role_code">Code</string>
+    <string name="credits_role_docs">Documentation</string>
+    <string name="credits_role_testing">Testing</string>
+    <string name="credits_role_logo">Logo Designer</string>
+    <string name="credits_role_exideas">MessagEase concept and layouts</string>
+    <string name="credits_role_thumbKey">Thumb-Key layouts</string>
 </resources>

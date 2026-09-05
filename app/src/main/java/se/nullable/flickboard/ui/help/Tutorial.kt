@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -82,8 +83,11 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
         { pager ->
             val handedness = localAppSetting { it.handedness }
             Column(Modifier.padding(8.dp)) {
-                Text("Personalization", style = Typography.titleMedium)
-                Text("Which side is your dominant hand?")
+                Text(
+                    stringResource(R.string.tutorial_personalization),
+                    style = Typography.titleMedium,
+                )
+                Text(stringResource(R.string.tutorial_handedness))
                 Row(
                     Modifier
                         .selectableGroup()
@@ -112,7 +116,7 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
                                     selected = handedness.value == option,
                                     onClick = null,
                                 )
-                                Text(option.label, Modifier)
+                                Text(stringResource(option.label), Modifier)
                             }
                             TutorialKey(fullOKey, onAction = null)
                         }
@@ -123,9 +127,8 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
         { pager ->
             TutorialKeyStep(
                 content = {
-                    Text("Typing", style = Typography.titleMedium)
-                    Text("To type the character in the middle of a key, tap it.")
-                    Text("Try tapping the key now, to type an o!")
+                    Text(stringResource(R.string.tutorial_typing), style = Typography.titleMedium)
+                    Text(stringResource(R.string.tutorial_typing_instruction_center))
                 },
                 key = KeyM(actions = mapOf(Direction.CENTER to Action.Text("o"))),
                 desiredGesture = Gesture.Flick(
@@ -140,10 +143,11 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
         { pager ->
             TutorialKeyStep(
                 content = {
-                    Text("Typing (edge)", style = Typography.titleMedium)
-                    Text("Unlike most other keyboards, FlickBoard keys have multiple characters on them.")
-                    Text("To type a character at the edge of a key, swipe in that direction.")
-                    Text("Try swiping towards the right from the key, to type a b!")
+                    Text(
+                        stringResource(R.string.tutorial_typing_edge),
+                        style = Typography.titleMedium,
+                    )
+                    Text(stringResource(R.string.tutorial_typing_instruction_edge))
                 },
                 key = KeyM(
                     actions = mapOf(
@@ -163,9 +167,11 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
         { pager ->
             TutorialKeyStep(
                 content = {
-                    Text("Typing (corner)", style = Typography.titleMedium)
-                    Text("Characters can also appear at a corner of the key.")
-                    Text("Try swiping towards the bottom-left from key, to type a g!")
+                    Text(
+                        stringResource(R.string.tutorial_typing_corner),
+                        style = Typography.titleMedium,
+                    )
+                    Text(stringResource(R.string.tutorial_typing_instruction_corner))
                 },
                 key = KeyM(
                     actions = mapOf(
@@ -186,9 +192,11 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
         { pager ->
             TutorialKeyStep(
                 content = {
-                    Text("Upper-case", style = Typography.titleMedium)
-                    Text("To type an upper-case character in the middle of a key, draw a circle, starting on the key.")
-                    Text("Try typing an upper-case O now!")
+                    Text(
+                        stringResource(R.string.tutorial_uppercase),
+                        style = Typography.titleMedium,
+                    )
+                    Text(stringResource(R.string.tutorial_uppercase_instruction_center))
                 },
                 key = fullOKey,
                 desiredGesture = Gesture.Flick(
@@ -203,9 +211,11 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
         { pager ->
             TutorialKeyStep(
                 content = {
-                    Text("Upper-case (edge)", style = Typography.titleMedium)
-                    Text("To type an upper-case character at an edge, swipe towards it and then return to where you started.")
-                    Text("Try typing an upper-case G now!")
+                    Text(
+                        stringResource(R.string.tutorial_uppercase_edge),
+                        style = Typography.titleMedium,
+                    )
+                    Text(stringResource(R.string.tutorial_uppercase_instruction_edge))
                 },
                 key = fullOKey,
                 desiredGesture = Gesture.Flick(
@@ -224,10 +234,10 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
                     .padding(8.dp)
                     .fillMaxWidth(),
             ) {
-                Text("Great, you've got the hang of it!")
+                Text(stringResource(R.string.tutorial_complete))
                 Button(onClick = onFinish) {
                     Icon(painterResource(R.drawable.baseline_check_24), null)
-                    Text("Finish")
+                    Text(stringResource(R.string.tutorial_finish))
                 }
             }
         },
@@ -242,8 +252,8 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         Box {}
         Column {
-            Text("Welcome to FlickBoard!", style = Typography.titleLarge)
-            Text("FlickBoard is a pretty unusual keyboard, so let's get you a quick run-down of how to use it.")
+            Text(stringResource(R.string.tutorial_title), style = Typography.titleLarge)
+            Text(stringResource(R.string.tutorial_intro))
         }
         Column {
             HorizontalPager(
@@ -264,7 +274,10 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 IconButton(onClick = { pagerState.animateScrollToNextPage(-1) }) {
-                    Icon(painterResource(R.drawable.baseline_keyboard_arrow_left_24), "Previous")
+                    Icon(
+                        painterResource(R.drawable.baseline_keyboard_arrow_left_24),
+                        stringResource(R.string.previous),
+                    )
                 }
                 Row {
                     repeat(pagerState.pageCount) { page ->
@@ -273,7 +286,7 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
                                 page == pagerState.currentPage -> MaterialTheme.colorScheme.primary
                                 else -> MaterialTheme.colorScheme.surfaceVariant
                             },
-                            label = "page indicator",
+                            label = stringResource(R.string.pageIndicator),
                         )
                         Box(
                             Modifier
@@ -285,7 +298,10 @@ fun TutorialPage(onFinish: () -> Unit, modifier: Modifier = Modifier) {
                     }
                 }
                 IconButton(onClick = { pagerState.animateScrollToNextPage(1) }) {
-                    Icon(painterResource(R.drawable.baseline_keyboard_arrow_right_24), "Next")
+                    Icon(
+                        painterResource(R.drawable.baseline_keyboard_arrow_right_24),
+                        stringResource(R.string.next),
+                    )
                 }
             }
         }

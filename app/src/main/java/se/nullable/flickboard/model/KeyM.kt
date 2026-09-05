@@ -145,8 +145,8 @@ data class KeyM(
 }
 
 sealed class Action {
-    abstract val title: String
-    abstract val description: String
+    abstract val title: Translated
+    abstract val description: Translated
     open val showAsRelatedInHelp: Boolean = true
 
     abstract fun visual(keyboardState: KeyboardState): ActionVisual
@@ -184,9 +184,8 @@ sealed class Action {
             "\n" -> "newline"
             else -> character
         }
-        override val title: String = "Type $characterName"
-        override val description: String =
-            "Types the character $characterName into the active text field."
+        override val title: Translated = translated(R.string.action_text, characterName)
+        override val description: Translated = translated(R.string.action_text_desc, characterName)
 
         override val actionClass: ActionClass = actionClassOverride ?: when {
             character.isBlank() -> ActionClass.Other
@@ -211,19 +210,50 @@ sealed class Action {
 
         override fun withHidden(hidden: Boolean): Action = copy(hidden = hidden)
 
-        override val title: String = run {
-            val actionName = when (direction) {
-                SearchDirection.Backwards -> "Backspace"
-                SearchDirection.Forwards -> "Delete"
-            }
-            when {
-                boundary == TextBoundary.Character -> actionName
-                else -> "$actionName ${boundary.nameInSentence}"
-            }
+        override val title: Translated =
+            translated(
+                when (direction) {
+                    SearchDirection.Backwards -> when (boundary) {
+                        TextBoundary.Character -> R.string.action_delete_backwardsCharacter
+                        TextBoundary.Word -> R.string.action_delete_backwardsWord
+                        TextBoundary.Line -> R.string.action_delete_backwardsLine
+                    }
+
+                    SearchDirection.Forwards -> when (boundary) {
+                        TextBoundary.Character -> R.string.action_delete_forwardsCharacter
+                        TextBoundary.Word -> R.string.action_delete_forwardsWord
+                        TextBoundary.Line -> R.string.action_delete_forwardsLine
+                    }
+                },
+            )
+        override val description: Translated = run {
+            val mainDesc = translated(
+                when (direction) {
+                    SearchDirection.Backwards -> when (boundary) {
+                        TextBoundary.Character -> R.string.action_delete_desc_backwardsCharacter
+                        TextBoundary.Word -> R.string.action_delete_desc_backwardsWord
+                        TextBoundary.Line -> R.string.action_delete_desc_backwardsLine
+                    }
+
+                    SearchDirection.Forwards -> when (boundary) {
+                        TextBoundary.Character -> R.string.action_delete_desc_forwardsCharacter
+                        TextBoundary.Word -> R.string.action_delete_desc_forwardsWord
+                        TextBoundary.Line -> R.string.action_delete_desc_forwardsLine
+                    }
+                },
+            )
+            val fastActionsCaveat = translated(
+                when (boundary) {
+                    TextBoundary.Character -> R.string.action_delete_desc_fastActions_character
+                    TextBoundary.Word -> R.string.action_delete_desc_fastActions_word
+                    TextBoundary.Line -> R.string.action_delete_desc_fastActions_line
+                },
+            )
+            Translated.Concat(
+                listOf(mainDesc, fastActionsCaveat),
+                separator = "\n",
+            )
         }
-        override val description: String =
-            "Deletes the ${direction.nextOrPrevInSentence} ${boundary.nameInSentence}.\n" +
-                    "When Fast Actions are enabled, multiple ${boundary.pluralInSentence} can be selected for deletion by swiping west/east."
 
         override fun shift(locale: Locale): Action = copy(boundary = TextBoundary.Word)
     }
@@ -235,9 +265,8 @@ sealed class Action {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_backspace_24)
 
-        override val title: String = "Fast Delete"
-        override val description: String =
-            "Marks a cursor movement during a Fast Delete. This should not be visible."
+        override val title: Translated = translated(R.string.action_fastDelete)
+        override val description: Translated = translated(R.string.action_fastDelete_desc)
 
         override val fastActionType: FastActionType = FastActionType.Delete
 
@@ -248,18 +277,16 @@ sealed class Action {
         override fun visual(keyboardState: KeyboardState): ActionVisual = ActionVisual.None
         override val isHiddenAction: Boolean = true
 
-        override val title: String = "Begin Fast Action"
-        override val description: String =
-            "Fake event that marks the start of a fast action. This should not be visible."
+        override val title: Translated = translated(R.string.action_beginFastAction)
+        override val description: Translated = translated(R.string.action_beginFastAction_desc)
     }
 
     data class FastActionDone(val type: FastActionType) : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual = ActionVisual.None
         override val isHiddenAction: Boolean = true
 
-        override val title: String = "Fast Action Done"
-        override val description: String =
-            "Fake event that marks that a gesture containing fast actions is done, and that any previewed actions should be executed. This should not be visible."
+        override val title: Translated = translated(R.string.action_fastActionDone)
+        override val description: Translated = translated(R.string.action_fastActionDone_desc)
     }
 
     data class Tab(val shift: Boolean = false) : Action() {
@@ -271,14 +298,18 @@ sealed class Action {
             },
         )
 
-        override val title: String = when {
-            shift -> "Backtab"
-            else -> "Tab"
-        }
-        override val description: String = when {
-            shift -> "Sends a shift+tab keypress, either shifting to the previous field or inserting a tab symbol."
-            else -> "Sends a tab keypress, either shifting to the next field or inserting a tab symbol."
-        }
+        override val title: Translated = translated(
+            when {
+                shift -> R.string.action_tab_shift
+                else -> R.string.action_tab
+            },
+        )
+        override val description: Translated = translated(
+            when {
+                shift -> R.string.action_tab_desc_shift
+                else -> R.string.action_tab_desc
+            },
+        )
 
         override fun shift(locale: Locale): Action = copy(shift = true)
     }
@@ -299,14 +330,18 @@ sealed class Action {
             else -> ActionVisual.Icon(R.drawable.baseline_keyboard_return_24)
         }
 
-        override val title: String = when {
-            secondary -> "Enter (secondary)"
-            else -> "Enter"
-        }
-        override val description: String = when {
-            secondary -> "Perform the special enter action, if the app requests that it should secondary."
-            else -> "Sends an enter event, either executing the action or inserting a newline."
-        }
+        override val title: Translated = translated(
+            when {
+                secondary -> R.string.action_enter_secondary
+                else -> R.string.action_enter
+            },
+        )
+        override val description: Translated = translated(
+            when {
+                secondary -> R.string.action_enter_desc_secondary
+                else -> R.string.action_enter_desc
+            },
+        )
 
         override fun shift(locale: Locale): Action = copy(shift = true)
     }
@@ -316,8 +351,8 @@ sealed class Action {
             return ActionVisual.Label("esc")
         }
 
-        override val title: String = "Escape"
-        override val description: String = "May close open pop-up windows, if the app supports it."
+        override val title: Translated = translated(R.string.action_escape)
+        override val description: Translated = translated(R.string.action_escape_desc)
     }
 
     data class Jump(
@@ -329,12 +364,56 @@ sealed class Action {
             SearchDirection.Forwards -> ActionVisual.Icon(R.drawable.baseline_keyboard_arrow_right_24)
         }
 
-        override val title: String =
-            "Jump To ${direction.nextOrPrevInTitle} ${boundary.nameInTitle}"
-        override val description: String =
-            "Moves the cursor to the ${direction.nextOrPrevInSentence} ${boundary.nameInSentence}.\n" +
-                    "When Fast Actions are enabled, multiple multiple ${boundary.pluralInSentence} can be selected by swiping further west/east.\n" +
-                    "When in Select mode, the ${boundary.pluralInSentence} will be (de)selected instead."
+        override val title: Translated = translated(
+            when (direction) {
+                SearchDirection.Backwards -> when (boundary) {
+                    TextBoundary.Character -> R.string.action_jump_backwardsCharacter
+                    TextBoundary.Word -> R.string.action_jump_backwardsWord
+                    TextBoundary.Line -> R.string.action_jump_backwardsLine
+                }
+
+                SearchDirection.Forwards -> when (boundary) {
+                    TextBoundary.Character -> R.string.action_jump_forwardsCharacter
+                    TextBoundary.Word -> R.string.action_jump_forwardsWord
+                    TextBoundary.Line -> R.string.action_jump_forwardsLine
+                }
+            },
+        )
+        override val description: Translated = run {
+            val mainDesc = translated(
+                when (direction) {
+                    SearchDirection.Backwards -> when (boundary) {
+                        TextBoundary.Character -> R.string.action_jump_desc_backwardsCharacter
+                        TextBoundary.Word -> R.string.action_jump_desc_backwardsWord
+                        TextBoundary.Line -> R.string.action_jump_desc_backwardsLine
+                    }
+
+                    SearchDirection.Forwards -> when (boundary) {
+                        TextBoundary.Character -> R.string.action_jump_desc_forwardsCharacter
+                        TextBoundary.Word -> R.string.action_jump_desc_forwardsWord
+                        TextBoundary.Line -> R.string.action_jump_desc_forwardsLine
+                    }
+                },
+            )
+            val fastActionCaveat = translated(
+                when (boundary) {
+                    TextBoundary.Character -> R.string.action_jump_desc_fastActions_character
+                    TextBoundary.Word -> R.string.action_jump_desc_fastActions_word
+                    TextBoundary.Line -> R.string.action_jump_desc_fastActions_line
+                },
+            )
+            val selectCaveat = translated(
+                when (boundary) {
+                    TextBoundary.Character -> R.string.action_jump_desc_select_character
+                    TextBoundary.Word -> R.string.action_jump_desc_select_word
+                    TextBoundary.Line -> R.string.action_jump_desc_select_line
+                },
+            )
+            Translated.Concat(
+                listOf(mainDesc, fastActionCaveat, selectCaveat),
+                separator = "\n",
+            )
+        }
 
         override fun shift(locale: Locale): Action = copy(boundary = TextBoundary.Word)
     }
@@ -346,9 +425,10 @@ sealed class Action {
             SearchDirection.Forwards -> ActionVisual.Icon(R.drawable.baseline_keyboard_arrow_down_24)
         }
 
-        override val title: String = "Jump To ${direction.nextOrPrevInTitle} Line"
-        override val description: String =
-            "Moves the cursor to the ${direction.nextOrPrevInSentence} line."
+        // TODO: should this have distinct help texts?
+        private val equivalentJump = Jump(direction, TextBoundary.Line)
+        override val title: Translated = equivalentJump.title
+        override val description: Translated = equivalentJump.description
         override val showAsRelatedInHelp: Boolean = !rawEvent
 
         override fun shift(locale: Locale): Action = copy(rawEvent = true)
@@ -363,19 +443,20 @@ sealed class Action {
             ShiftState.CapsLock -> ActionVisual.Icon(R.drawable.baseline_keyboard_capslock_24)
         }
 
-        override val title: String = when (state) {
-            ShiftState.Normal -> "Disable Shift"
-            ShiftState.Shift -> "Enable Shift"
-            ShiftState.CapsLock -> "Enable Caps Lock"
-        }
-        override val description: String = when (state) {
-            ShiftState.Normal -> "Disables any active shift modifier."
-            ShiftState.Shift -> "Replaces the next action with a shifted variant (such as an upper-case letter or alternate symbol).\n" +
-                    "This can also be done by drawing a circle (for tap gestures) or U (for edge gestures) on the key.\n" +
-                    "Circle gestures can also be configured to produce numbers instead, depending on the direction."
-
-            ShiftState.CapsLock -> "Turns all letters upper-case until shift is disabled manually."
-        }
+        override val title: Translated = translated(
+            when (state) {
+                ShiftState.Normal -> R.string.action_toggleShift_normal
+                ShiftState.Shift -> R.string.action_toggleShift_shift
+                ShiftState.CapsLock -> R.string.action_toggleShift_capsLock
+            },
+        )
+        override val description: Translated = translated(
+            when (state) {
+                ShiftState.Normal -> R.string.action_toggleShift_desc_normal
+                ShiftState.Shift -> R.string.action_toggleShift_desc_shift
+                ShiftState.CapsLock -> R.string.action_toggleShift_desc_capsLock
+            },
+        )
 
         override fun tint(modifier: ModifierState?): ActionTint = when (state) {
             modifier?.shift -> ActionTint.Active
@@ -395,11 +476,8 @@ sealed class Action {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_rotate_right_24)
 
-        override val title: String = "Transient Shift"
-        override val description: String =
-            "A gesture can be made shifted by drawing a circle (for tap gestures) or U (for edge gestures) on the key.\n" +
-                    "Gestures that require transient shift can only be made this way, not by using shift mode.\n" +
-                    "Circle gestures can also be configured to produce numbers instead, depending on the direction."
+        override val title: Translated = translated(R.string.action_transientShift)
+        override val description: Translated = translated(R.string.action_transientShift_desc)
     }
 
     /**
@@ -411,11 +489,18 @@ sealed class Action {
             CaseChangeDirection.Down -> ActionVisual.Icon(R.drawable.baseline_keyboard_double_arrow_down_24)
         }
 
-        override val title: String = "Shift Word ${direction.nameInTitle}"
-        override val description: String = when (direction) {
-            CaseChangeDirection.Up -> "Replaces the last typed word with an 'upperer-case' variant. Cycles lower-case -> Title-case, UPPER-CASE."
-            CaseChangeDirection.Down -> "Replaces the last typed word with an 'lowerer-case' variant. Cycles UPPER-CASE -> Title-case, lower-case."
-        }
+        override val title: Translated = translated(
+            when (direction) {
+                CaseChangeDirection.Up -> R.string.action_toggleWordCase_up
+                CaseChangeDirection.Down -> R.string.action_toggleWordCase_down
+            },
+        )
+        override val description: Translated = translated(
+            when (direction) {
+                CaseChangeDirection.Up -> R.string.action_toggleWordCase_desc_up
+                CaseChangeDirection.Down -> R.string.action_toggleWordCase_desc_down
+            },
+        )
     }
 
     data object ToggleCtrl : Action() {
@@ -434,9 +519,8 @@ sealed class Action {
             else -> ActionTint.Dim
         }
 
-        override val title: String = "Toggle Control Modifier"
-        override val description: String =
-            "If enabled, the control modifier will be applied to the next typed character. This can be used to activate keyboard shortcuts intended for physical keyboards."
+        override val title: Translated = translated(R.string.action_toggleCtrl)
+        override val description: Translated = translated(R.string.action_toggleCtrl_desc)
     }
 
     data object ToggleAlt : Action() {
@@ -455,9 +539,8 @@ sealed class Action {
             else -> ActionTint.Dim
         }
 
-        override val title: String = "Toggle Alt Modifier"
-        override val description: String =
-            "If enabled, the alt modifier will be applied to the next typed character. This can be used to activate keyboard shortcuts intended for physical keyboards."
+        override val title: Translated = translated(R.string.action_toggleAlt)
+        override val description: Translated = translated(R.string.action_toggleAlt_desc)
     }
 
     data object ToggleZalgo : Action() {
@@ -466,10 +549,8 @@ sealed class Action {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.outline_cell_merge_24)
 
-        override val title: String = "Toggle Zalgo Modifier"
-        override val description: String =
-            "If enabled, the next typed character will be be combined into the previous (if supported).\n" +
-                    "For example, c-zalgo-¨ becomes c̈, and a-zalgo-e becomes æ."
+        override val title: Translated = translated(R.string.action_toggleZalgo)
+        override val description: Translated = translated(R.string.action_toggleZalgo_desc)
 
         override fun tint(modifier: ModifierState?): ActionTint = when {
             modifier?.zalgo ?: false -> ActionTint.Active
@@ -488,9 +569,8 @@ sealed class Action {
                 else -> ActionVisual.Icon(R.drawable.outline_text_select_start_24)
             }
 
-        override val title: String = "Toggle Select Mode"
-        override val description: String =
-            "If enabled, text movement (such as swiping on the space bar) will instead select text."
+        override val title: Translated = translated(R.string.action_toggleSelect)
+        override val description: Translated = translated(R.string.action_toggleSelect_desc)
 
         override fun tint(modifier: ModifierState?): ActionTint = when {
             modifier?.select ?: false -> ActionTint.Active
@@ -502,68 +582,74 @@ sealed class Action {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_content_cut_24)
 
-        override val title: String = "Cut"
-        override val description: String =
-            "Moves all selected text into the clipboard, and deletes it from the source field."
+        override val title: Translated = translated(R.string.action_cut)
+        override val description: Translated = translated(R.string.action_cut_desc)
     }
 
     data object Copy : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_content_copy_24)
 
-        override val title: String = "Copy"
-        override val description: String =
-            "Copies all selected text into the clipboard. If nothing is selected, everything is selected and copied."
+        override val title: Translated = translated(R.string.action_copy)
+        override val description: Translated = translated(R.string.action_copy_desc)
     }
 
     data object Paste : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_content_paste_24)
 
-        override val title: String = "Paste"
-        override val description: String = "Pastes whatever is in the clipboard."
+        override val title: Translated = translated(R.string.action_paste)
+        override val description: Translated = translated(R.string.action_paste_desc)
     }
 
     data object Undo : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.outline_undo_24)
 
-        override val title: String = "Undo"
-        override val description: String = "Reverts the previous action."
+        override val title: Translated = translated(R.string.action_undo)
+        override val description: Translated = translated(R.string.action_undo_desc)
     }
 
     data object Redo : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.outline_redo_24)
 
-        override val title: String = "Redo"
-        override val description: String = "Attempts to restore the action that was just undone."
+        override val title: Translated = translated(R.string.action_redo)
+        override val description: Translated = translated(R.string.action_redo_desc)
     }
 
     data object Settings : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_settings_24)
 
-        override val title: String = "FlickBoard Settings"
-        override val description: String = "Opens FlickBoard's settings app."
+        override val title: Translated = translated(R.string.action_settings)
+        override val description: Translated = translated(R.string.action_settings_desc)
     }
 
     data class SwitchLetterLayer(val direction: SearchDirection) : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_language_24)
 
-        override val title: String = "${direction.nextOrPrevInTitle} Letter Layout"
-        override val description: String =
-            "Switches to the ${direction.nextOrPrevInSentence} letter layout, if more than one is enabled."
+        override val title: Translated = translated(
+            when (direction) {
+                SearchDirection.Backwards -> R.string.action_switchLetterLayer_backwards
+                SearchDirection.Forwards -> R.string.action_switchLetterLayer_forwards
+            },
+        )
+        override val description: Translated = translated(
+            when (direction) {
+                SearchDirection.Backwards -> R.string.action_switchLetterLayer_desc_backwards
+                SearchDirection.Forwards -> R.string.action_switchLetterLayer_desc_forwards
+            },
+        )
     }
 
     data object SwitchSystemKeyboard : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_keyboard_24)
 
-        override val title: String = "Switch Keyboard App"
-        override val description: String =
-            "Opens the system keyboard picker, letting you switch to another keyboard app."
+        override val title: Translated = translated(R.string.action_switchSystemKeyboard)
+        override val description: Translated = translated(R.string.action_switchSystemKeyboard_desc)
     }
 
     /**
@@ -575,9 +661,8 @@ sealed class Action {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_flip_camera_android_24)
 
-        override val title: String = "Toggle Layers"
-        override val description: String =
-            "Swaps the letter and number sides. Numbers can also be typed by holding the matching letter."
+        override val title: Translated = translated(R.string.action_toggleActiveLayer)
+        override val description: Translated = translated(R.string.action_toggleActiveLayer_desc)
 
         override fun shift(locale: Locale): Action = ToggleHandedness
     }
@@ -591,8 +676,8 @@ sealed class Action {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_flip_camera_android_24)
 
-        override val title: String = "Toggle Handedness"
-        override val description: String = "Toggles between right-handed and left-handed mode."
+        override val title: Translated = translated(R.string.action_toggleHandedness)
+        override val description: Translated = translated(R.string.action_toggleHandedness_desc)
     }
 
     /**
@@ -609,9 +694,8 @@ sealed class Action {
                 else -> ActionVisual.Icon(R.drawable.baseline_123_24)
             }
 
-        override val title: String = "Toggle Numbers Layer"
-        override val description: String =
-            "Toggles between showing and hiding the numbers layer. Numbers can also be typed by holding the matching letter."
+        override val title: Translated = translated(R.string.action_toggleNumbersLayer)
+        override val description: Translated = translated(R.string.action_toggleNumbersLayer_desc)
     }
 
     data class AdjustCellHeight(val amount: Float) : Action() {
@@ -620,42 +704,44 @@ sealed class Action {
             else -> ActionVisual.Icon(R.drawable.baseline_zoom_out_24)
         }
 
-        override val title: String = run {
-            val direction = when {
-                amount >= 0 -> "Increase"
-                else -> "Decrease"
-            }
-            "$direction Keyboard Size"
-        }
-        override val description: String = run {
-            val direction = when {
-                amount >= 0 -> "bigger"
-                else -> "smaller"
-            }
-            "Makes the keyboard slightly $direction."
-        }
+        override val title: Translated = translated(
+            when {
+                amount >= 0 -> R.string.action_adjustCellHeight_increase
+                else -> R.string.action_adjustCellHeight_decrease
+            },
+        )
+        override val description: Translated = translated(
+            when {
+                amount >= 0 -> R.string.action_adjustCellHeight_desc_increase
+                else -> R.string.action_adjustCellHeight_desc_decrease
+            },
+        )
     }
 
     data object SelectAll : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_select_all_24)
 
-        override val title: String = "Select All"
-        override val description: String = "Selects all text in the field."
+        override val title: Translated = translated(R.string.action_selectAll)
+        override val description: Translated = translated(R.string.action_selectAll_desc)
     }
 
     data class OpenEmojiKeyboard(val search: Boolean = false) : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_emoji_emotions_24)
 
-        override val title: String = when {
-            search -> "Emoji Search"
-            else -> "Emoji"
-        }
-        override val description: String = when {
-            search -> "Opens the emoji keyboard, in search mode."
-            else -> "Opens the emoji keyboard."
-        }
+        override val title: Translated = translated(
+            when {
+                search -> R.string.action_emoji_search
+                else -> R.string.action_emoji
+            },
+        )
+        override val description: Translated = translated(
+            when {
+                search -> R.string.action_emoji_desc_search
+                else -> R.string.action_emoji_desc
+            },
+        )
 
         override fun shift(locale: Locale): Action = OpenEmojiKeyboard(search = true)
     }
@@ -664,16 +750,16 @@ sealed class Action {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_history_edu_24)
 
-        override val title: String = "Clipboard History"
-        override val description: String = "Opens the clipboard history."
+        override val title: Translated = translated(R.string.action_clipboardHistory)
+        override val description: Translated = translated(R.string.action_clipboardHistory_desc)
     }
 
     data object ToggleShowSymbols : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.toggle_show_symbols)
 
-        override val title: String = "Toggle Show Symbols"
-        override val description: String = "Toggles whether or not symbols are shown."
+        override val title: Translated = translated(R.string.action_toggleShowSymbols)
+        override val description: Translated = translated(R.string.action_toggleShowSymbols_desc)
 
         override fun shift(locale: Locale): Action = ToggleShowLetters
     }
@@ -682,16 +768,16 @@ sealed class Action {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.toggle_show_letters)
 
-        override val title: String = "Toggle Show Letters"
-        override val description: String = "Toggles whether or not letters are shown."
+        override val title: Translated = translated(R.string.action_toggleShowLetters)
+        override val description: Translated = translated(R.string.action_toggleShowLetters_desc)
     }
 
     data object EnableVoiceMode : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual =
             ActionVisual.Icon(R.drawable.baseline_mic_24)
 
-        override val title: String = "Voice"
-        override val description: String = "Switches to the voice keyboard, if any is installed."
+        override val title: Translated = translated(R.string.action_enableVoiceMode)
+        override val description: Translated = translated(R.string.action_enableVoiceMode_desc)
     }
 
     companion object {
@@ -727,18 +813,10 @@ enum class ActionTint {
     Dim,
 }
 
-enum class TextBoundary(
-    val nameInTitle: String,
-    val nameInSentence: String,
-    val pluralInSentence: String
-) {
-    Character(
-        nameInTitle = "Character",
-        nameInSentence = "character",
-        pluralInSentence = "characters",
-    ),
-    Word(nameInTitle = "Word", nameInSentence = "word", pluralInSentence = "words"),
-    Line(nameInTitle = "Line", nameInSentence = "line", pluralInSentence = "lines");
+enum class TextBoundary {
+    Character,
+    Word,
+    Line;
 
     fun breakIterator(): BreakIterator = when (this) {
         Character -> BreakIterator.getCharacterInstance()
@@ -752,18 +830,14 @@ enum class TextDirection {
     RightToLeft,
 }
 
-enum class SearchDirection(
-    val factor: Int,
-    val nextOrPrevInTitle: String,
-    val nextOrPrevInSentence: String
-) {
-    Backwards(factor = -1, nextOrPrevInTitle = "Previous", nextOrPrevInSentence = "previous"),
-    Forwards(factor = 1, nextOrPrevInTitle = "Next", nextOrPrevInSentence = "next"),
+enum class SearchDirection(val factor: Int) {
+    Backwards(factor = -1),
+    Forwards(factor = 1),
 }
 
-enum class CaseChangeDirection(val nameInTitle: String) {
-    Up(nameInTitle = "Up"),
-    Down(nameInTitle = "Down");
+enum class CaseChangeDirection {
+    Up,
+    Down;
 }
 
 enum class Direction {

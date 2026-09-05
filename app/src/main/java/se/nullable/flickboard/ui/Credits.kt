@@ -19,9 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import se.nullable.flickboard.R
 import se.nullable.flickboard.ui.theme.Typography
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -29,192 +31,221 @@ import se.nullable.flickboard.ui.theme.Typography
 fun Credits(modifier: Modifier = Modifier) {
     val dependencyInfo = LocalDependencyInfo.current
     LazyColumn(modifier) {
-        stickyHeader { CreditHeader("By") }
+        stickyHeader { CreditHeader(stringResource(R.string.credits_by)) }
         item {
             CreditEntry(
                 "Natalie Klestrup Röijezon",
                 uri = "https://natkr.com/",
-                role = "Developer",
+                role = listOf(
+                    stringResource(R.string.credits_role_code),
+                    stringResource(R.string.credits_role_maintainer),
+                ).joinToString(separator = ", "),
             )
         }
 
-        stickyHeader { CreditHeader("Contributors") }
+        stickyHeader { CreditHeader(stringResource(R.string.credits_contributors)) }
         item {
             CreditEntry(
                 "Anarchtism",
                 uri = "https://codeberg.org/Anarchtism",
-                role = "Documentation and Testing",
+                role = listOf(
+                    stringResource(R.string.credits_role_docs),
+                    stringResource(R.string.credits_role_testing),
+                ).joinToString(separator = ", "),
             )
         }
         item {
             CreditEntry(
                 "MisterE",
                 uri = "https://codeberg.org/mistere123",
-                role = "Logo",
+                role = stringResource(R.string.credits_role_logo),
             )
         }
         item {
             CreditEntry(
                 "Jesper Holmberg",
                 uri = "https://github.com/strindberg",
-                role = "Capitalization improvements",
+                role = stringResource(R.string.credits_role_code),
             )
         }
         item {
-            CreditEntry("aalong", uri = "https://github.com/aalong", role = "Voice toggle")
+            CreditEntry(
+                "aalong",
+                uri = "https://github.com/aalong",
+                role = stringResource(R.string.credits_role_code),
+            )
         }
 
-        stickyHeader { CreditHeader("Layout Contributors") }
+        stickyHeader { CreditHeader(stringResource(R.string.credits_layouts)) }
         item {
-            CreditEntry("AhmadMoradDoctor", role = "Arabic layout")
+            CreditEntry(
+                "AhmadMoradDoctor",
+                role = stringResource(R.string.letterLayerOption_arabic),
+            )
         }
         item {
-            CreditEntry("Ali8101", uri = "https://github.com/Ali8101", role = "Arabic layout")
+            CreditEntry(
+                "Ali8101",
+                uri = "https://github.com/Ali8101",
+                role = stringResource(R.string.letterLayerOption_arabic),
+            )
         }
         item {
             CreditEntry(
                 "ben-igel",
                 uri = "https://github.com/ben-igel",
-                role = "German/Esperanto layout",
+                role = stringResource(R.string.letterLayerOption_germanEsperanto),
             )
         }
         item {
             CreditEntry(
                 "rommeswi",
                 uri = "https://github.com/rommeswi",
-                role = "German layout",
+                role = stringResource(R.string.letterLayerOption_german),
             )
         }
         item {
             CreditEntry(
                 "hupfdule",
                 uri = "https://github.com/hupfdule",
-                role = "German layout",
+                role = stringResource(R.string.letterLayerOption_german),
             )
         }
         item {
             CreditEntry(
                 "Untrusem",
                 uri = "https://untrusem.codeberg.page/",
-                "English Thumb-Key layout",
+                stringResource(R.string.letterLayerOption_englishThumbKey),
             )
         }
         item {
             CreditEntry(
                 "Ariel Kanterewicz",
                 uri = "https://github.com/asdkant",
-                "Spanish layout",
+                stringResource(R.string.letterLayerOption_spanish),
             )
         }
         item {
             CreditEntry(
                 "aldonator",
                 uri = "https://codeberg.org/aldonator",
-                "Spanish/English layout",
+                stringResource(R.string.letterLayerOption_spanish),
             )
         }
         item {
             CreditEntry(
                 "Tirbod",
                 uri = "https://github.com/tirbod",
-                "Farsi layout",
+                stringResource(R.string.letterLayerOption_persian),
             )
         }
         item {
             CreditEntry(
                 "Eve Redero",
                 uri = "https://github.com/everedero",
-                "French layout",
+                stringResource(R.string.letterLayerOption_french),
             )
         }
         item {
             CreditEntry(
                 "AntoineÐ",
                 uri = "https://github.com/Atn-D",
-                "French layout",
+                stringResource(R.string.letterLayerOption_frenchPunc),
             )
         }
         item {
             CreditEntry(
                 "Crazy Unicorn",
                 uri = "https://github.com/Crazy-Unicooorn",
-                "French-extended layout",
+                stringResource(R.string.letterLayerOption_frenchExt),
             )
         }
         item {
             CreditEntry(
                 "romdudk",
                 uri = "https://github.com/romdudk",
-                "Hebrew layout",
+                stringResource(R.string.letterLayerOption_hebrew),
             )
         }
         item {
             CreditEntry(
                 "allthelazors",
                 uri = "https://github.com/allthelazors",
-                "Hungarian, Italian, Portuguese, & Turkish layouts",
+                listOf(
+                    stringResource(
+                        R.string.letterLayerOption_hungarian,
+                        R.string.letterLayerOption_italian,
+                        R.string.letterLayerOption_portuguese,
+                        R.string.letterLayerOption_turkish,
+                    ),
+                ).joinToString(separator = ", "),
             )
         }
         item {
             CreditEntry(
                 "Petter S. Storvik",
                 uri = "https://github.com/allthelazors",
-                "Norwegian layout",
+                stringResource(R.string.letterLayerOption_norwegianThumbKey),
             )
         }
         item {
             CreditEntry(
                 "rmitura",
                 uri = "https://github.com/rmitura",
-                "Polish layout",
+                stringResource(R.string.letterLayerOption_polishRmitura),
             )
         }
         item {
             CreditEntry(
                 "Yuri Khan",
                 uri = "https://github.com/yurikhan",
-                "Ukrainian & Russian layouts, punctuation",
+                listOf(
+                    stringResource(
+                        R.string.letterLayerOption_ukrainian,
+                        R.string.letterLayerOption_russian,
+                    ),
+                ).joinToString(", "),
             )
         }
         item {
             CreditEntry(
                 "Vitalii",
                 uri = "https://github.com/Crandel",
-                "Ukrainian/Russian layout",
+                stringResource(R.string.letterLayerOption_ukrainianRussian),
             )
         }
         item {
             CreditEntry(
                 "Geert Hendrickx",
                 uri = "https://geert.hendrickx.be/",
-                "Russian phonetic layout",
+                stringResource(R.string.letterLayerOption_russianPhonetic),
             )
         }
         item {
             CreditEntry(
                 "orosmoln",
                 uri = "https://github.com/orosmoln",
-                "Swedish/German layout",
+                stringResource(R.string.letterLayerOption_swedishDe),
             )
         }
 
-        stickyHeader { CreditHeader("Special Thanks") }
+        stickyHeader { CreditHeader(stringResource(R.string.credits_specialThanks)) }
         item {
             CreditEntry(
                 "ExIdeas",
                 uri = "https://www.exideas.com/",
-                role = "MessagEase concept and layouts",
+                role = stringResource(R.string.credits_role_exideas),
             )
         }
         item {
             CreditEntry(
                 "dessalines",
                 uri = "https://github.com/dessalines/thumb-key",
-                role = "Thumb-Key layouts",
+                role = stringResource(R.string.credits_role_thumbKey),
             )
         }
 
-        stickyHeader { CreditHeader("Third-party components") }
+        stickyHeader { CreditHeader(stringResource(R.string.credits_dependencies)) }
         items(dependencyInfo.value) { dependency ->
             CreditEntry(
                 dependency.name,
@@ -254,7 +285,11 @@ fun CreditEntry(name: String, uri: String? = null, role: String? = null) {
             }
         }
         if (uri != null) {
-            Icon(Icons.AutoMirrored.Default.ArrowForward, "open", Modifier.padding(start = 8.dp))
+            Icon(
+                Icons.AutoMirrored.Default.ArrowForward,
+                stringResource(R.string.open),
+                Modifier.padding(start = 8.dp),
+            )
         }
     }
 }

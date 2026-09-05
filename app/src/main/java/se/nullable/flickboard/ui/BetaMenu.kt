@@ -1,5 +1,6 @@
 package se.nullable.flickboard.ui
 
+import android.annotation.SuppressLint
 import android.util.JsonReader
 import android.util.JsonToken
 import android.util.JsonWriter
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import se.nullable.flickboard.R
 import se.nullable.flickboard.ui.settings.AppSettings
@@ -31,15 +33,8 @@ fun BetaMenu(modifier: Modifier = Modifier) {
     val settingsCtx = LocalSettingsContext.current
     Column(modifier) {
         val itemModifier = Modifier.padding(8.dp)
-        Text(
-            "To open the secret beta menu in a release build, tap the version number 7 times",
-            itemModifier,
-        )
-        Text(
-            "All beta options are experimental, and you may still require a full reset. " +
-                    "Sensitive settings will not be saved.",
-            itemModifier,
-        )
+        Text(stringResource(R.string.beta_openHint), itemModifier)
+        Text(stringResource(R.string.beta_disclaimer), itemModifier)
         val settingsMime = "application/json"
         val exportPicker =
             rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(settingsMime)) { uri ->
@@ -61,7 +56,7 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                     }
             }
         Button(onClick = { exportPicker.launch("flickboard-settings.json") }, itemModifier) {
-            Text("Export settings")
+            Text(stringResource(R.string.beta_exportSettings))
         }
         val importPicker =
             rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -97,15 +92,20 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                     settingsCtx.edit { AppSettings.migrateSettings(it) }
                 } catch (err: Exception) {
                     Log.w("BetaMenu", "Import failed", err)
-                    Toast.makeText(context, "Import failed", Toast.LENGTH_SHORT).show()
+                    // We don't care about refreshing here, since we only use it immediately
+                    @SuppressLint("LocalContextGetResourceValueCall")
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.beta_importFailed), Toast.LENGTH_SHORT,
+                    ).show()
                 }
             }
         val showImportConfirmationDialog = remember { mutableStateOf(false) }
         if (showImportConfirmationDialog.value) {
             AlertDialog(
                 icon = { Icon(painterResource(id = R.drawable.baseline_warning_24), "Warning") },
-                title = { Text("Confirm import") },
-                text = { Text("Import will overwrite existing settings. Proceed?") },
+                title = { Text(stringResource(R.string.beta_importConfirm)) },
+                text = { Text(stringResource(R.string.beta_importWillOverwrite)) },
                 onDismissRequest = { showImportConfirmationDialog.value = false },
                 confirmButton = {
                     TextButton(
@@ -114,18 +114,18 @@ fun BetaMenu(modifier: Modifier = Modifier) {
                             importPicker.launch(arrayOf(settingsMime))
                         },
                     ) {
-                        Text("Import")
+                        Text(stringResource(R.string.beta_import))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showImportConfirmationDialog.value = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 },
             )
         }
         Button(onClick = { showImportConfirmationDialog.value = true }, itemModifier) {
-            Text("Import settings")
+            Text(stringResource(R.string.beta_importSettings))
         }
     }
 }

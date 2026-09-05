@@ -1,9 +1,11 @@
 package se.nullable.flickboard.util
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import se.nullable.flickboard.R
 import se.nullable.flickboard.ui.settings.Labeled
 import se.nullable.flickboard.util.hct.Hct
 import se.nullable.flickboard.util.hct.HctSolver
@@ -12,11 +14,11 @@ private fun Color.toHct(): Hct = Hct.fromInt(toArgb())
 fun colourOfHctHue(hue: Int): Color = Color(HctSolver.solveToInt(hue.toDouble(), 100.0, 50.0))
 fun Hct.toColour(): Color = Color(toInt())
 
-enum class MaterialToneMode(override val label: String) : Labeled {
-    System("System"),
-    Light("Light"),
-    Dark("Dark"),
-    Midnight("Midnight");
+enum class MaterialToneMode(@param:StringRes override val label: Int) : Labeled {
+    System(R.string.materialToneMode_system),
+    Light(R.string.materialToneMode_light),
+    Dark(R.string.materialToneMode_dark),
+    Midnight(R.string.materialToneMode_midnight);
 
     val config: MaterialToneConfig
         @Composable

@@ -8,6 +8,12 @@ Generally, the easiest way to contribute a new layout is by copying and modifyin
 [english layout](https://codeberg.org/natkr/flickboard/src/branch/main/app/src/main/java/se/nullable/flickboard/model/layouts)
 for your needs.
 
+# Translation
+
+FlickBoard's translation is managed
+using [Codeberg Translate](https://translate.codeberg.org/projects/flickboard/),
+feel free to help out over there!
+
 # Bugs and Feature Requests
 
 Bugs and feature requests can be reported at https://codeberg.org/natkr/flickboard/issues.
