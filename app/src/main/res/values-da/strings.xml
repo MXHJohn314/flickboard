@@ -63,4 +63,5 @@
     <string name="setting_keyColourChroma">Tastefarverns mædthed</string>
     <string name="setting_backgroundImage">Baggrundsbillede</string>
     <string name="setting_enableFastActions">Brug hurtige kommandoer</string>
+    <string name="link_translate">Hjælp at Oversætte på Codeberg</string>
 </resources>

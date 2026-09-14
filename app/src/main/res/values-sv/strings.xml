@@ -365,4 +365,5 @@
     <string name="action_toggleSelect_desc">Om påslaget kommer textrörelsegester (som att svepa på blankstegstangenten) istället markera text.</string>
     <string name="action_toggleActiveLayer_desc">Växlar bokstavs- och siffersidorna. Siffror kan också skrivas genom att hålla in bokstaven på samma plats.</string>
     <string name="credits_layouts">Layoutbidrag av</string>
+    <string name="link_translate">Hjälp Översättningen på Codeberg</string>
 </resources>
