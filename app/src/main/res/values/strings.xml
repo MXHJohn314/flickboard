@@ -11,6 +11,7 @@
     <string name="link_zulip">Discuss on Zulip</string>
     <string name="link_sourcecode">View Source on Codeberg</string>
     <string name="link_issues">Report Bugs on Codeberg</string>
+    <string name="link_translate">Help Translate on Codeberg</string>
 
     <string name="tutorial_title">Welcome to FlickBoard!</string>
     <string name="tutorial_intro">FlickBoard is a pretty unusual keyboard, so let\'s get you a quick run-down of how to use it.</string>

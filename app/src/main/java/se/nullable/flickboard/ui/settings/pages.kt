@@ -198,6 +198,11 @@ fun SettingsHomePage(
                     icon = painterResource(id = R.drawable.baseline_bug_report_24),
                     label = stringResource(R.string.link_issues),
                 )
+                MenuPageUriLink(
+                    uri = "https://translate.codeberg.org/projects/flickboard/",
+                    icon = painterResource(id = R.drawable.outline_assignment_globe_24),
+                    label = stringResource(R.string.link_translate),
+                )
             }
         }
         SettingsKeyboardPreview(sharedTransitionScope, animatedVisibilityScope)
