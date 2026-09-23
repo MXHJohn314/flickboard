@@ -269,6 +269,7 @@ sealed class SettingMeta<T> : SettingProjection<T> {
     ) : SettingMeta<Float>() {
         override fun readFrom(ctx: SettingsContext): Float =
             ctx.prefs.getFloat(key, defaultValue)
+                .coerceIn(range)
 
         override fun writeTo(ctx: SettingsContext.Editor, value: Float) {
             ctx.prefsEditor.putFloat(key, value.coerceIn(range))

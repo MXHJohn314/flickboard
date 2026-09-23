@@ -702,7 +702,9 @@ object AppSettings {
         key = "customHapticsDuration",
         label = R.string.setting_customHapticsDuration,
         defaultValue = 30F,
-        range = 0F..300F,
+        // Android doesn't allow a completely zero duration, see
+        // https://developer.android.com/reference/kotlin/android/os/VibrationEffect?hl=en#createoneshot
+        range = 1F..300F,
         description = R.string.setting_customHapticsDuration_desc,
         render = { "${it.roundToInt()}ms" },
     )
