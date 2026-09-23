@@ -72,7 +72,7 @@ class SizeDependentPainter(private val makeInner: (Size) -> Painter) : PainterWr
     private var lastSize: Size? = null
     private var lastInner: Painter? = null
 
-    override val intrinsicSize: Size = Size.Unspecified
+    override val intrinsicSize: Size = makeInner(Size(1F, 1F)).intrinsicSize
 
     override fun DrawScope.onDraw() {
         drawInner(
