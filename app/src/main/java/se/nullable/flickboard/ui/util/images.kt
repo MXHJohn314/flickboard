@@ -45,8 +45,8 @@ fun loadBitmap(
             when (scalingMode) {
                 ScalingMode.TryPrecise ->
                     dec.setTargetSize(
-                        targetSize.height.roundToInt(),
                         targetSize.width.roundToInt(),
+                        targetSize.height.roundToInt(),
                     )
 
                 ScalingMode.Conservative ->
