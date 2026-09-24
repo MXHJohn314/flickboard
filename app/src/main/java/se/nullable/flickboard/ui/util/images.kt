@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import se.nullable.flickboard.R
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -78,6 +80,18 @@ fun loadBitmap(
     }
 }
 
+fun getBitmapSize(contentResolver: ContentResolver, uri: Uri): IntSize = run {
+    // To my understanding, ImageDecoder doesn't offer a way to decode
+    // the header /without/ decoding the image itself at all...
+    // (plus, BitmapFactory gives us backwards compatibility for free!)
+    val opts = BitmapFactory.Options().also {
+        it.inJustDecodeBounds = true
+    }
+    contentResolver.openInputStream(uri)!!
+        .use { BitmapFactory.decodeStream(it, null, opts) }
+    IntSize(opts.outWidth, opts.outHeight)
+}
+
 enum class ScalingMode {
     /**
      * Try to preserve characteristics of the original image, such as the aspect ratio.
@@ -102,7 +116,9 @@ fun userImagePainter(uri: Uri): Painter = run {
     remember(uri, contentResolver, brokenImage) {
         FailsafePainter(
             "background image",
-            SizeDependentPainter { size ->
+            SizeDependentPainter(
+                intrinsicSize = getBitmapSize(contentResolver, uri).toSize(),
+            ) { size ->
                 // No specific error handling required; makeInner is covered by FailsafePainter's
                 // error handling logic.
                 BitmapPainter(

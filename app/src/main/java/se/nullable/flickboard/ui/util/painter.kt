@@ -68,11 +68,12 @@ data class FailsafePainter(
  * For example, this can be used to load images scaled to the target canvas,
  * rather than loading them at full size and then downscaling them to the target canvas when rendering.
  */
-class SizeDependentPainter(private val makeInner: (Size) -> Painter) : PainterWrapper() {
+class SizeDependentPainter(
+    override val intrinsicSize: Size,
+    private val makeInner: (Size) -> Painter,
+) : PainterWrapper() {
     private var lastSize: Size? = null
     private var lastInner: Painter? = null
-
-    override val intrinsicSize: Size = makeInner(Size(1F, 1F)).intrinsicSize
 
     override fun DrawScope.onDraw() {
         drawInner(
