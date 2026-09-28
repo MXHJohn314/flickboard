@@ -30,7 +30,19 @@ import se.nullable.flickboard.R
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import kotlin.time.Duration.Companion.milliseconds
 
-class PointerTrailState(val density: State<Density>) {
+sealed interface PointerTrailState {
+    val gestureIsActive: Boolean
+    fun clearTrail()
+
+    fun forKey(keyPosition: Offset): ForKey
+    interface ForKey {
+        fun onDown()
+        fun onUp()
+        fun addPoint(offsetRelativeToKey: Offset)
+    }
+}
+
+class BitmapPointerTrailState(val density: State<Density>) : PointerTrailState {
     /**
      * The current trail overlay
      * This is *mutable* and only replaced when the trail changes size.
@@ -52,10 +64,10 @@ class PointerTrailState(val density: State<Density>) {
     var needRedraw by mutableStateOf(Unit, neverEqualPolicy())
         private set
 
-    var gestureIsActive: Boolean by mutableStateOf(false)
+    override var gestureIsActive: Boolean by mutableStateOf(false)
         private set
 
-    fun clearTrail() {
+    override fun clearTrail() {
         trailOverlayCanvas.drawRect(
             0f,
             0f,
@@ -66,20 +78,21 @@ class PointerTrailState(val density: State<Density>) {
         needRedraw = Unit
     }
 
-    fun forKey(keyPosition: Offset) = ForKey(this, keyPosition)
-    data class ForKey(val state: PointerTrailState, val keyPosition: Offset) {
-        fun onDown() {
+    override fun forKey(keyPosition: Offset) = ForKey(this, keyPosition)
+    data class ForKey(val state: BitmapPointerTrailState, val keyPosition: Offset) :
+        PointerTrailState.ForKey {
+        override fun onDown() {
             state.clearTrail()
             previousPoint = null
             state.gestureIsActive = true
         }
 
-        fun onUp() {
+        override fun onUp() {
             state.gestureIsActive = false
         }
 
         private var previousPoint: Offset? = null
-        fun addPoint(offsetRelativeToKey: Offset) {
+        override fun addPoint(offsetRelativeToKey: Offset) {
             val pos = offsetRelativeToKey + keyPosition
             val bitmap = state.trailOverlayBitmap
             val canvas = state.trailOverlayCanvas
@@ -125,7 +138,7 @@ class PointerTrailState(val density: State<Density>) {
 @Composable
 fun rememberPointerTrailState(): PointerTrailState = run {
     val density = rememberUpdatedState(LocalDensity.current)
-    remember { PointerTrailState(density) }
+    remember { BitmapPointerTrailState(density) }
 }
 
 @Composable
@@ -138,11 +151,17 @@ fun PointerTrail(modifier: Modifier, state: PointerTrailState) {
             state.clearTrail()
         }
     }
-    Canvas(
-        modifier.onSizeChanged { state.trailOverlayBitmap = ImageBitmap(it.width, it.height) },
-        stringResource(R.string.pointerTrail),
-    ) {
-        state.needRedraw
-        drawImage(state.trailOverlayBitmap, colorFilter = pointerTrailTint)
+    @Suppress("UnusedVariable", "unused", "LocalVariableName")
+    val _enforceExhaustive: Unit = when (state) {
+        is BitmapPointerTrailState ->
+            Canvas(
+                modifier.onSizeChanged {
+                    state.trailOverlayBitmap = ImageBitmap(it.width, it.height)
+                },
+                stringResource(R.string.pointerTrail),
+            ) {
+                state.needRedraw
+                drawImage(state.trailOverlayBitmap, colorFilter = pointerTrailTint)
+            }
     }
 }
