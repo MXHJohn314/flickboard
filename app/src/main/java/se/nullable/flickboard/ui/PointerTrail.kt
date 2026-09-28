@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -23,11 +24,15 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import se.nullable.flickboard.R
+import se.nullable.flickboard.ui.settings.AppSettings
+import se.nullable.flickboard.ui.settings.PointerTrailRenderer
+import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
 import kotlin.math.ceil
 import kotlin.math.log
@@ -190,11 +195,14 @@ private class DeferredPointerTrailState : PointerTrailState() {
 }
 
 @Composable
-fun rememberPointerTrailState(): PointerTrailState = run {
-//    val density = rememberUpdatedState(LocalDensity.current)
-//    remember { BitmapPointerTrailState(density) }
-    remember { DeferredPointerTrailState() }
-}
+fun rememberPointerTrailState(): PointerTrailState =
+    when (localAppSetting(AppSettings.pointerTrailRenderer).value) {
+        PointerTrailRenderer.Deferred -> remember { DeferredPointerTrailState() }
+        PointerTrailRenderer.Eager -> {
+            val density = rememberUpdatedState(LocalDensity.current)
+            remember { BitmapPointerTrailState(density) }
+        }
+    }
 
 @Composable
 fun PointerTrail(modifier: Modifier, state: PointerTrailState) {
