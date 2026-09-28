@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import se.nullable.flickboard.R
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
+import kotlin.math.ceil
+import kotlin.math.log
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -59,6 +61,9 @@ sealed class PointerTrailState {
     }
 }
 
+/**
+ * [PointerTrailState] that eagerly renders each line to a persistent [ImageBitmap].
+ */
 private class BitmapPointerTrailState(val density: State<Density>) : PointerTrailState() {
     /**
      * The current trail overlay
@@ -146,6 +151,10 @@ private class BitmapPointerTrailState(val density: State<Density>) : PointerTrai
     }
 }
 
+/**
+ * [PointerTrailState] that buffers all points into a list,
+ * and is rendered from scratch every time.
+ */
 private class DeferredPointerTrailState : PointerTrailState() {
     private val _points = mutableStateListOf<Offset>()
     val points: List<Offset> = _points
@@ -155,13 +164,28 @@ private class DeferredPointerTrailState : PointerTrailState() {
         _points.clear()
     }
 
+    private fun pruneFadedPoints() {
+        // To avoid infinite buffer growth for long gestures,
+        // eventually remove points that have faded to basically-invisibility
+        val pointCount = _points.size
+        if (pointCount > POINTS_BEFORE_PRUNING) {
+            _points.removeRange(0, pointCount - POINTS_WORTH_KEEPING)
+        }
+    }
+
     override fun forKey(keyPosition: Offset) = ForKey(this, keyPosition)
     data class ForKey(override val state: DeferredPointerTrailState, val keyPosition: Offset) :
         PointerTrailState.ForKey() {
         override fun addPoint(offsetRelativeToKey: Offset) {
             val pos = offsetRelativeToKey + keyPosition
             state._points.add(pos)
+            state.pruneFadedPoints()
         }
+    }
+
+    companion object {
+        private val POINTS_WORTH_KEEPING = ceil(log(1F / 256, FADE_PER_POINT)).toInt()
+        private val POINTS_BEFORE_PRUNING = POINTS_WORTH_KEEPING * 2
     }
 }
 
