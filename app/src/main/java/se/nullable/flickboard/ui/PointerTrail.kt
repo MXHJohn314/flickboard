@@ -6,7 +6,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
@@ -34,6 +33,8 @@ import se.nullable.flickboard.ui.settings.AppSettings
 import se.nullable.flickboard.ui.settings.PointerTrailRenderer
 import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
+import se.nullable.flickboard.util.RingBuffer
+import se.nullable.flickboard.util.ringBuffer
 import kotlin.math.ceil
 import kotlin.math.log
 import kotlin.math.pow
@@ -161,21 +162,26 @@ private class BitmapPointerTrailState(val density: State<Density>) : PointerTrai
  * and is rendered from scratch every time.
  */
 private class DeferredPointerTrailState : PointerTrailState() {
-    private val _points = mutableStateListOf<Offset>()
-    val points: List<Offset> = _points
+    private val _points = ringBuffer<Offset>(POINTS_WORTH_KEEPING)
+
+    /**
+     * This is *mutable* and only replaced when the trail changes size.
+     * To be notified whenever the trail is modified,
+     * read (and discard the value of) [needRedraw].
+     */
+    val points: RingBuffer<Offset> = _points
+
+    /**
+     * Dummy-valued state that can be read to subscribe to redraw notifications.
+     */
+    var needRedraw by mutableStateOf(Unit, neverEqualPolicy())
+        private set
+
     override var gestureIsActive: Boolean by mutableStateOf(false)
 
     override fun clearTrail() {
         _points.clear()
-    }
-
-    private fun pruneFadedPoints() {
-        // To avoid infinite buffer growth for long gestures,
-        // eventually remove points that have faded to basically-invisibility
-        val pointCount = _points.size
-        if (pointCount > POINTS_BEFORE_PRUNING) {
-            _points.removeRange(0, pointCount - POINTS_WORTH_KEEPING)
-        }
+        needRedraw = Unit
     }
 
     override fun forKey(keyPosition: Offset) = ForKey(this, keyPosition)
@@ -183,14 +189,21 @@ private class DeferredPointerTrailState : PointerTrailState() {
         PointerTrailState.ForKey() {
         override fun addPoint(offsetRelativeToKey: Offset) {
             val pos = offsetRelativeToKey + keyPosition
-            state._points.add(pos)
-            state.pruneFadedPoints()
+            state._points.push(pos)
+            state.needRedraw = Unit
         }
     }
 
     companion object {
-        private val POINTS_WORTH_KEEPING = ceil(log(1F / 256, FADE_PER_POINT)).toInt()
-        private val POINTS_BEFORE_PRUNING = POINTS_WORTH_KEEPING * 2
+        // Rough estimate of how many points are still visible before they've faded out completely
+        private val POINTS_WORTH_KEEPING = ceil(
+            log(
+                // Conservative estimate, assuming 8-bit alpha this means that the
+                // colour has faded completely into the background
+                1F / 256,
+                FADE_PER_POINT,
+            ),
+        ).toInt()
     }
 }
 
@@ -240,10 +253,11 @@ fun PointerTrail(modifier: Modifier, state: PointerTrailState) {
                 stringResource(R.string.pointerTrail),
             ) {
                 trailPaint.strokeWidth = 10.dp.toPx()
+                state.needRedraw
                 drawIntoCanvas { canvas ->
                     var previousPoint: Offset? = null
                     var i = state.points.size
-                    for (pos in state.points) {
+                    state.points.forEach { pos ->
                         i -= 1
                         trailPaint.alpha = PointerTrailState.FADE_PER_POINT.pow(i)
                         canvas.drawLine(
