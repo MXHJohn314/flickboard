@@ -222,8 +222,7 @@ enum class ModifierBehaviourOption(@param:StringRes override val label: Int) : L
 enum class GestureRecognizer(
     @param:StringRes override val label: Int,
     @param:StringRes val description: Int
-) :
-    Labeled {
+) : Labeled {
     Default(
         R.string.gestureRecognizer_default,
         description = R.string.gestureRecognizer_default_desc,
@@ -232,4 +231,11 @@ enum class GestureRecognizer(
         R.string.gestureRecognizer_dollar1,
         description = R.string.gestureRecognizer_dollar1_desc,
     ),
+}
+
+enum class PointerTrailRenderer(
+    @param:StringRes override val label: Int,
+) : Labeled {
+    Deferred(R.string.pointerTrailRenderer_deferred),
+    Eager(R.string.pointerTrailRenderer_eager),
 }

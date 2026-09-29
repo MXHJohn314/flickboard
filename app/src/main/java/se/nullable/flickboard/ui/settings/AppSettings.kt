@@ -709,6 +709,16 @@ object AppSettings {
         render = { "${it.roundToInt()}ms" },
     )
 
+    val pointerTrailRenderer = SettingMeta.Enum(
+        key = "pointerTrailRenderer",
+        label = R.string.setting_pointerTrailRenderer,
+        description = R.string.setting_pointerTrailRenderer_desc,
+        defaultValue = PointerTrailRenderer.Deferred,
+        options = PointerTrailRenderer.entries,
+        tryEnumValueOfT = ::tryEnumValueOf,
+        previewOverride = {},
+    )
+
     // Pseudo-option used to store history
     val emojiHistory =
         SettingMeta.Text(
@@ -896,6 +906,7 @@ object AppSettings {
                     noReverseRtlBrackets,
                     enableCustomHaptics,
                     customHapticsDuration,
+                    pointerTrailRenderer,
                 ),
             ),
             SettingsSection(

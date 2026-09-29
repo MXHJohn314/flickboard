@@ -229,7 +229,12 @@ fun Keyboard(
     }
     val isLandscape = rememberUpdatedState(LocalDisplayLimits.current?.isLandscape ?: false)
     var globalPosition: Offset by remember { mutableStateOf(Offset.Zero) }
-    val pointerTrailState = rememberPointerTrailState()
+    val pointerTrailState = rememberUpdatedState(
+        when {
+            enablePointerTrail -> rememberPointerTrailState()
+            else -> null
+        },
+    )
     val keyboardDescription = stringResource(R.string.app_keyboard)
     BoxWithConstraints(
         modifier
@@ -351,12 +356,7 @@ fun Keyboard(
                             val keyPosition = remember { mutableStateOf(Offset.Zero) }
                             val keyPointerTrailState = remember {
                                 derivedStateOf {
-                                    when {
-                                        enablePointerTrail ->
-                                            pointerTrailState.forKey(keyPosition.value)
-
-                                        else -> null
-                                    }
+                                    pointerTrailState.value?.forKey(keyPosition.value)
                                 }
                             }
                             Key(
@@ -398,8 +398,8 @@ fun Keyboard(
                 }
             },
         )
-        if (enablePointerTrail) {
-            PointerTrail(Modifier.matchParentSize(), pointerTrailState)
+        pointerTrailState.value?.also {
+            PointerTrail(Modifier.matchParentSize(), it)
         }
     }
 }

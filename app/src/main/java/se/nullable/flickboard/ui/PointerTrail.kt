@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -27,10 +29,48 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import se.nullable.flickboard.R
+import se.nullable.flickboard.ui.settings.AppSettings
+import se.nullable.flickboard.ui.settings.PointerTrailRenderer
+import se.nullable.flickboard.ui.settings.localAppSetting
 import se.nullable.flickboard.ui.theme.LocalKeyboardTheme
+import se.nullable.flickboard.util.RingBuffer
+import se.nullable.flickboard.util.ringBuffer
+import kotlin.math.ceil
+import kotlin.math.log
+import kotlin.math.pow
 import kotlin.time.Duration.Companion.milliseconds
 
-class PointerTrailState(val density: State<Density>) {
+sealed class PointerTrailState {
+    abstract var gestureIsActive: Boolean
+        protected set
+
+    abstract fun clearTrail()
+
+    abstract fun forKey(keyPosition: Offset): ForKey
+    sealed class ForKey {
+        protected abstract val state: PointerTrailState
+
+        open fun onDown() {
+            state.clearTrail()
+            state.gestureIsActive = true
+        }
+
+        fun onUp() {
+            state.gestureIsActive = false
+        }
+
+        abstract fun addPoint(offsetRelativeToKey: Offset)
+    }
+
+    companion object {
+        const val FADE_PER_POINT: Float = 0.95F
+    }
+}
+
+/**
+ * [PointerTrailState] that eagerly renders each line to a persistent [ImageBitmap].
+ */
+private class BitmapPointerTrailState(val density: State<Density>) : PointerTrailState() {
     /**
      * The current trail overlay
      * This is *mutable* and only replaced when the trail changes size.
@@ -52,10 +92,9 @@ class PointerTrailState(val density: State<Density>) {
     var needRedraw by mutableStateOf(Unit, neverEqualPolicy())
         private set
 
-    var gestureIsActive: Boolean by mutableStateOf(false)
-        private set
+    override var gestureIsActive: Boolean by mutableStateOf(false)
 
-    fun clearTrail() {
+    override fun clearTrail() {
         trailOverlayCanvas.drawRect(
             0f,
             0f,
@@ -66,20 +105,16 @@ class PointerTrailState(val density: State<Density>) {
         needRedraw = Unit
     }
 
-    fun forKey(keyPosition: Offset) = ForKey(this, keyPosition)
-    data class ForKey(val state: PointerTrailState, val keyPosition: Offset) {
-        fun onDown() {
-            state.clearTrail()
+    override fun forKey(keyPosition: Offset) = ForKey(this, keyPosition)
+    data class ForKey(override val state: BitmapPointerTrailState, val keyPosition: Offset) :
+        PointerTrailState.ForKey() {
+        override fun onDown() {
+            super.onDown()
             previousPoint = null
-            state.gestureIsActive = true
-        }
-
-        fun onUp() {
-            state.gestureIsActive = false
         }
 
         private var previousPoint: Offset? = null
-        fun addPoint(offsetRelativeToKey: Offset) {
+        override fun addPoint(offsetRelativeToKey: Offset) {
             val pos = offsetRelativeToKey + keyPosition
             val bitmap = state.trailOverlayBitmap
             val canvas = state.trailOverlayCanvas
@@ -112,7 +147,7 @@ class PointerTrailState(val density: State<Density>) {
             it.blendMode = BlendMode.Clear
         }
         private val FadePaint = Paint().also {
-            it.color = Color.Transparent.copy(alpha = 0.95f)
+            it.color = Color.Transparent.copy(alpha = FADE_PER_POINT)
             it.blendMode = BlendMode.Modulate
         }
         private val TrailPaint = Paint().also {
@@ -122,11 +157,65 @@ class PointerTrailState(val density: State<Density>) {
     }
 }
 
-@Composable
-fun rememberPointerTrailState(): PointerTrailState = run {
-    val density = rememberUpdatedState(LocalDensity.current)
-    remember { PointerTrailState(density) }
+/**
+ * [PointerTrailState] that buffers all points into a list,
+ * and is rendered from scratch every time.
+ */
+private class DeferredPointerTrailState : PointerTrailState() {
+    private val _points = ringBuffer<Offset>(POINTS_WORTH_KEEPING)
+
+    /**
+     * This is *mutable* and only replaced when the trail changes size.
+     * To be notified whenever the trail is modified,
+     * read (and discard the value of) [needRedraw].
+     */
+    val points: RingBuffer<Offset> = _points
+
+    /**
+     * Dummy-valued state that can be read to subscribe to redraw notifications.
+     */
+    var needRedraw by mutableStateOf(Unit, neverEqualPolicy())
+        private set
+
+    override var gestureIsActive: Boolean by mutableStateOf(false)
+
+    override fun clearTrail() {
+        _points.clear()
+        needRedraw = Unit
+    }
+
+    override fun forKey(keyPosition: Offset) = ForKey(this, keyPosition)
+    data class ForKey(override val state: DeferredPointerTrailState, val keyPosition: Offset) :
+        PointerTrailState.ForKey() {
+        override fun addPoint(offsetRelativeToKey: Offset) {
+            val pos = offsetRelativeToKey + keyPosition
+            state._points.push(pos)
+            state.needRedraw = Unit
+        }
+    }
+
+    companion object {
+        // Rough estimate of how many points are still visible before they've faded out completely
+        private val POINTS_WORTH_KEEPING = ceil(
+            log(
+                // Conservative estimate, assuming 8-bit alpha this means that the
+                // colour has faded completely into the background
+                1F / 256,
+                FADE_PER_POINT,
+            ),
+        ).toInt()
+    }
 }
+
+@Composable
+fun rememberPointerTrailState(): PointerTrailState =
+    when (localAppSetting(AppSettings.pointerTrailRenderer).value) {
+        PointerTrailRenderer.Deferred -> remember { DeferredPointerTrailState() }
+        PointerTrailRenderer.Eager -> {
+            val density = rememberUpdatedState(LocalDensity.current)
+            remember { BitmapPointerTrailState(density) }
+        }
+    }
 
 @Composable
 fun PointerTrail(modifier: Modifier, state: PointerTrailState) {
@@ -138,11 +227,48 @@ fun PointerTrail(modifier: Modifier, state: PointerTrailState) {
             state.clearTrail()
         }
     }
-    Canvas(
-        modifier.onSizeChanged { state.trailOverlayBitmap = ImageBitmap(it.width, it.height) },
-        stringResource(R.string.pointerTrail),
-    ) {
-        state.needRedraw
-        drawImage(state.trailOverlayBitmap, colorFilter = pointerTrailTint)
+    @Suppress("UnusedVariable", "unused", "LocalVariableName")
+    val _enforceExhaustive: Unit = when (state) {
+        is BitmapPointerTrailState ->
+            Canvas(
+                modifier.onSizeChanged {
+                    state.trailOverlayBitmap = ImageBitmap(it.width, it.height)
+                },
+                stringResource(R.string.pointerTrail),
+            ) {
+                state.needRedraw
+                drawImage(state.trailOverlayBitmap, colorFilter = pointerTrailTint)
+            }
+
+        is DeferredPointerTrailState -> {
+            val trailPaint = remember {
+                Paint().also {
+                    it.color = Color.Black
+                    it.strokeCap = StrokeCap.Round
+                    it.blendMode = BlendMode.Src
+                }
+            }
+            Canvas(
+                modifier.graphicsLayer(colorFilter = pointerTrailTint),
+                stringResource(R.string.pointerTrail),
+            ) {
+                trailPaint.strokeWidth = 10.dp.toPx()
+                state.needRedraw
+                drawIntoCanvas { canvas ->
+                    var previousPoint: Offset? = null
+                    var i = state.points.size
+                    state.points.forEach { pos ->
+                        i -= 1
+                        trailPaint.alpha = PointerTrailState.FADE_PER_POINT.pow(i)
+                        canvas.drawLine(
+                            paint = trailPaint,
+                            p1 = pos,
+                            p2 = previousPoint ?: pos,
+                        )
+                        previousPoint = pos
+                    }
+                }
+            }
+        }
     }
 }
