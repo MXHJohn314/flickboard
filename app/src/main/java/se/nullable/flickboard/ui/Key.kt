@@ -5,7 +5,6 @@ import android.gesture.GesturePoint
 import android.gesture.GestureStroke
 import android.os.Trace
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -14,37 +13,27 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.changedToDown
@@ -63,7 +52,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
 import se.nullable.flickboard.model.Action
 import se.nullable.flickboard.model.ActionTint
 import se.nullable.flickboard.model.ActionVisual
@@ -85,7 +73,6 @@ import se.nullable.flickboard.util.angle
 import se.nullable.flickboard.util.averageOf
 import se.nullable.flickboard.util.direction
 import se.nullable.flickboard.util.div
-import se.nullable.flickboard.util.times
 import kotlin.math.PI
 import kotlin.math.absoluteValue
 import kotlin.math.min
@@ -93,7 +80,6 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlin.math.sqrt
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun Key(
@@ -147,20 +133,7 @@ fun Key(
     val flicksMustBeLongerThanSeconds = settingsCtx[AppSettings.flicksMustBeLongerThanSeconds].state
     val keyboardTheme = LocalKeyboardTheme.current
     val currentKeyboardState = rememberUpdatedState(keyboardState)
-    var lastActionTaken: TakenAction? by remember { mutableStateOf(null, neverEqualPolicy()) }
-    var lastActionIsVisible by remember { mutableStateOf(false) }
-    val lastActionAlpha = animateFloatAsState(1F * lastActionIsVisible, label = "lastActionAlpha") {
-        if (!lastActionIsVisible) {
-            lastActionTaken = null
-        }
-    }
-    LaunchedEffect(lastActionTaken) {
-        lastActionIsVisible = lastActionTaken != null
-        if (lastActionTaken != null) {
-            delay(300.milliseconds)
-            lastActionIsVisible = false
-        }
-    }
+    val keyActionTakenState = remember { KeyActionTakenState() }
     val gestureLibrary = LocalDollar1GestureLibrary.current
     val onActionModifier = if (onAction != null) {
         val haptics = rememberUpdatedState(Haptics.get)
@@ -177,7 +150,8 @@ fun Key(
             }
             if (enableVisualFeedback) {
                 if (!action.isHiddenAction) {
-                    lastActionTaken = TakenAction(action, currentKeyboardState.value)
+                    keyActionTakenState.lastActionTaken =
+                        KeyActionTakenState.TakenAction(action, currentKeyboardState.value)
                 }
             }
             return onAction.onAction(action, key, gesture)
@@ -283,45 +257,13 @@ fun Key(
                 }
             }
         }
-        lastActionTaken?.let {
-            KeyActionTakenIndicator(
-                action = it.action,
-                keyboardState = it.keyboardState,
-                shape = shape,
-                colour = keyboardTheme.lastActionColour,
-                surfaceColour = keyboardTheme.lastActionSurfaceColour,
-                layoutTextDirection = layoutTextDirection,
-                modifier = Modifier.alpha(lastActionAlpha.value),
-            )
-        }
-    }
-}
-
-// NOT a data class, so that we get a new identity every time
-class TakenAction(val action: Action, val keyboardState: KeyboardState)
-
-@Composable
-fun KeyActionTakenIndicator(
-    action: Action,
-    keyboardState: KeyboardState,
-    shape: Shape,
-    colour: Color,
-    surfaceColour: Color,
-    layoutTextDirection: TextDirection,
-    modifier: Modifier = Modifier
-) {
-    Surface(color = surfaceColour, shape = shape, modifier = modifier) {
-        Box(Modifier.fillMaxSize()) {
-            RenderActionVisual(
-                action = action.withHidden(false),
-                keyboardState = keyboardState,
-                modifier = Modifier.align(Alignment.Center),
-                colour = colour,
-                activeColour = colour,
-                tint = ActionTint.Normal,
-                layoutTextDirection = layoutTextDirection,
-            )
-        }
+        KeyActionTakenIndicator(
+            state = keyActionTakenState,
+            shape = shape,
+            colour = keyboardTheme.lastActionColour,
+            surfaceColour = keyboardTheme.lastActionSurfaceColour,
+            layoutTextDirection = layoutTextDirection,
+        )
     }
 }
 
@@ -710,32 +652,3 @@ fun KeyPreview() {
     }
 }
 
-@Composable
-@Preview
-fun KeyActionTakenPreview() {
-    FlickBoardParent {
-        Column {
-            Box(Modifier.size(100.dp)) {
-                KeyActionTakenIndicator(
-                    action = Action.Text("A"),
-                    keyboardState = KeyboardState.ShowAll,
-                    colour = MaterialTheme.colorScheme.onTertiary,
-                    surfaceColour = MaterialTheme.colorScheme.tertiary,
-                    shape = RectangleShape,
-                    layoutTextDirection = TextDirection.LeftToRight,
-                )
-            }
-            Spacer(modifier = Modifier.size(10.dp))
-            Box(Modifier.size(100.dp)) {
-                KeyActionTakenIndicator(
-                    action = Action.Text("{"),
-                    keyboardState = KeyboardState.ShowAll,
-                    colour = MaterialTheme.colorScheme.onTertiary,
-                    surfaceColour = MaterialTheme.colorScheme.tertiary,
-                    shape = RectangleShape,
-                    layoutTextDirection = TextDirection.LeftToRight,
-                )
-            }
-        }
-    }
-}
