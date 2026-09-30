@@ -25,7 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,14 +36,12 @@ import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.changedToDown
@@ -299,31 +296,6 @@ fun Key(
 
 // NOT a data class, so that we get a new identity every time
 class TakenAction(val action: Action, val keyboardState: KeyboardState)
-
-@Composable
-fun KeyActionTakenIndicator(
-    action: Action,
-    keyboardState: KeyboardState,
-    shape: Shape,
-    colour: Color,
-    surfaceColour: Color,
-    layoutTextDirection: TextDirection,
-    modifier: Modifier = Modifier
-) {
-    Surface(color = surfaceColour, shape = shape, modifier = modifier) {
-        Box(Modifier.fillMaxSize()) {
-            RenderActionVisual(
-                action = action.withHidden(false),
-                keyboardState = keyboardState,
-                modifier = Modifier.align(Alignment.Center),
-                colour = colour,
-                activeColour = colour,
-                tint = ActionTint.Normal,
-                layoutTextDirection = layoutTextDirection,
-            )
-        }
-    }
-}
 
 @Composable
 fun RenderActionVisual(
