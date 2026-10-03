@@ -9,6 +9,7 @@ import android.util.JsonWriter
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.edit
@@ -127,19 +128,21 @@ class Setting<T>(
         @Composable
         get() = run {
             val collector = watch.collectAsState(initial = cachedValue)
-            object : ResettableState<T> {
-                override var value: T
-                    get() = collector.value
-                    set(value) {
-                        currentValue = value
+            remember(collector) {
+                object : ResettableState<T> {
+                    override var value: T
+                        get() = collector.value
+                        set(value) {
+                            currentValue = value
+                        }
+
+                    override fun resetToDefault() {
+                        this@Setting.resetToDefault()
                     }
 
-                override fun resetToDefault() {
-                    this@Setting.resetToDefault()
+                    override fun component1(): T = value
+                    override fun component2(): (T) -> Unit = { value = it }
                 }
-
-                override fun component1(): T = value
-                override fun component2(): (T) -> Unit = { value = it }
             }
         }
 }
