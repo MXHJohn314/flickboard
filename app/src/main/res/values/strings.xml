@@ -240,6 +240,7 @@
     <string name="letterLayerOption_danish">Danish (MessagEase)</string>
     <string name="letterLayerOption_english">English (MessagEase)</string>
     <string name="letterLayerOption_englishThumbKey">English (Thumb-Key)</string>
+    <string name="letterLayerOption_englishMedulla">English (Medulla)</string>
     <string name="letterLayerOption_esperanto">Esperanto (MessagEase)</string>
     <string name="letterLayerOption_french">French (MessagEase)</string>
     <string name="letterLayerOption_frenchExt">French (Extended MessagEase)</string>
@@ -279,6 +280,7 @@
     <string name="materialToneMode_midnight">Midnight</string>
 
     <string name="action_text">Type %1$s</string>
+    <string name="action_text_ctrl">Ctrl+%1$s</string>
     <string name="action_text_desc">Types the character %1$s into the active text field.</string>
     <string name="action_delete_backwardsCharacter">Backspace</string>
     <string name="action_delete_backwardsWord">Backspace (Word)</string>

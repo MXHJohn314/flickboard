@@ -14,6 +14,7 @@ import se.nullable.flickboard.model.layouts.EN_DE_MESSAGEASE
 import se.nullable.flickboard.model.layouts.EN_ES_MESSAGEASE
 import se.nullable.flickboard.model.layouts.EN_MESSAGEASE
 import se.nullable.flickboard.model.layouts.EN_RO_THUMBKEY
+import se.nullable.flickboard.model.layouts.EN_MEDULLA
 import se.nullable.flickboard.model.layouts.EN_THUMBKEY
 import se.nullable.flickboard.model.layouts.EO_MESSAGEASE
 import se.nullable.flickboard.model.layouts.ES_CA_MESSAGEASE
@@ -153,6 +154,7 @@ enum class LetterLayerOption(@param:StringRes override val label: Int, val layou
     Danish(R.string.letterLayerOption_danish, DA_MESSAGEASE),
     English(R.string.letterLayerOption_english, EN_MESSAGEASE),
     EnglishThumbKey(R.string.letterLayerOption_englishThumbKey, EN_THUMBKEY),
+    EnglishMedulla(R.string.letterLayerOption_englishMedulla, EN_MEDULLA),
     Esperanto(R.string.letterLayerOption_esperanto, EO_MESSAGEASE),
     French(R.string.letterLayerOption_french, FR_MESSAGEASE),
     FrenchExt(R.string.letterLayerOption_frenchExt, FR_EXT_MESSAGEASE),

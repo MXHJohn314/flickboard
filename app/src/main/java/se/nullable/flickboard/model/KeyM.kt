@@ -22,6 +22,10 @@ data class Layout(
     val miniSymbolLayer: Layer = MINI_NUMBERS_SYMBOLS_LAYER,
     val digits: String = "0123456789",
     val textDirection: TextDirection = TextDirection.LeftToRight,
+    // A self-contained layout places all of its own actions, including its controls, on its own grid.
+    // The shared overlays and number fallbacks are not merged into it (they are positioned for the
+    // 3x3 MessagEase grid), and the control section is only shown alongside other layers.
+    val selfContained: Boolean = false,
 )
 
 data class Layer(val keyRows: List<List<KeyM>>) {
@@ -170,6 +174,8 @@ sealed class Action {
         val visualOverride: ActionVisual? = null,
         val hidden: (KeyboardState) -> Boolean = { false },
         val actionClassOverride: ActionClass? = null,
+        // Sent as a raw key press with Ctrl held (e.g. Ctrl+Z for undo), whatever the modifiers are.
+        val ctrl: Boolean = false,
     ) : Action() {
         override fun visual(keyboardState: KeyboardState): ActionVisual = when {
             hidden(keyboardState) -> ActionVisual.None
@@ -184,7 +190,8 @@ sealed class Action {
             "\n" -> "newline"
             else -> character
         }
-        override val title: Translated = translated(R.string.action_text, characterName)
+        override val title: Translated =
+            if (ctrl) translated(R.string.action_text_ctrl, characterName.uppercase()) else translated(R.string.action_text, characterName)
         override val description: Translated = translated(R.string.action_text_desc, characterName)
 
         override val actionClass: ActionClass = actionClassOverride ?: when {

@@ -225,10 +225,11 @@ class InputSession(
                 text: String,
                 forceRawKeyEvent: Boolean = false,
                 forceShift: Boolean = false,
+                forceCtrl: Boolean = false,
             ) {
                 var char = text
                 val rawKeyCode = when {
-                    forceRawKeyEvent || activeModifiers.useRawKeyEvent -> char.singleOrNull()
+                    forceRawKeyEvent || forceCtrl || activeModifiers.useRawKeyEvent -> char.singleOrNull()
                         ?.let(keycodeMapper::keycodeForChar)
                         ?: KeyEvent.KEYCODE_UNKNOWN
 
@@ -243,6 +244,9 @@ class InputSession(
                                     KeyEvent.META_SHIFT_LEFT_ON,
                                 )
 
+                                else -> 0
+                            } or when {
+                                forceCtrl -> KeyEvent.normalizeMetaState(KeyEvent.META_CTRL_LEFT_ON)
                                 else -> 0
                             },
                         )
@@ -336,6 +340,7 @@ class InputSession(
                 is Action.Text -> typeText(
                     action.character,
                     forceRawKeyEvent = action.forceRawKeyEvent,
+                    forceCtrl = action.ctrl,
                 )
 
                 is Action.BeginFastAction -> {

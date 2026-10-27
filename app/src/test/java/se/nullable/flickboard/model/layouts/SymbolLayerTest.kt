@@ -190,7 +190,8 @@ class SymbolLayerTest {
             }
         }
 
-        LetterLayerOption.entries.forEach { letterLayer ->
+        // Self-contained layouts place their own symbols, and don't use the shared symbol layer
+        LetterLayerOption.entries.filterNot { it.layout.selfContained }.forEach { letterLayer ->
             MESSAGEASE_SYMBOLS_LAYER.keyRows.zip(letterLayer.layout.mainLayer.keyRows) { symbolRow, letterRow ->
                 symbolRow.zip(letterRow) { symbolKey, letterKey ->
                     assertKeyNoOverlap(letterLayer, symbolKey, letterKey)

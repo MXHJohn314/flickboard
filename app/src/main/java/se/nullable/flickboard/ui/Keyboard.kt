@@ -151,6 +151,18 @@ fun Keyboard(
         }
 
     fun letterLayerByShiftState(layout: Layout): Map<ShiftState, Layer> {
+        if (layout.selfContained) {
+            return mapOf(
+                ShiftState.Normal to layout.mainLayer.setShift(layout.shiftLayer),
+                ShiftState.Shift to layout.shiftLayer,
+                ShiftState.CapsLock to layout.shiftLayer,
+            ).mapValues {
+                it.value.filterActions(
+                    shownActionClasses = shownActionClasses.value,
+                    enableHiddenActions = enableHiddenActions.value,
+                )
+            }
+        }
         val overlay = overlayMessageaseLayer(layout.locale)
             .mergeOverlay(
                 OVERLAY_ADVANCED_MODIFIERS_MESSAGEASE_LAYER
@@ -262,9 +274,13 @@ fun Keyboard(
         val layer by remember {
             derivedStateOf {
                 val activeLayer = layersByShiftState.value[modifierState.shift]!!
-                val activeControlLayer = when (modifierState.shift) {
-                    ShiftState.Shift -> controlLayer.value?.autoShift(layoutState.value.locale)
-                    ShiftState.Normal, ShiftState.CapsLock -> controlLayer.value
+                val activeControlLayer = when {
+                    // Self-contained layouts carry their own controls
+                    layoutState.value.selfContained && enabledLayers.value == EnabledLayers.Letters -> null
+                    else -> when (modifierState.shift) {
+                        ShiftState.Shift -> controlLayer.value?.autoShift(layoutState.value.locale)
+                        ShiftState.Normal, ShiftState.CapsLock -> controlLayer.value
+                    }
                 }
                 val controlSection = when {
                     isLandscape.value -> landscapeControlSection.value
