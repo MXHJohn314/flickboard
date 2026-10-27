@@ -18,6 +18,10 @@ data class Layout(
     val miniSymbolLayer: Layer = MINI_NUMBERS_SYMBOLS_LAYER,
     val digits: String = "0123456789",
     val textDirection: TextDirection = TextDirection.LeftToRight,
+    // A self-contained layout places all of its own actions, including its controls, on its own grid.
+    // The shared overlays and number fallbacks are not merged into it (they are positioned for the
+    // 3x3 MessagEase grid), and the control section is only shown alongside other layers.
+    val selfContained: Boolean = false,
 )
 
 data class Layer(val keyRows: List<List<KeyM>>) {
@@ -53,6 +57,8 @@ data class Layer(val keyRows: List<List<KeyM>>) {
         copy(keyRows = keyRows.map { row -> row.map { key -> f(key) } })
 
     fun flipBrackets(): Layer = mapKeys { it.flipBrackets() }
+
+    fun releasingCapsLock(): Layer = mapKeys { it.releasingCapsLock() }
 
     fun autoShift(locale: Locale): Layer =
         mapKeys { it.autoShift(locale) }
@@ -117,6 +123,16 @@ data class KeyM(
                 }
             }.toMap(),
         )
+
+    // Replaces each Caps Lock toggle with a release, so that the same gesture turns Caps Lock off again.
+    fun releasingCapsLock(): KeyM = copy(
+        actions = actions.mapValues {
+            when (it.value) {
+                Action.ToggleShift(ShiftState.CapsLock) -> Action.ToggleShift(ShiftState.Normal)
+                else -> it.value
+            }
+        },
+    )
 
     fun flipBrackets(): KeyM = copy(
         actions = actions.mapValues {

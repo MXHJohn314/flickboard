@@ -182,11 +182,16 @@ class SymbolLayerTest {
                 }
             }
             if (symbolKey.shift != null) {
-                assertKeyNoOverlap(letterLayer, symbolKey.autoShift(), letterKey.autoShift())
+                assertKeyNoOverlap(
+                    letterLayer,
+                    symbolKey.autoShift(letterLayer.layout.locale),
+                    letterKey.autoShift(letterLayer.layout.locale),
+                )
             }
         }
 
-        LetterLayerOption.entries.forEach { letterLayer ->
+        // Self-contained layouts place their own symbols, and don't use the shared symbol layer
+        LetterLayerOption.entries.filterNot { it.layout.selfContained }.forEach { letterLayer ->
             MESSAGEASE_SYMBOLS_LAYER.keyRows.zip(letterLayer.layout.mainLayer.keyRows) { symbolRow, letterRow ->
                 symbolRow.zip(letterRow) { symbolKey, letterKey ->
                     assertKeyNoOverlap(letterLayer, symbolKey, letterKey)
