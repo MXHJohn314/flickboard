@@ -24,14 +24,16 @@ val EN_MEDULLA_MAIN_LAYER = Layer(
         listOf(
             KeyM(
                 actions = mapOf(
-                    Direction.TOP_LEFT to Action.Escape,
+                    Direction.CENTER to Action.ToggleActiveLayer,
                 ),
-                holdAction = Action.Settings,
             ),
             KeyM(
                 actions = mapOf(
-                    Direction.CENTER to Action.ToggleActiveLayer,
+                    // A second Backspace: its tap was empty.
+                    Direction.CENTER to Action.Delete(),
+                    Direction.TOP_LEFT to Action.Escape,
                 ),
+                holdAction = Action.Settings,
             ),
             KeyM(
                 actions = mapOf(
@@ -62,6 +64,8 @@ val EN_MEDULLA_MAIN_LAYER = Layer(
             KeyM(
                 actions = mapOf(
                     Direction.CENTER to Action.Text("i"),
+                    // Go, as GridKeys puts it when its toolbar is hidden.
+                    Direction.BOTTOM to Action.Enter(),
                     Direction.TOP_LEFT to Action.Text("["),
                     Direction.TOP to Action.Text("("),
                     Direction.TOP_RIGHT to Action.Text("{"),
@@ -76,6 +80,8 @@ val EN_MEDULLA_MAIN_LAYER = Layer(
             KeyM(
                 actions = mapOf(
                     Direction.CENTER to Action.Text("a"),
+                    // 123, as GridKeys puts it when its toolbar is hidden.
+                    Direction.RIGHT to Action.ToggleActiveLayer,
                     Direction.TOP_LEFT to Action.Text("'"),
                     Direction.TOP to Action.Text("!"),
                     Direction.TOP_RIGHT to Action.Text("/"),
@@ -94,6 +100,8 @@ val EN_MEDULLA_MAIN_LAYER = Layer(
             KeyM(
                 actions = mapOf(
                     Direction.CENTER to Action.Text("n"),
+                    // 123, as GridKeys puts it when its toolbar is hidden.
+                    Direction.LEFT to Action.ToggleActiveLayer,
                     Direction.TOP_LEFT to Action.Text("\\"),
                     Direction.TOP to Action.Text("?"),
                     Direction.TOP_RIGHT to Action.Text("\""),
