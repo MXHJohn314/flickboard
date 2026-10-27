@@ -80,8 +80,6 @@ val EN_MEDULLA_MAIN_LAYER = Layer(
             KeyM(
                 actions = mapOf(
                     Direction.CENTER to Action.Text("a"),
-                    // 123, as GridKeys puts it when its toolbar is hidden.
-                    Direction.RIGHT to Action.ToggleActiveLayer,
                     Direction.TOP_LEFT to Action.Text("'"),
                     Direction.TOP to Action.Text("!"),
                     Direction.TOP_RIGHT to Action.Text("/"),
@@ -100,8 +98,6 @@ val EN_MEDULLA_MAIN_LAYER = Layer(
             KeyM(
                 actions = mapOf(
                     Direction.CENTER to Action.Text("n"),
-                    // 123, as GridKeys puts it when its toolbar is hidden.
-                    Direction.LEFT to Action.ToggleActiveLayer,
                     Direction.TOP_LEFT to Action.Text("\\"),
                     Direction.TOP to Action.Text("?"),
                     Direction.TOP_RIGHT to Action.Text("\""),
