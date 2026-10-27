@@ -157,6 +157,8 @@ sealed class Action {
         val forceRawKeyEvent: Boolean = false,
         val visualOverride: ActionVisual? = null,
         val hidden: Boolean = false,
+        // Sent as a raw key press with Ctrl held (e.g. Ctrl+Z for undo), whatever the modifiers are.
+        val ctrl: Boolean = false,
     ) : Action() {
         override fun visual(modifier: ModifierState?): ActionVisual =
             when {
@@ -172,7 +174,7 @@ sealed class Action {
             "\n" -> "newline"
             else -> character
         }
-        override val title: String = "Type $characterName"
+        override val title: String = if (ctrl) "Ctrl+${characterName.uppercase()}" else "Type $characterName"
         override val description: String =
             "Types the character $characterName into the active text field."
 

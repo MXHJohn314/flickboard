@@ -151,6 +151,9 @@ val EN_MEDULLA_MAIN_LAYER = Layer(
             KeyM(
                 actions = mapOf(
                     Direction.CENTER to Action.Text("t"),
+                    // Undo and Redo (Ctrl+Z, Ctrl+Y), as GridKeys puts them when its toolbar is hidden.
+                    Direction.LEFT to Action.Text("z", ctrl = true, visualOverride = ActionVisual.Label("↶")),
+                    Direction.RIGHT to Action.Text("y", ctrl = true, visualOverride = ActionVisual.Label("↷")),
                     Direction.TOP to Action.ToggleShift(ShiftState.Shift),
                     Direction.TOP_RIGHT to Action.Text("~"),
                     Direction.BOTTOM to Action.ToggleShift(ShiftState.Normal),
