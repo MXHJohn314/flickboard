@@ -117,7 +117,6 @@ val EN_MEDULLA_MAIN_LAYER = Layer(
                     Direction.TOP_RIGHT to Action.Text("]"),
                     Direction.RIGHT to Action.Delete(direction = SearchDirection.Forwards),
                     Direction.BOTTOM_LEFT to Action.Text("b"),
-                    Direction.BOTTOM to Action.Text("|"),
                 ),
                 transientShift = KeyM(
                     actions = mapOf(
@@ -146,6 +145,7 @@ val EN_MEDULLA_MAIN_LAYER = Layer(
                     Direction.CENTER to Action.Text("t"),
                     Direction.TOP to Action.ToggleShift(ShiftState.Shift),
                     Direction.TOP_RIGHT to Action.Text("~"),
+                    Direction.BOTTOM to Action.ToggleShift(ShiftState.Normal),
                     Direction.BOTTOM_LEFT to Action.Text("<"),
                     Direction.BOTTOM_RIGHT to Action.Text("_"),
                 ),
@@ -189,8 +189,10 @@ val EN_MEDULLA_MAIN_LAYER = Layer(
                         visualOverride = ActionVisual.Icon(R.drawable.baseline_keyboard_tab_24),
                     ),
                     Direction.RIGHT to Action.Text("`"),
+                    Direction.BOTTOM to Action.ToggleShift(ShiftState.Normal),
                     Direction.BOTTOM_LEFT to Action.Text("*"),
                     Direction.BOTTOM_RIGHT to Action.Text(">"),
+                    Direction.LEFT to Action.Text("|"),
                 ),
                 transientShift = KeyM(
                     actions = mapOf(

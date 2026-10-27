@@ -143,7 +143,7 @@ fun Keyboard(
             return mapOf(
                 ShiftState.Normal to layout.mainLayer.setShift(layout.shiftLayer),
                 ShiftState.Shift to layout.shiftLayer,
-                ShiftState.CapsLock to layout.shiftLayer.releasingCapsLock(),
+                ShiftState.CapsLock to layout.shiftLayer,
             ).mapValues {
                 it.value.filterActions(
                     shownActionClasses = shownActionClasses.value,
