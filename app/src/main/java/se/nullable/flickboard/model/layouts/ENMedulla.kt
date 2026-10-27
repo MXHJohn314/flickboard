@@ -25,7 +25,7 @@ val EN_MEDULLA_MAIN_LAYER = Layer(
         listOf(
             KeyM(
                 actions = mapOf(
-                    Direction.CENTER to Action.ToggleActiveLayer,
+                    Direction.CENTER to Action.ToggleNumbersLayer,
                 ),
             ),
             KeyM(
